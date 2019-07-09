@@ -130,7 +130,8 @@ typedef struct{
 	uint16_t arrTemp;
 	uint16_t pscTemp;			
 	uint8_t etrp;		// TIM2 ETRP
-	uint32_t buffer;	
+	uint32_t buffer;
+	uint32_t refBuffer;
 	uint16_t gateTime;	
 	double freq;
 }counterEtrTypeDef;
@@ -149,7 +150,7 @@ typedef struct{
 	volatile uint32_t ic1buffer[IC12_BUFFER_SIZE];
 	volatile uint32_t ic2buffer[IC12_BUFFER_SIZE];	
 	double ic1freq;
-	double ic2freq;	
+	double ic2freq;
 	uint8_t ic1psc;
 	uint8_t ic2psc;
 	uint8_t ic1pscTemp;
@@ -239,6 +240,7 @@ void counterSetTiMode_Dependent(void);
 /* REF mode functions */
 void counterSetRefPsc(uint16_t psc);
 void counterSetRefArr(uint16_t arr);
+void counterSetRefSampleCount(uint32_t sampleCount);
 
 void COUNTER_IC_TIM_Elapse(void);
 void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim);

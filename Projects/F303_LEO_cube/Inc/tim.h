@@ -45,8 +45,8 @@
 /** @addtogroup Timers
   * @{
   */
-	 
-uint8_t TIM_Reconfig(uint32_t samplingFreq,TIM_HandleTypeDef* htim_base,uint32_t* realFreq);
+
+uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 
 /** @addtogroup Scope
   * @{
@@ -268,6 +268,8 @@ void TIM_IC_DutyCycle_Deinit(void);
 void TIM_IC_DutyCycleDmaRestart(void);
 
 void TIM_REF_SecondInputDisable(void);
+void TIM_REF_Reconfig_cnt(uint32_t sampleCount);
+
 void TIM_TI_Clear(void);
 
 uint8_t TIM_ETPS_GetPrescaler(void);

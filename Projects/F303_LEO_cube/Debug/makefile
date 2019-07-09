@@ -46,8 +46,8 @@ F303RE_LEO_cube.bin \
 all: F303RE_LEO_cube.elf secondary-outputs
 
 # Tool invocations
-F303RE_LEO_cube.elf: $(OBJS) $(USER_OBJS) D:\GitHub\LEO_cube\Projects\F303_LEO_cube\STM32F303RETX_FLASH.ld
-	arm-none-eabi-gcc -o "F303RE_LEO_cube.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\GitHub\LEO_cube\Projects\F303_LEO_cube\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F303RE_LEO_cube.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+F303RE_LEO_cube.elf: $(OBJS) $(USER_OBJS) C:\Users\Maeval\Documents\GitHub_CubeIDE\LEO_cube\Projects\F303_LEO_cube\STM32F303RETX_FLASH.ld
+	arm-none-eabi-gcc -o "F303RE_LEO_cube.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Maeval\Documents\GitHub_CubeIDE\LEO_cube\Projects\F303_LEO_cube\STM32F303RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="F303RE_LEO_cube.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

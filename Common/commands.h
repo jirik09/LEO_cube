@@ -58,7 +58,9 @@ typedef uint32_t command;
 #define SWAP_UINT32(x) ( (x&0xff000000)>>24 | (x&0x00ff0000)>>8 | (x&0x0000ff00)<<8 | (x&0x000000ff)<<24 )
 
 
-//#define REGISTER_CMD(name,value) CMD_##name=(int)BUILD_CMD(STRINGIFY(value))
+#define REGISTER_CMD(name,value) CMD_##name=(int)BUILD_CMD(STRINGIFY(value))
+
+//typedef const char commandi[4];
 
 //Command definitions
 //Common commands
@@ -145,6 +147,7 @@ typedef uint32_t command;
 #define CMD_CNT_TI_MODE 						SWAP_UINT32(0x54494d44)
 #define CMD_CNT_MULT_PSC 						SWAP_UINT32(0x5053435f)
 #define CMD_CNT_MULT_ARR 						SWAP_UINT32(0x4152525f)
+#define CMD_CNT_REF_SAMPLE_COUNT 				SWAP_UINT32(0x5253435f)
 #define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)
 #define CMD_MODE_IC 						SWAP_UINT32(0x49435f5f)
 #define CMD_MODE_REF 						SWAP_UINT32(0x5245465f)

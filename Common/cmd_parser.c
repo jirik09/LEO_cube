@@ -369,7 +369,7 @@ command parseCounterCmd(void)
 		case CMD_CNT_MULT_PSC:		
 			cmdIn = giveNextCmd();	
 			if(cmdIn != CMD_END && cmdIn != CMD_ERR){				
-				counterSetRefPsc((uint16_t)cmdIn);
+			//	counterSetRefPsc((uint16_t)cmdIn);
 			}else{
 				cmdIn = CMD_ERR;
 				error = COUNTER_INVALID_FEATURE_PARAM;
@@ -378,12 +378,22 @@ command parseCounterCmd(void)
 		case CMD_CNT_MULT_ARR:		
 			cmdIn = giveNextCmd();	
 			if(cmdIn != CMD_END && cmdIn != CMD_ERR){				
-				counterSetRefArr((uint16_t)cmdIn);
+			//	counterSetRefArr((uint16_t)cmdIn);
+
 			}else{
 				cmdIn = CMD_ERR;
 				error = COUNTER_INVALID_FEATURE_PARAM;
 			}				
 			break;	
+		case CMD_CNT_REF_SAMPLE_COUNT:
+			cmdIn = giveNextCmd();
+			if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+				counterSetRefSampleCount((uint32_t)cmdIn);
+			}else{
+				cmdIn = CMD_ERR;
+				error = COUNTER_INVALID_FEATURE_PARAM;
+			}
+			break;
 		/* TI set timout */
 		case CMD_CNT_TIMEOUT_TIM:		
 			cmdIn = giveNextCmd();	

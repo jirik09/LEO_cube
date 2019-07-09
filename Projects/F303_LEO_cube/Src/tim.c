@@ -596,7 +596,7 @@ static void MX_TIM4_Init(void)
 
   htim4.Instance = TIM4;
 	if(counter.state == COUNTER_REF){
-		/* REF mode - 36B samples (60000 * 60000) */
+		/* REF mode - 3.6B samples (60000 * 60000) */
 		htim4.Init.Prescaler = 59999;		
 		htim4.Init.Period = 59999;								
 	}else if(counter.state == COUNTER_ETR){
@@ -899,7 +899,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     hdma_tim8_ch3_up.Init.Mode = DMA_CIRCULAR;
     hdma_tim8_ch3_up.Init.Priority = DMA_PRIORITY_HIGH;
     HAL_DMA_Init(&hdma_tim8_ch3_up);
-		TIM8->DIER |= TIM_DIER_CC3DE;
+		TIM8->DIER |= TIM_DIER_CC3DE;  //__HAL_TIM_ENABLE_DMA(htim_base, TIM_DMA_CC3);
 
     __HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_CC3],hdma_tim8_ch3_up);
 		//__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim8_ch3_up);
@@ -962,7 +962,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /* Peripheral clock enable */
     __HAL_RCC_TIM4_CLK_ENABLE();
 		
-		__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_UPDATE);
 
     /* TIM4 interrupt Init */
     HAL_NVIC_SetPriority(TIM4_IRQn, 9, 0);
@@ -1273,7 +1273,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
 /* USER CODE BEGIN 1 */
 #ifdef USE_SCOPE
 uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq){
-	return TIM_Reconfig(samplingFreq,&htim_scope,realFreq);
+	uint32_t periphClock = HAL_RCC_GetHCLKFreq();
+	return TIM_Reconfig(&htim_scope,periphClock,samplingFreq,realFreq, true);
 }
 #endif //USE_SCOPE
 
@@ -1316,10 +1317,11 @@ uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes){
   * @retval status
   */	
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
+	uint32_t periphClock = HAL_RCC_GetPCLK1Freq();
 	if(chan==0){
-		return TIM_Reconfig(samplingFreq,&htim6,realFreq);
+		return TIM_Reconfig(&htim6,periphClock,samplingFreq,realFreq,true);
 	}else if(chan==1){
-		return TIM_Reconfig(samplingFreq,&htim7,realFreq);
+		return TIM_Reconfig(&htim7,periphClock,samplingFreq,realFreq,true);
 	}else{
 		return 0;
 	}
@@ -2060,7 +2062,7 @@ void GPIO_EnableTrigger(void)
   */
 /**
 	* @brief  Period of gate time elapsed callback.
-	* @note		TIM4 ISR called whenever gate time elapses.
+	* @note	  TIM4 ISR called whenever gate time elapses.
 	* @params htim:	TIM handler
   * @retval None 
   */
@@ -2092,10 +2094,10 @@ void TIM_counter_etr_init(void){
 	htim4.State = HAL_TIM_STATE_RESET;
 	htim2.State = HAL_TIM_STATE_RESET;	
 	
-	TIM_doubleClockVal();	
+	TIM_doubleClockVal();
 	MX_TIM4_Init();	
-	MX_TIM2_ETRorREF_Init();	
-	tim4clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34); 	
+	MX_TIM2_ETRorREF_Init();
+	tim4clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
 }
 
 /**
@@ -2133,7 +2135,7 @@ void TIM_counter_ic_init(void){
 	htim4.State = HAL_TIM_STATE_RESET;
 	htim2.State = HAL_TIM_STATE_RESET;	
 	
-	TIM_doubleClockVal();	
+	TIM_doubleClockVal();
 	MX_TIM4_Init();
 	MX_TIM2_ICorTI_Init();
 }
@@ -2157,7 +2159,7 @@ void TIM_counter_ti_init(void){
 	htim4.State = HAL_TIM_STATE_RESET;
 	htim2.State = HAL_TIM_STATE_RESET;		
 	
-	TIM_doubleClockVal();	
+	TIM_doubleClockVal();
 	MX_TIM4_Init();	
 	MX_TIM2_ICorTI_Init();
 	TIM_TI_Init();
@@ -2255,13 +2257,13 @@ void TIM_Counter_Deinit(void){
 void TIM_ETR_Start(void)
 {		
 	HAL_TIM_Base_Start(&htim2);			
-	HAL_TIM_Base_Start(&htim4);	
+	HAL_TIM_Base_Start(&htim4);
 	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&(TIM2->CCR1), (uint32_t)&counter.counterEtr.buffer, 1);
 	
 	/* DMA requests enable */
 	TIM2->DIER |= TIM_DIER_CC1DE;		
 	TIM2->CCER |= TIM_CCER_CC1E;
-	TIM4->EGR |= TIM_EGR_UG;	
+	TIM4->EGR |= TIM_EGR_UG;
 	
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 }
@@ -2941,6 +2943,22 @@ void TIM_REF_SecondInputDisable(void){
 	TIM4->CR1 &= ~TIM_CR1_CEN;
 }
 
+void TIM_REF_Reconfig_cnt(uint32_t sampleCount){
+	HAL_TIM_Base_Stop(&htim4);
+	HAL_TIM_Base_Stop(&htim2);
+
+	uint32_t periphClock = HAL_RCC_GetPCLK1Freq();  // TIM4 periph clock
+	uint32_t dummy;
+
+	TIM_Reconfig(&htim4,periphClock,sampleCount,&dummy,false);
+	xStartTime = xTaskGetTickCount();
+	HAL_TIM_Base_Start(&htim4);
+	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
+	TIM4->EGR |= TIM_EGR_UG;
+
+	HAL_TIM_Base_Start(&htim2);
+}
+
 /**
 	* @brief  Function getting ETRP (external trigger source prescaler) value of TIM2. 
 	* @params none
@@ -3049,72 +3067,82 @@ void DMA_Restart(DMA_HandleTypeDef *dmah)
   */
 /**             
   * @brief  Common Timer reconfiguration function.
-  * @param  None
+  * @param  isFreqPassed: tell whether a required frequency is passed
+  * 						or whether (ARR*PSC) is passed to samplingFreq parameter
   * @retval None
   */	
-uint8_t TIM_Reconfig(uint32_t samplingFreq,TIM_HandleTypeDef* htim_base,uint32_t* realFreq){
-	
+
+uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
+		uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed) {
+
 	int32_t clkDiv;
 	uint16_t prescaler;
 	uint16_t autoReloadReg;
 	uint32_t errMinRatio = 0;
 	uint8_t result = UNKNOW_ERROR;
-	
-	clkDiv = ((2*HAL_RCC_GetPCLK2Freq() / samplingFreq)+1)/2; //to minimize rounding error
-	
-	if(clkDiv == 0){ //error
+
+	if (isFreqPassed == true) {
+		clkDiv = ((2 * periphClock / samplingFreq) + 1) / 2; //to minimize rounding error
+	} else {
+		clkDiv = samplingFreq;
+	}
+
+	if (clkDiv == 0) { //error
 		result = GEN_FREQ_MISMATCH;
-	}else if(clkDiv <= 0x0FFFF){ //Sampling frequency is high enough so no prescaler needed
+	} else if (clkDiv <= 0x0FFFF) { //Sampling frequency is high enough so no prescaler needed
 		prescaler = 0;
 		autoReloadReg = clkDiv - 1;
 		result = 0;
-	}else{	// finding prescaler and autoReload value
+	} else {	// finding prescaler and autoReload value
 		uint32_t errVal = 0xFFFFFFFF;
 		uint32_t errMin = 0xFFFFFFFF;
-		uint16_t ratio = clkDiv>>16; 
+		uint16_t ratio = clkDiv >> 16;
 		uint16_t div;
-		
-		while(errVal != 0){
-			ratio++;
-			div = clkDiv/ratio;
-			errVal = clkDiv - (div*ratio);
 
-			if(errVal < errMin){
+		while (errVal != 0) {
+			ratio++;
+			div = clkDiv / ratio;
+			errVal = clkDiv - (div * ratio);
+
+			if (errVal < errMin) {
 				errMin = errVal;
 				errMinRatio = ratio;
 			}
-		
-			if(ratio == 0xFFFF){ //exact combination wasnt found. we use best found
-				div = clkDiv/errMinRatio;
+
+			if (ratio == 0xFFFF) { //exact combination wasnt found. we use best found
+				div = clkDiv / errMinRatio;
 				ratio = errMinRatio;
 				break;
-			}			
+			}
 		}
 
-		if(ratio > div){
+		if (ratio > div) {
 			prescaler = div - 1;
-			autoReloadReg = ratio - 1;		
-		}else{
+			autoReloadReg = ratio - 1;
+		} else {
 			prescaler = ratio - 1;
 			autoReloadReg = div - 1;
-		}	
+		}
 
-		if(errVal){
+		if (errVal) {
 			result = GEN_FREQ_IS_INACCURATE;
-		}else{
+		} else {
 			result = 0;
 		}
 	}
-	if(realFreq!=0){
-		*realFreq=HAL_RCC_GetPCLK2Freq()/((prescaler+1)*(autoReloadReg+1));
-//		if(*realFreq>MAX_SAMPLING_FREQ && autoReloadReg<0xffff){
-//			autoReloadReg++;
-//			*realFreq=HAL_RCC_GetPCLK2Freq()/((prescaler+1)*(autoReloadReg+1));
-//		}
+
+	if (realFreq != 0) {
+		*realFreq = periphClock / ((prescaler + 1) * (autoReloadReg + 1));
+		//		if(*realFreq>MAX_SAMPLING_FREQ && autoReloadReg<0xffff){
+		//			autoReloadReg++;
+		//			*realFreq=HAL_RCC_GetPCLK2Freq()/((prescaler+1)*(autoReloadReg+1));
+		//		}
 	}
+
 	htim_base->Init.Period = autoReloadReg;
-  htim_base->Init.Prescaler = prescaler;
-  HAL_TIM_Base_Init(htim_base);
+	htim_base->Init.Prescaler = prescaler;
+	HAL_TIM_Base_Init(htim_base);
+
 	return result;
 
 }

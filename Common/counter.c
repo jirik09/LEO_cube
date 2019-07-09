@@ -25,7 +25,7 @@
   * @{
   */
 xQueueHandle counterMessageQueue;
-xSemaphoreHandle counterMutex;
+xSemaphoreHandle counterMutex; //counterBinSemaphore
 portTickType xStartTime;
 
 volatile counterTypeDef counter;
@@ -49,7 +49,8 @@ static uint32_t ic2PassNum = 1;
 void CounterTask(void const *argument)
 {
 	counterMessageQueue = xQueueCreate(5, 20);  // xQueueCreate(5, sizeof(double)); e.g.
-	counterMutex = xSemaphoreCreateRecursiveMutex();	
+	counterMutex = xSemaphoreCreateRecursiveMutex();
+	//counterBinSemaphore = xSemaphoreCreateBinary();
 	
 	if(counterMessageQueue == 0){
 		while(1); // Queue was not created and must not be used.
@@ -279,7 +280,7 @@ void counterStop(void){
 
 /**
   * @brief  Setter for time gating of direct counting (ETR).
-	* @param  gateTime: 100, 500, 1000, 5000, 10000 in milliseconds
+  * @param  gateTime: 100, 500, 1000, 5000, 10000 in milliseconds
   * @retval None
   */
 void counterSetEtrGate(uint16_t gateTime){
@@ -287,27 +288,32 @@ void counterSetEtrGate(uint16_t gateTime){
 	xQueueSendToBack(counterMessageQueue, "8SetEtrGate", portMAX_DELAY);
 }
 
-/**
-  * @brief  Setter for measuring with reference (REF). The PSC and REF numbers to be multiplied (number of REF clock ticks to be counted).
-						Note that REF mode uses ETR struct, some ETR functions...
-	* @param  psc: 16-bit value for timer PSC register.
-  * @retval None
-  */
-void counterSetRefPsc(uint16_t psc){	
-	counter.counterEtr.psc = psc - 1;
-	TIM_ARR_PSC_Config(counter.counterEtr.arr, counter.counterEtr.psc);		
+counterSetRefSampleCount(uint32_t sampleCount){
+	counter.counterEtr.refBuffer = sampleCount;
+	TIM_REF_Reconfig_cnt(sampleCount);
 }
 
-/**
-  * @brief  Setter for measuring with reference (REF).
-						Note that REF mode uses ETR struct, some ETR functions...
-	* @param  psc: 16-bit value for timer ARR register.
-  * @retval None
-  */
-void counterSetRefArr(uint16_t arr){		
-	counter.counterEtr.arr = arr - 1;
-	TIM_ARR_PSC_Config(counter.counterEtr.arr, counter.counterEtr.psc);			
-}
+///**
+//  * @brief  Setter for measuring with reference (REF). The PSC and ARR numbers to be multiplied (number of REF clock ticks to be counted).
+//						Note that REF mode uses ETR struct, some ETR functions...
+//	* @param  psc: 16-bit value for timer PSC register.
+//  * @retval None
+//  */
+//void counterSetRefPsc(uint16_t psc){
+//	counter.counterEtr.psc = psc - 1;
+//	TIM_ARR_PSC_Config(counter.counterEtr.arr, counter.counterEtr.psc);
+//}
+//
+///**
+//  * @brief  Setter for measuring with reference (REF).
+//						Note that REF mode uses ETR struct, some ETR functions...
+//	* @param  psc: 16-bit value for timer ARR register.
+//  * @retval None
+//  */
+//void counterSetRefArr(uint16_t arr){
+//	counter.counterEtr.arr = arr - 1;
+//	TIM_ARR_PSC_Config(counter.counterEtr.arr, counter.counterEtr.psc);
+//}
 
 /**
   * @brief  Setter for counter IC buffer size (number of edges counted) on channel 1.
@@ -327,10 +333,10 @@ void counterSetIc1SampleCount(uint16_t buffer){
   * @retval None
   */
 void counterSetIc2SampleCount(uint16_t buffer){
-	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);	
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
 	counter.counterIc.ic2BufferSize = buffer + 1;	
 	DMA_Restart(&hdma_tim2_ch2_ch4);	
-	xSemaphoreGiveRecursive(counterMutex);		
+	xSemaphoreGiveRecursive(counterMutex);
 }
 
 /**
@@ -525,7 +531,7 @@ void counterSetTiTimeout(uint32_t timeout){
 /* ************************************************************************************** */
 /**
   * @brief  This function is executed in case of DMA transfer complete event of direct (ETR) or reference (REF) mode.
-	*					The DMA transfer complete event is triggered after TIM4 gate time elapses.
+  * 		The DMA transfer complete event is triggered after TIM4 gate time elapses.
   * @param  Pointer to DMA handle structure.
   * @retval None
   * @state  VERY USED
@@ -533,12 +539,11 @@ void counterSetTiTimeout(uint32_t timeout){
 void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 {			
 	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
 	
 	/***** Counter ETR handle *****/
 	if(counter.state == COUNTER_ETR){			
 		counter.counterEtr.etrp = TIM_ETPS_GetPrescaler();
-		double gateFreq = ((double)tim4clk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */	
+		float gateFreq = ((double)tim4clk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */
 		counter.counterEtr.freq = ((double)counter.counterEtr.buffer * gateFreq * counter.counterEtr.etrp);								/* Sampled frequency */
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);	
@@ -547,21 +552,20 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 			xQueueSendToBackFromISR(messageQueue, "GEtrDataSend", &xHigherPriorityTaskWoken);
 		}else{
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
-		}		
+		}
 		
 	/***** Counter REF handle *****/
 	}else if(counter.state == COUNTER_REF){		
 		if((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 100){
 			xQueueSendToBackFromISR(messageQueue, "ORefWarning", &xHigherPriorityTaskWoken);
 			TIM_REF_SecondInputDisable();					
-		}else if(counter.sampleCntChange != SAMPLE_COUNT_CHANGED){	
+		}else if(counter.sampleCntChange != SAMPLE_COUNT_CHANGED && counter.counterEtr.buffer!=0){
+			counter.counterEtr.freq = counter.counterEtr.refBuffer / (double)counter.counterEtr.buffer;
 			xQueueSendToBackFromISR(messageQueue, "GRefDataSend", &xHigherPriorityTaskWoken);			
 		}else{
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
 		}				
 	}
-	
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);
 }
 
 /**
@@ -599,7 +603,6 @@ void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void counterIcProcess(void)
 {	
 	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);	
 	
 	if(counter.bin != BIN0){
 		/* BINx is used to alternate data sending from IC1 and IC2. Thanks to DMA_TransferComplete function
@@ -611,7 +614,7 @@ void counterIcProcess(void)
 
 			counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();			
 			uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize-1] - counter.counterIc.ic1buffer[0];
-			counter.counterIc.ic1freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);				
+			counter.counterIc.ic1freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
 			
 			DMA_Restart(&hdma_tim2_ch1);
 			counter.icChannel1 = COUNTER_IRQ_IC;
@@ -626,15 +629,13 @@ void counterIcProcess(void)
 						
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();				
 			uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize-1] - counter.counterIc.ic2buffer[0];
-			counter.counterIc.ic2freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);					
+			counter.counterIc.ic2freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
 						
 			DMA_Restart(&hdma_tim2_ch2_ch4);		
 			counter.icChannel2 = COUNTER_IRQ_IC;		
 			xQueueSendToBackFromISR(messageQueue, "GIcDataSend", &xHigherPriorityTaskWoken);	
 		}
 	}
-	
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);			
 }
 
 /**
@@ -648,7 +649,7 @@ void counterIcProcess(void)
 void counterTiProcess(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);	
+//	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
 	
 	/* Check timeout. */
 	if((xTaskGetTickCountFromISR() - xStartTime) <= counter.counterIc.tiTimeout){
@@ -656,7 +657,7 @@ void counterTiProcess(void)
 		if(counter.abba == BIN0){			
 			/* Check DMA transfer channel 1 occured */			
 			if(DMA_TransferComplete(&hdma_tim2_ch2_ch4)){					
-				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0] / (double)tim2clk;																			
+				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0] / (float)tim2clk;
 				TIM_TI_Stop();		
 				counter.tiState = SEND_TI_DATA;						
 				xQueueSendToBackFromISR(messageQueue, "GTiBuffersTaken", &xHigherPriorityTaskWoken);					
@@ -665,7 +666,7 @@ void counterTiProcess(void)
 		}else{				
 			/* Check DMA transfer channel 2 occured */			
 			if(DMA_TransferComplete(&hdma_tim2_ch1)){					
-				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0] / (double)tim2clk;												
+				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0] / (float)tim2clk;
 				TIM_TI_Stop();					
 				counter.tiState = SEND_TI_DATA;						
 				xQueueSendToBackFromISR(messageQueue, "GTiBuffersTaken", &xHigherPriorityTaskWoken);							
@@ -677,7 +678,7 @@ void counterTiProcess(void)
 		xQueueSendToBackFromISR(messageQueue, "GTiTimoutOccurred", &xHigherPriorityTaskWoken);			
 	}
 		
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);		
+//	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);
 }
 
 /**
@@ -691,7 +692,7 @@ void counterTiProcess(void)
 void counterIcDutyCycleProcess(void)
 {
 	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);	
+//	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
 
 	if(counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED){	
 		if(DMA_TransferComplete(&hdma_tim2_ch1)){
@@ -724,7 +725,7 @@ void counterIcDutyCycleProcess(void)
 		}
 	}	
 			
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);			
+//	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);
 }
 
 /* ************************************************************************************** */
@@ -779,7 +780,8 @@ void counterEtrRefSetDefault(void)
 		counter.counterEtr.gateTime = 100;				/* 100 ms */												
 	}else{
 		counter.counterEtr.psc = 59999;	
-		counter.counterEtr.arr = 59999;				
+		counter.counterEtr.arr = 59999;
+		counter.counterEtr.refBuffer = (counter.counterEtr.psc+1) * (counter.counterEtr.arr+1);
 	}
 	counter.counterEtr.etrp = 1;
 	counter.counterEtr.buffer = 0;
@@ -809,113 +811,113 @@ void counterIcTiSetDefault(void)
 }
 
 
-/** @defgroup Counter OBSOLETE Functions NOT USED
-  * @{
-  */
-/* ************************************************************************************** */
-/* --------------------------- Obsolete functions - not used ---------------------------- */
-/* ************************************************************************************** */
-/**
-  * @brief  This function is executed in case of DMA transfer complete event of Input Capture channel 1.
-  * @param  Pointer to DMA handle structure.
-  * @retval None
-  * @state  NOT USED, OBSOLETE
-  */
-void COUNTER_IC1_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
-{
-	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
-	
-	counter.icChannel1 = COUNTER_IRQ_IC;
-	counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();
-	
-	uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize-1] - counter.counterIc.ic1buffer[0];
-	counter.counterIc.ic1freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
-	TIM_IC1PSC_Config(counter.counterIc.ic1freq);		
-	
-	counterIc1BufferConfig(counter.counterIc.ic1BufferSize);
-	
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);		
-	
-	/* The expression " > 5" adjusts the frequency of data sending (in this case 5 Hz). 
-		 With this parameter also expression " / 5" has to be changed according to first exp. 
-		 Implemented in order to lower a bus load (every 200 ms). */
-	if ((counter.counterIc.ic1freq / counter.counterIc.ic1BufferSize > 5) && \
-											 	(ic1PassNum < (counter.counterIc.ic1freq / counter.counterIc.ic1BufferSize / 5))){
-		ic1PassNum++;		
-	} else {
-		xQueueSendToBackFromISR(messageQueue, "GIcDataSend", &xHigherPriorityTaskWoken);		
-		ic1PassNum = 1;
-	}
-}
-
-/**
-  * @brief  This function is executed in case of DMA transfer complete event of Input Capture channel 2.
-  * @param  Pointer to DMA handle structure.
-  * @retval None
-  * @state  NOT USED, OBSOLETE
-  */
-void COUNTER_IC2_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
-{
-	portBASE_TYPE xHigherPriorityTaskWoken;
-	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
-	
-	counter.icChannel2 = COUNTER_IRQ_IC;	
-	counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();
-		
-	uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize-1] - counter.counterIc.ic2buffer[0];
-	counter.counterIc.ic2freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
-	TIM_IC2PSC_Config(counter.counterIc.ic2freq);		
-	
-	counterIc2BufferConfig(counter.counterIc.ic2BufferSize);
-	
-	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);	
-	
-	/* The expression " > 5" adjusts the frequency of data sending (in this case 5 Hz). 
-		 With this parameter also expression " / 5" has to be changed according to first exp. 
-		 Implemented in order to lower a bus load (every 200 ms). */
-	if ((counter.counterIc.ic2freq / counter.counterIc.ic2BufferSize > 5) && \
-											 	(ic2PassNum < (counter.counterIc.ic2freq / counter.counterIc.ic2BufferSize / 5))){
-		ic2PassNum++;		
-	} else {
-		xQueueSendToBackFromISR(messageQueue, "LIcDataSend", &xHigherPriorityTaskWoken);		
-		ic2PassNum = 1;
-	}
-}
-
-/**
-	* @brief  Function adjusting IC1 buffer size (number of edges counted) if user sends a value that cannot be served.
-						For instance, if user sends number 13 (number of edges counted) and IC prescaler is 4, it is impossible to serve this value
-						due to this prescaler. Therefore, instead (13/4)*4 = 3*4 + 4 = 16 will be set.
-	* @param  ic1buffSize: buffer size (e.g. sent from user PC app)
-  * @retval none 
-  * @state  NOT USED, OBSOLETE
-  */
-void counterIc1BufferConfig(uint16_t ic1buffSize)
-{
-	if((ic1buffSize % counter.counterIc.ic1psc)!=0){	
-		//counter.icFlag1 = COUNTER_BUFF_FLAG1;
-		counter.counterIc.ic1BufferSize = ((ic1buffSize/counter.counterIc.ic1psc)*counter.counterIc.ic1psc+counter.counterIc.ic1psc);			
-	}
-}
-
-/**
-	* @brief  Function adjusting IC2 buffer size (number of edges counted)
-	* @param  ic1buffSize: buffer size (e.g. sent from user PC app)
-  * @retval none 
-  * @state  NOT USED, OBSOLETE
-  */
-void counterIc2BufferConfig(uint16_t ic2buffSize)
-{
-	if((ic2buffSize % counter.counterIc.ic2psc)!=0){	
-		//counter.icFlag2 = COUNTER_BUFF_FLAG2;
-		counter.counterIc.ic2BufferSize = ((ic2buffSize/counter.counterIc.ic2psc)*counter.counterIc.ic2psc+counter.counterIc.ic2psc);
-	}
-}
-
-/**
-  * @}
-  */
+///** @defgroup Counter OBSOLETE Functions NOT USED
+//  * @{
+//  */
+///* ************************************************************************************** */
+///* --------------------------- Obsolete functions - not used ---------------------------- */
+///* ************************************************************************************** */
+///**
+//  * @brief  This function is executed in case of DMA transfer complete event of Input Capture channel 1.
+//  * @param  Pointer to DMA handle structure.
+//  * @retval None
+//  * @state  NOT USED, OBSOLETE
+//  */
+//void COUNTER_IC1_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
+//{
+//	portBASE_TYPE xHigherPriorityTaskWoken;
+//	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
+//
+//	counter.icChannel1 = COUNTER_IRQ_IC;
+//	counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();
+//
+//	uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize-1] - counter.counterIc.ic1buffer[0];
+//	counter.counterIc.ic1freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
+//	TIM_IC1PSC_Config(counter.counterIc.ic1freq);
+//
+//	counterIc1BufferConfig(counter.counterIc.ic1BufferSize);
+//
+//	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);
+//
+//	/* The expression " > 5" adjusts the frequency of data sending (in this case 5 Hz).
+//		 With this parameter also expression " / 5" has to be changed according to first exp.
+//		 Implemented in order to lower a bus load (every 200 ms). */
+//	if ((counter.counterIc.ic1freq / counter.counterIc.ic1BufferSize > 5) && \
+//											 	(ic1PassNum < (counter.counterIc.ic1freq / counter.counterIc.ic1BufferSize / 5))){
+//		ic1PassNum++;
+//	} else {
+//		xQueueSendToBackFromISR(messageQueue, "GIcDataSend", &xHigherPriorityTaskWoken);
+//		ic1PassNum = 1;
+//	}
+//}
+//
+///**
+//  * @brief  This function is executed in case of DMA transfer complete event of Input Capture channel 2.
+//  * @param  Pointer to DMA handle structure.
+//  * @retval None
+//  * @state  NOT USED, OBSOLETE
+//  */
+//void COUNTER_IC2_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
+//{
+//	portBASE_TYPE xHigherPriorityTaskWoken;
+//	xSemaphoreTakeFromISR(counterMutex, &xHigherPriorityTaskWoken);
+//
+//	counter.icChannel2 = COUNTER_IRQ_IC;
+//	counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();
+//
+//	uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize-1] - counter.counterIc.ic2buffer[0];
+//	counter.counterIc.ic2freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
+//	TIM_IC2PSC_Config(counter.counterIc.ic2freq);
+//
+//	counterIc2BufferConfig(counter.counterIc.ic2BufferSize);
+//
+//	xSemaphoreGiveFromISR(counterMutex, &xHigherPriorityTaskWoken);
+//
+//	/* The expression " > 5" adjusts the frequency of data sending (in this case 5 Hz).
+//		 With this parameter also expression " / 5" has to be changed according to first exp.
+//		 Implemented in order to lower a bus load (every 200 ms). */
+//	if ((counter.counterIc.ic2freq / counter.counterIc.ic2BufferSize > 5) && \
+//											 	(ic2PassNum < (counter.counterIc.ic2freq / counter.counterIc.ic2BufferSize / 5))){
+//		ic2PassNum++;
+//	} else {
+//		xQueueSendToBackFromISR(messageQueue, "LIcDataSend", &xHigherPriorityTaskWoken);
+//		ic2PassNum = 1;
+//	}
+//}
+//
+///**
+//	* @brief  Function adjusting IC1 buffer size (number of edges counted) if user sends a value that cannot be served.
+//						For instance, if user sends number 13 (number of edges counted) and IC prescaler is 4, it is impossible to serve this value
+//						due to this prescaler. Therefore, instead (13/4)*4 = 3*4 + 4 = 16 will be set.
+//	* @param  ic1buffSize: buffer size (e.g. sent from user PC app)
+//  * @retval none
+//  * @state  NOT USED, OBSOLETE
+//  */
+//void counterIc1BufferConfig(uint16_t ic1buffSize)
+//{
+//	if((ic1buffSize % counter.counterIc.ic1psc)!=0){
+//		//counter.icFlag1 = COUNTER_BUFF_FLAG1;
+//		counter.counterIc.ic1BufferSize = ((ic1buffSize/counter.counterIc.ic1psc)*counter.counterIc.ic1psc+counter.counterIc.ic1psc);
+//	}
+//}
+//
+///**
+//	* @brief  Function adjusting IC2 buffer size (number of edges counted)
+//	* @param  ic1buffSize: buffer size (e.g. sent from user PC app)
+//  * @retval none
+//  * @state  NOT USED, OBSOLETE
+//  */
+//void counterIc2BufferConfig(uint16_t ic2buffSize)
+//{
+//	if((ic2buffSize % counter.counterIc.ic2psc)!=0){
+//		//counter.icFlag2 = COUNTER_BUFF_FLAG2;
+//		counter.counterIc.ic2BufferSize = ((ic2buffSize/counter.counterIc.ic2psc)*counter.counterIc.ic2psc+counter.counterIc.ic2psc);
+//	}
+//}
+//
+///**
+//  * @}
+//  */
 
 /**
   * @}

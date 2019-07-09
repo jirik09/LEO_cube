@@ -1,0 +1,1138 @@
+
+Log Entry : 13:01:07 Saturday, November 10, 2018
+  :PORT otevřen: COM10  Baudrate:461538  Zařízení:STM32F303-Nucleo
+-------------------------------
+Send (1:36.635): SYNP:SCOM 
+Send (1:36.635): INIT;
+Send (1:36.651): SYNP:SFRQ 
+327628863(0x3F388713)
+Send (1:36.651): ;
+Příjem dat: 8
+Recieved (1:36.651): ACK
+Recieved (1:36.651): ACK
+Send (1:36.667): SYNP:SSTA 
+257(0x01010000)
+Send (1:36.667): ;
+Příjem dat: 4
+Recieved (1:36.667): ACK
+Send (1:36.682): SYNP:CNUM 
+1(0x01000000)
+Send (1:36.682): ;
+Send (1:36.682): SYNP:CCON 
+69136(0x100E0100)
+Send (1:36.682): ;
+Příjem dat: 4
+Recieved (1:36.682): ACK
+Příjem dat: 4
+Recieved (1:36.682): ACK
+Send (1:36.698): SYNP:SSTA 
+513(0x01020000)
+Send (1:36.698): ;
+Příjem dat: 4
+Recieved (1:36.698): ACK
+Send (1:36.714): SYNP:CNUM 
+2(0x02000000)
+Send (1:36.714): ;
+Send (1:36.714): SYNP:CCON 
+235936800(0x201C100E)
+Send (1:36.714): ;
+Příjem dat: 4
+Recieved (1:36.714): ACK
+Příjem dat: 4
+Recieved (1:36.714): ACK
+Send (1:36.729): SYNP:SSTA 
+769(0x01030000)
+Send (1:36.729): ;
+Příjem dat: 4
+Recieved (1:36.729): ACK
+Send (1:36.745): SYNP:CNUM 
+3(0x03000000)
+Send (1:36.745): ;
+Send (1:36.745): SYNP:CCON 
+471870000(0x302A201C)
+Send (1:36.745): ;
+Příjem dat: 4
+Recieved (1:36.745): ACK
+Příjem dat: 4
+Recieved (1:36.745): ACK
+Send (1:36.760): SYNP:SSTA 
+1025(0x01040000)
+Send (1:36.760): ;
+Příjem dat: 4
+Recieved (1:36.760): ACK
+Send (1:36.760): SYNP:SFRQ 
+327628863(0x3F388713)
+Send (1:36.760): ;
+Příjem dat: 4
+Recieved (1:36.760): ACK
+Send (1:36.776): SYNP:SSTA 
+257(0x01010000)
+Send (1:36.776): ;
+Send (1:36.776): SYNP:CNUM 
+4(0x04000000)
+Send (1:36.776): ;
+Send (1:36.776): SYNP:CCON 
+707803199(0x3F38302A)
+Příjem dat: 4
+Recieved (1:36.776): ACK
+Send (1:36.776): ;
+Příjem dat: 4
+Recieved (1:36.776): ACK
+Příjem dat: 4
+Recieved (1:36.776): ACK
+Send (1:36.792): SYNP:CNUM 
+1(0x01000000)
+Send (1:36.792): ;
+Send (1:36.792): SYNP:CCON 
+69136(0x100E0100)
+Send (1:36.792): ;
+Příjem dat: 4
+Recieved (1:36.792): ACK
+Příjem dat: 4
+Recieved (1:36.792): ACK
+Send (1:36.807): SYNP:SSTA 
+513(0x01020000)
+Send (1:36.807): ;
+Příjem dat: 4
+Recieved (1:36.807): ACK
+Send (1:36.823): SYNP:CNUM 
+2(0x02000000)
+Send (1:36.823): ;
+Send (1:36.823): SYNP:CCON 
+235936800(0x201C100E)
+Send (1:36.823): ;
+Příjem dat: 4
+Recieved (1:36.823): ACK
+Příjem dat: 4
+Recieved (1:36.823): ACK
+Send (1:36.838): SYNP:SSTA 
+769(0x01030000)
+Send (1:36.838): ;
+Příjem dat: 4
+Recieved (1:36.838): ACK
+Send (1:36.854): SYNP:CNUM 
+3(0x03000000)
+Send (1:36.854): ;
+Send (1:36.854): SYNP:CCON 
+471870000(0x302A201C)
+Send (1:36.854): ;
+Příjem dat: 4
+Recieved (1:36.854): ACK
+Příjem dat: 4
+Recieved (1:36.854): ACK
+Send (1:36.870): SYNP:SSTA 
+1025(0x01040000)
+Send (1:36.870): ;
+Příjem dat: 4
+Recieved (1:36.870): ACK
+Send (1:36.885): SYNP:CNUM 
+4(0x04000000)
+Send (1:36.885): ;
+Send (1:36.885): SYNP:CCON 
+707803199(0x3F38302A)
+Send (1:36.885): ;
+Příjem dat: 4
+Recieved (1:36.885): ACK
+Příjem dat: 4
+Recieved (1:36.885): ACK
+Send (1:39.255): SYNP:SFRQ 
+32402(0x927E0000)
+Send (1:39.255): ;
+Příjem dat: 4
+Recieved (1:39.255): ACK
+Send (1:39.271): SYNP:SSTA 
+257(0x01010000)
+Send (1:39.271): ;
+Příjem dat: 4
+Recieved (1:39.271): ACK
+Send (1:39.286): SYNP:CNUM 
+1(0x01000000)
+Send (1:39.286): ;
+Send (1:39.286): SYNP:CCON 
+73637(0xA51F0100)
+Send (1:39.286): ;
+Příjem dat: 4
+Recieved (1:39.286): ACK
+Příjem dat: 4
+Recieved (1:39.286): ACK
+Send (1:39.302): SYNP:SSTA 
+513(0x01020000)
+Send (1:39.302): ;
+Příjem dat: 4
+Recieved (1:39.302): ACK
+Send (1:39.318): SYNP:CNUM 
+2(0x02000000)
+Send (1:39.318): ;
+Send (1:39.318): SYNP:CCON 
+530923338(0x4A3FA51F)
+Send (1:39.318): ;
+Příjem dat: 4
+Recieved (1:39.318): ACK
+Příjem dat: 4
+Recieved (1:39.318): ACK
+Send (1:39.333): SYNP:SSTA 
+769(0x01030000)
+Send (1:39.333): ;
+Příjem dat: 4
+Recieved (1:39.333): ACK
+Send (1:39.349): SYNP:CNUM 
+3(0x03000000)
+Send (1:39.349): ;
+Send (1:39.349): SYNP:CCON 
+1061838575(0xEF5E4A3F)
+Send (1:39.349): ;
+Příjem dat: 4
+Recieved (1:39.349): ACK
+Příjem dat: 4
+Recieved (1:39.349): ACK
+Send (1:39.364): SYNP:SSTA 
+1025(0x01040000)
+Send (1:39.364): ;
+Příjem dat: 4
+Recieved (1:39.364): ACK
+Send (1:39.380): SYNP:CNUM 
+4(0x04000000)
+Send (1:39.380): ;
+Send (1:39.380): SYNP:CCON 
+1592688267(0x8B7EEE5E)
+Send (1:39.380): ;
+Příjem dat: 4
+Recieved (1:39.380): ACK
+Příjem dat: 4
+Recieved (1:39.380): ACK
+Send (1:41.377): GEN_:MODE 
+Send (1:41.377): DAC_;
+Příjem dat: 4
+Recieved (1:41.382): ACK
+Send (1:50.616): GEN_:LCH1 
+91(0x00005B00)
+Send (1:50.616): ;
+Send (1:50.616): GEN_:LCH2 
+21(0x00001500)
+Send (1:50.616): ;
+Send (1:50.616): GEN_:CHAN 2CH_;
+Send (1:50.626): GEN_:FREQ 
+511999489(0x017E841E)
+Příjem dat: 4
+Recieved (1:50.626): ACK
+Send (1:50.626): ;
+Send (1:50.626): GEN_:FREQ 
+472614914(0x02882B1C)
+Send (1:50.626): ;
+Příjem dat: 4
+Recieved (1:50.626): ACK
+Příjem dat: 4
+Recieved (1:50.626): ACK
+Příjem dat: 4
+Recieved (1:50.626): ACK
+Příjem dat: 4
+Recieved (1:50.626): ACK
+Send (1:50.666): GEN_:DATA 
+18874368(0x00002001)
+Send (1:50.666): :
+0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), Send (1:50.676): ;
+Příjem dat: 4
+Recieved (1:50.679): NEXT
+Příjem dat: 4
+Recieved (1:50.679): ACK
+Send (1:50.684): GEN_:DATA 
+18882560(0x00202001)
+Send (1:50.684): :
+0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), Send (1:50.684): ;
+Příjem dat: 4
+Recieved (1:50.689): NEXT
+Příjem dat: 4
+Recieved (1:50.689): ACK
+Send (1:50.706): GEN_:DATA 
+18563072(0x00401B01)
+Send (1:50.706): :
+4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), Send (1:50.706): ;
+Příjem dat: 4
+Recieved (1:50.706): NEXT
+Příjem dat: 4
+Recieved (1:50.706): ACK
+Send (1:50.732): GEN_:DATA 
+34930688(0x00001502)
+Send (1:50.732): :
+4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), 4095(0xFF0F), Send (1:50.732): ;
+Příjem dat: 4
+Recieved (1:50.732): NEXT
+Příjem dat: 4
+Recieved (1:50.732): ACK
+Send (1:50.748): GEN_:FRQ?;
+Příjem dat: 24
+Recieved (1:50.748): GEN_FRQ?CH_ CH128
+Recieved (1:50.748): GEN_FRQ?CH_ CH137
+Příjem dat: 4
+Recieved (1:50.748): ACK
+Send (1:50.763): GEN_:STRT;
+Příjem dat: 4
+Recieved (1:50.763): GEN_OK
+Příjem dat: 4
+Recieved (1:50.763): ACK
+Send (1:50.990): GEN_:FREQ 
+512512001(0x01508C1E)
+Send (1:50.990): ;
+Send (1:50.990): GEN_:FREQ 
+473088002(0x02C0321C)
+Send (1:50.990): ;
+Příjem dat: 4
+Recieved (1:50.990): ERROR 105
+Send (1:50.990): GEN_:FRQ?;
+Send (1:54.115): LOGA:INIT;
+Send (1:54.131): LOGA:STRT;
+Send (1:54.334): LOGA:SMPN 
+1000(0xE8030000)
+Send (1:54.334): ;
+Send (1:54.334): LOGA:SMPF 
+14399(0x3F380000)
+Send (1:54.334): ;
+Send (1:54.334): LOGA:PRET 
+60(0x3C000000)
+Send (1:54.334): ;
+Send (1:54.334): LOGA:POST 
+3929623(0x17F63B00)
+Send (1:54.334): ;
+Recieved (1:56.844): ACK
+Recieved (1:56.844): GEN_FRQ?CH_ CH128
+Recieved (1:56.860): GEN_FRQ?CH_ CH137
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Recieved (1:56.860): ACK
+Send (1:56.928): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:56.928): ACK
+Příjem dat: 37
+Send (1:57.162): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:57.162): ACK
+Příjem dat: 37
+Send (1:58.53): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:58.69): ACK
+Příjem dat: 37
+Send (1:58.479): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:58.479): ACK
+Příjem dat: 36
+Send (1:58.885): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:58.885): ACK
+Příjem dat: 36
+Send (1:59.333): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:59.349): ACK
+Příjem dat: 36
+Send (1:59.786): LOGA:STRT;
+Příjem dat: 4
+Recieved (1:59.802): ACK
+Příjem dat: 36
+Send (2:0.44): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:0.59): ACK
+Příjem dat: 36
+Send (2:0.465): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:0.465): ACK
+Příjem dat: 36
+Send (2:0.996): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:0.996): ACK
+Příjem dat: 36
+Send (2:1.417): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:1.417): ACK
+Příjem dat: 36
+Send (2:1.886): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:1.928): ACK
+Příjem dat: 36
+Send (2:2.116): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:2.116): ACK
+Příjem dat: 36
+Send (2:2.335): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:2.335): ACK
+Příjem dat: 35
+Send (2:2.725): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:2.741): ACK
+Send (2:2.803): LOGA:TRGM 
+Send (2:2.803): NORM;
+Příjem dat: 4
+Recieved (2:2.866): ACK
+Příjem dat: 36
+Send (2:3.224): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:3.224): ACK
+Příjem dat: 35
+Send (2:3.634): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:3.636): ACK
+Příjem dat: 35
+Send (2:4.53): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:4.53): ACK
+Příjem dat: 35
+Send (2:4.271): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:4.271): ACK
+Příjem dat: 35
+Send (2:4.490): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:4.490): ACK
+Příjem dat: 35
+Send (2:4.865): LOGA:SMPN 
+1000(0xE8030000)
+Send (2:4.865): ;
+Send (2:4.865): LOGA:SMPF 
+28(0x1C000000)
+Send (2:4.865): ;
+Send (2:4.865): LOGA:PRET 
+10(0x0A000000)
+Send (2:4.865): ;
+Send (2:4.865): LOGA:POST 
+7611(0xBB1D0000)
+Send (2:4.865): ;
+Příjem dat: 4
+Recieved (2:4.881): ACK
+Recieved (2:4.881): ACK
+Recieved (2:4.896): ACK
+Recieved (2:4.912): ACK
+Send (2:5.37): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:5.37): ACK
+Příjem dat: 12
+Send (2:5.334): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:5.349): ACK
+Příjem dat: 4
+Send (2:5.667): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:5.667): ACK
+Příjem dat: 35
+Send (2:5.967): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:5.967): ACK
+Příjem dat: 35
+Send (2:6.248): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:6.248): ACK
+Příjem dat: 173
+Send (2:6.373): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:6.373): ACK
+Příjem dat: 35
+Send (2:6.508): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:6.511): ACK
+Příjem dat: 173
+Send (2:6.619): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:6.619): ACK
+Příjem dat: 35
+Send (2:6.912): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:6.915): ACK
+Příjem dat: 34
+Příjem dat: 0
+Send (2:7.177): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:7.193): ACK
+Příjem dat: 34
+Send (2:7.474): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:7.474): ACK
+Příjem dat: 34
+Send (2:7.771): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:7.771): ACK
+Příjem dat: 34
+Send (2:8.99): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.99): ACK
+Příjem dat: 34
+Send (2:8.380): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.380): ACK
+Příjem dat: 34
+Send (2:8.522): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.524): ACK
+Příjem dat: 34
+Send (2:8.628): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.630): ACK
+Příjem dat: 80
+Send (2:8.741): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.741): ACK
+Příjem dat: 34
+Send (2:8.851): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:8.851): ACK
+Příjem dat: 34
+Send (2:9.163): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:9.163): ACK
+Příjem dat: 34
+Send (2:9.429): LOGA:SMPN 
+2000(0xD0070000)
+Send (2:9.429): ;
+Send (2:9.429): LOGA:SMPF 
+28(0x1C000000)
+Send (2:9.429): ;
+Send (2:9.429): LOGA:PRET 
+10(0x0A000000)
+Send (2:9.429): ;
+Send (2:9.429): LOGA:POST 
+17399(0xF7430000)
+Send (2:9.429): ;
+Příjem dat: 16
+Recieved (2:9.444): ACK
+Recieved (2:9.460): ACK
+Recieved (2:9.475): ACK
+Recieved (2:9.491): ACK
+Send (2:9.569): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:9.569): ACK
+Příjem dat: 34
+Send (2:9.866): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:9.882): ACK
+Příjem dat: 34
+Send (2:10.178): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:10.178): ACK
+Příjem dat: 80
+Send (2:10.366): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:10.366): ACK
+Příjem dat: 33
+Send (2:10.616): LOGA:SMPN 
+5000(0x88130000)
+Send (2:10.616): ;
+Send (2:10.616): LOGA:SMPF 
+28(0x1C000000)
+Send (2:10.616): ;
+Send (2:10.616): LOGA:PRET 
+11(0x0B000000)
+Send (2:10.616): ;
+Send (2:10.616): LOGA:POST 
+39874(0xC29B0000)
+Send (2:10.616): ;
+Příjem dat: 16
+Recieved (2:10.631): ACK
+Recieved (2:10.647): ACK
+Recieved (2:10.663): ACK
+Recieved (2:10.663): ACK
+Send (2:10.756): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:10.772): ACK
+Příjem dat: 34
+Send (2:11.116): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:11.116): ACK
+Příjem dat: 33
+Send (2:11.475): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:11.475): ACK
+Příjem dat: 33
+Send (2:11.756): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:11.756): ACK
+Příjem dat: 28
+Send (2:12.68): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:12.68): ACK
+Příjem dat: 33
+Send (2:12.396): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:12.412): ACK
+Příjem dat: 33
+Send (2:12.713): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:12.713): ACK
+Příjem dat: 33
+Send (2:12.976): LOGA:SMPN 
+5000(0x88130000)
+Send (2:12.976): ;
+Send (2:12.976): LOGA:SMPF 
+13(0x0D000000)
+Send (2:12.976): ;
+Send (2:12.976): LOGA:PRET 
+10(0x0A000000)
+Send (2:12.976): ;
+Send (2:12.976): LOGA:POST 
+27124(0xF4690000)
+Příjem dat: 4
+Recieved (2:12.976): ACK
+Send (2:12.976): ;
+Příjem dat: 4
+Recieved (2:12.976): ACK
+Příjem dat: 4
+Recieved (2:12.976): ACK
+Příjem dat: 4
+Recieved (2:12.976): ACK
+Příjem dat: 4
+Recieved (2:13.23): ACK
+Příjem dat: 33
+Send (2:13.54): LOGA:STRT;
+Send (2:13.320): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:13.320): ACK
+Příjem dat: 33
+Send (2:13.605): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:13.621): ACK
+Příjem dat: 33
+Send (2:13.944): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:13.944): ACK
+Příjem dat: 20
+Send (2:14.245): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:14.245): ACK
+Příjem dat: 33
+Send (2:14.557): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:14.557): ACK
+Příjem dat: 33
+Send (2:14.839): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:14.854): ACK
+Příjem dat: 33
+Send (2:15.135): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:15.135): ACK
+Příjem dat: 32
+Send (2:15.417): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:15.417): ACK
+Příjem dat: 32
+Send (2:15.731): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:15.731): ACK
+Příjem dat: 32
+Send (2:16.5): LOGA:SMPN 
+10000(0x10270000)
+Send (2:16.5): ;
+Send (2:16.5): LOGA:SMPF 
+13(0x0D000000)
+Send (2:16.5): ;
+Send (2:16.5): LOGA:PRET 
+10(0x0A000000)
+Send (2:16.5): ;
+Příjem dat: 12
+Send (2:16.21): LOGA:POST 
+54249(0xE9D30000)
+Recieved (2:16.21): ACK
+Recieved (2:16.37): ACK
+Send (2:16.37): ;
+Recieved (2:16.99): ACK
+Send (2:16.115): LOGA:STRT;
+Recieved (2:16.130): ACK
+Recieved (2:16.146): ACK
+Send (2:16.646): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:16.662): ACK
+Příjem dat: 32
+Send (2:17.193): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:17.193): ACK
+Příjem dat: 32
+Send (2:17.693): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:17.693): ACK
+Příjem dat: 4
+Send (2:18.193): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:18.193): ACK
+Příjem dat: 32
+Send (2:18.727): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:18.727): ACK
+Příjem dat: 31
+Send (2:19.255): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:19.255): ACK
+Příjem dat: 31
+Send (2:19.729): LOGA:SMPN 
+20000(0x204E0000)
+Send (2:19.729): ;
+Send (2:19.729): LOGA:SMPF 
+13(0x0D000000)
+Send (2:19.729): ;
+Send (2:19.729): LOGA:PRET 
+11(0x0B000000)
+Příjem dat: 4
+Send (2:19.729): ;
+Recieved (2:19.729): ACK
+Send (2:19.729): LOGA:POST 
+119785(0xE9D30100)
+Send (2:19.729): ;
+Příjem dat: 4
+Recieved (2:19.729): ACK
+Příjem dat: 4
+Recieved (2:19.729): ACK
+Příjem dat: 4
+Recieved (2:19.729): ACK
+Send (2:19.870): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:19.870): ACK
+Send (2:27.146): LOGA:TRGM 
+Send (2:27.146): AUTO;
+Příjem dat: 4
+Recieved (2:27.162): ACK
+Příjem dat: 30
+Send (2:28.147): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:28.163): ACK
+Příjem dat: 24
+Send (2:29.116): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:29.116): ACK
+Příjem dat: 29
+Send (2:30.69): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:30.69): ACK
+Příjem dat: 29
+Send (2:31.54): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:31.54): ACK
+Příjem dat: 28
+Send (2:32.38): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:32.38): ACK
+Příjem dat: 28
+Send (2:33.7): LOGA:STRT;
+Příjem dat: 4
+Recieved (2:33.7): ACK
+Příjem dat: 28
+Send (2:37.743): LOGA:STOP;
+Send (2:37.743): LOGA:DEIN;
+Send (2:38.535): CNT_:MODE 
+Send (2:38.535): ETR_;
+Send (2:38.536): CNT_:STRT;
+Send (2:43.607): CNT_:STOP;
+Send (2:43.607): CNT_:MODE 
+Send (2:43.607): IC__;
+Send (2:43.607): CNT_:STRT;
+Send (2:43.969): CNT_:DUCY 
+Send (2:43.969): DCX_;
+Send (2:43.969): CNT_:PRE1 
+Send (2:43.969): 1x__;
+Send (2:43.969): CNT_:BUF1 
+1(0x00000100)
+Send (2:43.985): ;
+Send (2:43.985): CNT_:BUF2 
+1(0x00000100)
+Send (2:43.985): ;
+Send (2:43.985): CNT_:DUCY 
+Send (2:43.985): DCD1;
+Send (2:43.985): CNT_:DUCY 
+Send (2:43.985): DCX_;
+Send (2:43.985): CNT_:PRE2 
+Send (2:43.985): 1x__;
+Send (2:43.985): CNT_:BUF1 
+1(0x00000100)
+Send (2:43.985): ;
+Send (2:43.985): CNT_:BUF2 
+1(0x00000100)
+Send (2:43.985): ;
+Send (2:43.985): CNT_:DUCY 
+Send (2:43.985): DCD2;
+Send (2:43.985): CNT_:STOP;
+Send (2:43.985): CNT_:MODE 
+Send (2:43.985): ETR_;
+Send (2:43.985): CNT_:STRT;
+Send (2:43.985): CNT_:GATE 
+Send (2:43.985): 100m;
+Send (2:44.765): CNT_:STOP;
+Send (2:44.781): CNT_:DEIN;
+Send (2:46.330): CNT_:MODE 
+Send (2:46.330): ETR_;
+Send (2:46.330): CNT_:STRT;
+Příjem dat: 20
+Recieved (2:46.846): CNT ETR 0
+Příjem dat: 20
+Recieved (2:46.943): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.36): CNT ETR 0
+Příjem dat: 16
+Recieved (2:47.161): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.239): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.349): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.442): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.536): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.646): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.739): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.849): CNT ETR 0
+Příjem dat: 20
+Recieved (2:47.943): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.37): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.146): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.240): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.349): CNT ETR 0
+Příjem dat: 12
+Recieved (2:48.459): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.537): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.646): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.740): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.849): CNT ETR 0
+Příjem dat: 20
+Recieved (2:48.946): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.39): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.149): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.243): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.336): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.446): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.539): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.649): CNT ETR 0
+Příjem dat: 8
+Recieved (2:49.758): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.836): CNT ETR 0
+Příjem dat: 20
+Recieved (2:49.947): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.41): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.135): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.244): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.338): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.447): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.540): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.650): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.743): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.837): CNT ETR 0
+Příjem dat: 20
+Recieved (2:50.949): CNT ETR 0
+Příjem dat: 4
+Recieved (2:51.59): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.137): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.246): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.340): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.449): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.543): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.637): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.746): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.840): CNT ETR 0
+Příjem dat: 20
+Recieved (2:51.949): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.44): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.138): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.247): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.341): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.450): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.544): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.637): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.747): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.841): CNT ETR 0
+Příjem dat: 20
+Recieved (2:52.949): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.46): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.139): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.249): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.342): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.436): CNT ETR 0
+Příjem dat: 16
+Recieved (2:53.561): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.639): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.749): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.842): CNT ETR 0
+Příjem dat: 20
+Recieved (2:53.950): CNT ETR 0
+Příjem dat: 20
+Recieved (2:54.46): CNT ETR 0
+Příjem dat: 20
+Recieved (2:54.140): CNT ETR 0
+Příjem dat: 20
+Recieved (2:54.250): CNT ETR 0
+Příjem dat: 20
+Recieved (2:54.343): CNT ETR 0
+Příjem dat: 20
+Recieved (2:54.437): CNT ETR 0
+Send (2:54.500): CNT_:STOP;
+Send (2:54.500): CNT_:DEIN;
+Příjem dat: 4
+Recieved (2:54.500): ACK
+Příjem dat: 4
+Recieved (2:54.500): ACK
+Send (3:1.318): LOGA:INIT;
+Příjem dat: 4
+Recieved (3:1.318): ACK
+Send (3:1.333): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:1.333): ACK
+Send (3:1.380): LOGA:SMPN 
+1000(0xE8030000)
+Send (3:1.380): ;
+Send (3:1.380): LOGA:SMPF 
+14399(0x3F380000)
+Send (3:1.380): ;
+Send (3:1.380): LOGA:PRET 
+60(0x3C000000)
+Send (3:1.380): ;
+Send (3:1.380): LOGA:POST 
+3929623(0x17F63B00)
+Send (3:1.380): ;
+Příjem dat: 4
+Recieved (3:1.380): ACK
+Příjem dat: 4
+Recieved (3:1.396): ACK
+Příjem dat: 4
+Recieved (3:1.458): ACK
+Příjem dat: 4
+Recieved (3:1.521): ACK
+Příjem dat: 21
+Send (3:1.905): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:1.905): ACK
+Příjem dat: 21
+Send (3:2.342): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:2.342): ACK
+Příjem dat: 21
+Send (3:2.795): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:2.795): ACK
+Příjem dat: 16
+Příjem dat: 51
+Send (3:3.255): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:3.271): ACK
+Příjem dat: 8
+Příjem dat: 59
+Send (3:3.560): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:3.560): ACK
+Příjem dat: 21
+Send (3:3.763): LOGA:STOP;
+Send (3:3.763): LOGA:DEIN;
+Příjem dat: 4
+Recieved (3:3.826): ACK
+Příjem dat: 4
+Recieved (3:3.888): ACK
+Send (3:5.849): GEN_:STOP;
+Send (3:5.849): GEN_:RSET;
+Příjem dat: 4
+Recieved (3:5.849): ACK
+Příjem dat: 4
+Recieved (3:5.849): ACK
+Send (3:5.881): GEN_:FREQ 
+512512001(0x01508C1E)
+Send (3:5.881): ;
+Send (3:5.896): GEN_:FREQ 
+473088002(0x02C0321C)
+Příjem dat: 4
+Recieved (3:5.896): ERROR 105
+Send (3:5.896): ;
+Send (3:5.912): GEN_:FRQ?;
+Recieved (3:5.912): ACK
+Recieved (3:5.912): GEN_FRQ?CH_ CH248
+Recieved (3:5.914): GEN_FRQ?CH_ CH137
+Recieved (3:5.958): ACK
+Send (3:6.724): GEN_:MODE 
+Send (3:6.724): PWM_;
+Příjem dat: 4
+Recieved (3:6.724): ACK
+Send (3:6.926): GEN_:FPWP 
+1(0x01000000)
+Send (3:6.926): ;
+Příjem dat: 4
+Recieved (3:6.928): ACK
+Send (3:7.53): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:7.53): ;
+Příjem dat: 4
+Recieved (3:7.53): ACK
+Send (3:7.131): GEN_:FPWP 
+1(0x01000000)
+Send (3:7.131): ;
+Příjem dat: 4
+Recieved (3:7.131): ACK
+Send (3:7.256): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:7.256): ;
+Příjem dat: 4
+Recieved (3:7.256): ACK
+Send (3:9.380): GEN_:FPWP 
+1(0x01000000)
+Send (3:9.380): ;
+Příjem dat: 4
+Recieved (3:9.380): ACK
+Send (3:9.505): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:9.505): ;
+Příjem dat: 4
+Recieved (3:9.505): ACK
+Send (3:10.411): GEN_:FPWP 
+1(0x01000000)
+Send (3:10.411): ;
+Příjem dat: 4
+Recieved (3:10.411): ACK
+Send (3:10.537): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:10.537): ;
+Příjem dat: 4
+Recieved (3:10.537): ACK
+Send (3:12.490): GEN_:LCH1 
+500(0x0000F401)
+Send (3:12.490): ;
+Send (3:12.490): GEN_:LCH2 
+500(0x0000F401)
+Příjem dat: 4
+Recieved (3:12.490): ERROR 101
+Send (3:12.490): ;
+Send (3:12.522): GEN_:CHAN 2CH_;
+Send (3:12.522): GEN_:FPWP 
+1(0x01000000)
+Send (3:12.522): ;
+Send (3:12.662): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:12.662): ;
+Send (3:12.662): GEN_:FPWP 
+2(0x02000000)
+Send (3:12.662): ;
+Send (3:12.787): GEN_:FPWA 
+130818(0x000002FF)
+Send (3:12.787): ;
+Send (3:12.787): GEN_:FREQ 
+12800001(0x0150C300)
+Send (3:12.787): ;
+Send (3:12.787): GEN_:FREQ 
+12800002(0x0250C300)
+Send (3:12.787): ;
+Send (3:12.803): GEN_:STOP;
+Send (3:12.818): GEN_:DATA 
+18874368(0x00002001)
+Send (3:12.818): :
+0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), Send (3:12.818): ;
+Recieved (3:13.559): ERROR 101
+Recieved (3:13.559): ERROR 101
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ACK
+Recieved (3:13.559): ERROR 101
+Send (3:14.746): GEN_:LCH1 
+500(0x0000F401)
+Send (3:14.746): ;
+Send (3:14.746): GEN_:LCH2 
+500(0x0000F401)
+Send (3:14.746): ;
+Send (3:14.749): GEN_:CHAN 2CH_;
+Send (3:14.749): GEN_:FPWP 
+1(0x01000000)
+Send (3:14.749): ;
+Příjem dat: 4
+Recieved (3:14.749): ERROR 101
+Příjem dat: 4
+Recieved (3:14.749): ERROR 101
+Příjem dat: 4
+Recieved (3:14.749): ERROR 101
+Příjem dat: 4
+Recieved (3:14.749): ACK
+Send (3:14.886): GEN_:FPWA 
+261889(0x000001FF)
+Send (3:14.886): ;
+Send (3:14.886): GEN_:FPWP 
+2(0x02000000)
+Send (3:14.886): ;
+Příjem dat: 4
+Recieved (3:14.886): ACK
+Příjem dat: 4
+Recieved (3:14.889): ACK
+Send (3:15.26): GEN_:FPWA 
+130818(0x000002FF)
+Send (3:15.26): ;
+Send (3:15.26): GEN_:FREQ 
+12800001(0x0150C300)
+Send (3:15.26): ;
+Send (3:15.26): GEN_:FREQ 
+12800002(0x0250C300)
+Send (3:15.26): ;
+Příjem dat: 4
+Recieved (3:15.26): ACK
+Příjem dat: 4
+Recieved (3:15.29): ACK
+Příjem dat: 4
+Recieved (3:15.29): ACK
+Send (3:15.67): GEN_:DATA 
+18874368(0x00002001)
+Send (3:15.67): :
+0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), 0000(0x0000), Send (3:15.67): ;
+Příjem dat: 4
+Recieved (3:15.67): ERROR 101
+Send (3:19.636): GEN_:RSET;
+Příjem dat: 4
+Recieved (3:19.636): ACK
+Send (3:23.304): LOGA:INIT;
+Send (3:23.319): LOGA:STRT;
+Příjem dat: 4
+Recieved (3:23.366): ACK
+Příjem dat: 4
+Recieved (3:23.366): AC

@@ -38,6 +38,9 @@ static commBuffer comm;
 //commBuffer commTX;
 char cntMessage[30];
 uint8_t volatile testArray[100];	
+
+unsigned int intAlias[sizeof(double)/sizeof(unsigned int)];
+
 /**
   * @}
   */
@@ -255,17 +258,19 @@ void CommTask(void const *argument){
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
-				sprintf(cntMessage, "%016.6f", counter.counterEtr.freq);
-				commsSendString(cntMessage);		
+				memcpy(intAlias, &counter.counterEtr.freq, sizeof(counter.counterEtr.freq));
+				commsSendUint32(intAlias[0]);
+				commsSendUint32(intAlias[1]);
 				
 			/* REF mode configured */	
 			}else if(counter.state==COUNTER_REF){
 				commsSendString(STR_CNT_REF_DATA);
 				/* Here only the buffer is sent - PC app calculates frequency ratio as:
 					 REF buffer / ETR buffer = arr * psc / buffer - where arr and psc is already 
-					 known by PC app (user set) */										
-				sprintf(cntMessage, "%010d", counter.counterEtr.buffer);
-				commsSendString(cntMessage);										
+					 known by PC app (user set) */
+				memcpy(intAlias, &counter.counterEtr.freq, sizeof(counter.counterEtr.freq));
+				commsSendUint32(intAlias[0]);
+				commsSendUint32(intAlias[1]);
 
 			/* IC mode configured channel 1 */	
 			}else if(counter.state==COUNTER_IC){		
@@ -274,31 +279,30 @@ void CommTask(void const *argument){
 					
 					if(counter.icChannel1==COUNTER_IRQ_IC){												
 						commsSendString(STR_CNT_IC1_DATA);
-						sprintf(cntMessage, "%016.6f", counter.counterIc.ic1freq);
-						commsSendString(cntMessage);	
+						memcpy(intAlias, &counter.counterIc.ic1freq, sizeof(counter.counterIc.ic1freq));
+						commsSendUint32(intAlias[0]);
+						commsSendUint32(intAlias[1]);
 						counter.icChannel1=COUNTER_IRQ_IC_PASS;
 					}	
 
 					if(counter.icChannel2==COUNTER_IRQ_IC){							
 						commsSendString(STR_CNT_IC2_DATA);	
-						sprintf(cntMessage, "%016.6f", counter.counterIc.ic2freq);
-						commsSendString(cntMessage);															
+						memcpy(intAlias, &counter.counterIc.ic2freq, sizeof(counter.counterIc.ic2freq));
+						commsSendUint32(intAlias[0]);
+						commsSendUint32(intAlias[1]);
 						counter.icChannel2=COUNTER_IRQ_IC_PASS;
 					}						
 
-				}else{		
-										
-					sprintf(cntMessage, "%06.3f", counter.counterIc.ic1freq);
-					char cntMessage2[15];
-					sprintf(cntMessage2, "%015.12f", counter.counterIc.ic2freq);
-					
+				}else{
 					commsSendString(STR_CNT_DUTY_CYCLE);
-					commsSendString(cntMessage);					
-					commsSendString(cntMessage2);		
-				
-//					commsSendString(STR_CNT_PULSE_WIDTH);
-//					sprintf(cntMessage, "%015.12f", counter.counterIc.ic2freq);
-//					commsSendString(cntMessage);	
+					memcpy(intAlias, &counter.counterIc.ic1freq, sizeof(counter.counterIc.ic1freq));
+					commsSendUint32(intAlias[0]);
+					commsSendUint32(intAlias[1]);
+
+					commsSendString(STR_CNT_PULSE_WIDTH);
+					memcpy(intAlias, &counter.counterIc.ic2freq, sizeof(counter.counterIc.ic2freq));
+					commsSendUint32(intAlias[0]);
+					commsSendUint32(intAlias[1]);
 				}					
 
 			/* TI mode configured */		
@@ -321,8 +325,8 @@ void CommTask(void const *argument){
 	
 		}else if(message[0]=='O'){
 			commsSendString(STR_CNT_REF_WARN);			
-			sprintf(cntMessage, "%02d", 2);
-			commsSendString(cntMessage);			
+			//sprintf(cntMessage, "%02d", 2);
+			//commsSendString(cntMessage);
 			
 			#endif //USE_COUNTER			
 		/* ---------------------------------------------------- */	
