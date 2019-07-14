@@ -96,5 +96,8 @@
 "Src/sysmem.o"
 "Src/system_stm32f3xx.o"
 "Src/tim.o"
+"Src/tim_counter.o"
+"Src/tim_logan.o"
+"Src/tim_scope.o"
 "Src/usart.o"
 "Startup/startup_stm32f303retx.o"

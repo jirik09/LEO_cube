@@ -15,6 +15,7 @@
 #include "logic_analyzer.h"
 #include "tim.h"
 #include "scope.h"
+#include "messages.h"
 
 /** @defgroup Logic_Analyzer Logic Analyzer
   * @{
@@ -45,10 +46,10 @@ volatile logAnlysTypeDef logAnlys;
   */
 void LogAnlysTask(void const *argument)
 {	
-	logAnlysMessageQueue = xQueueCreate(5, 20);  // xQueueCreate(5, sizeof(double)); e.g.
+	uint16_t message = 0xFFFF;
+	logAnlysMessageQueue = xQueueCreate(5, sizeof(message/sizeof(uint8_t)));
 	logAnlysMutex = xSemaphoreCreateRecursiveMutex();	
 	
-	char message[20];	
 	logAnlysSetDefault();
 	
 	/* Get tick count for vTaskDelayUntil() function */
@@ -56,25 +57,22 @@ void LogAnlysTask(void const *argument)
 	
 	while(1){
 		
-		xQueueReceive(logAnlysMessageQueue, message, portMAX_DELAY);		
+		xQueueReceive(logAnlysMessageQueue, &message, portMAX_DELAY);
 		xSemaphoreTakeRecursive(logAnlysMutex, portMAX_DELAY);
 		
-		if(message[0]=='1'){
+		if(message==MSG_LOGAN_INIT){
 //			logAnlys.state = LOGA_IDLE;
 			logAnlysInit();
-		}else if(message[0]=='2'){
+		}else if(message==MSG_LOGAN_INIT){
 			logAnlysDeinit();
 //			logAnlys.state = LOGA_IDLE;
-		}else if(message[0]=='3'){
+		}else if(message==MSG_LOGAN_START){
 			logAnlysStart();
-		}else if(message[0]=='4'){
+		}else if(message==MSG_LOGAN_STOP){
 			logAnlysStop();
-		}else if(message[0]=='5'){
-//			logAnlysSetTriggerRising();				
-		}else if(message[0]=='6'){
-//			logAnlysSetTriggerFalling();
-		}else if(message[0]=='7'){						
-			xQueueSendToBack(messageQueue, "LogAnlysDataSend", portMAX_DELAY); 
+		}else if(message==MSG_LOGAN_SAMPLING_END){
+			uint16_t passMsg = MSG_LOGAN_SEND_DATA;
+			xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		}			
 		
 		xSemaphoreGiveRecursive(logAnlysMutex);
@@ -92,7 +90,8 @@ void LogAnlysTask(void const *argument)
   * @retval None
   */
 void logAnlysSendInit(void){
-	xQueueSendToBack(logAnlysMessageQueue, "1InitLogAnlys", portMAX_DELAY);
+	uint16_t passMsg = MSG_LOGAN_INIT;
+	xQueueSendToBack(logAnlysMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
@@ -103,7 +102,8 @@ void logAnlysSendInit(void){
   * @retval None
   */
 void logAnlysSendDeinit(void){
-	xQueueSendToBack(logAnlysMessageQueue, "2DeinitLogAnlys", portMAX_DELAY);
+	uint16_t passMsg = MSG_LOGAN_DEINIT;
+	xQueueSendToBack(logAnlysMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
@@ -114,7 +114,8 @@ void logAnlysSendDeinit(void){
   * @retval None
   */
 void logAnlysSendStart(void){
-	xQueueSendToBack(logAnlysMessageQueue, "3StartLogAnlys", portMAX_DELAY);
+	uint16_t passMsg = MSG_LOGAN_START;
+	xQueueSendToBack(logAnlysMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
@@ -125,16 +126,9 @@ void logAnlysSendStart(void){
   * @retval None
   */
 void logAnlysSendStop(void){
-	xQueueSendToBack(logAnlysMessageQueue, "4StopLogAnlys", portMAX_DELAY);
+	uint16_t passMsg = MSG_LOGAN_STOP;
+	xQueueSendToBack(logAnlysMessageQueue, &passMsg, portMAX_DELAY);
 }
-
-//void logAnlysSendTriggerRising(void){
-//	xQueueSendToBack(logAnlysMessageQueue, "5TrigRisLogAnlys", portMAX_DELAY);
-//}
-
-//void logAnlysSendTriggerFalling(void){
-//	xQueueSendToBack(logAnlysMessageQueue, "6TrigFallLogAnlys", portMAX_DELAY);
-//}
 
 /* ************************************************************************************** */
 /* ------------------------ Logic analyzer Interrupts/Callbacks ------------------------- */
@@ -150,9 +144,8 @@ void logAnlysSendStop(void){
   */
 void logAnlysPeriodElapsedCallback(void){
 	portBASE_TYPE xHigherPriorityTaskWoken;
-//	xSemaphoreTakeFromISR(logAnlysMutex, &xHigherPriorityTaskWoken);	
-	xQueueSendToBackFromISR(logAnlysMessageQueue, "7EndOfSampLogAnlys", &xHigherPriorityTaskWoken);	
-//	xSemaphoreGiveFromISR(logAnlysMutex, &xHigherPriorityTaskWoken);
+	uint16_t passMsg = MSG_LOGAN_SAMPLING_END;
+	xQueueSendToBackFromISR(logAnlysMessageQueue, &passMsg, &xHigherPriorityTaskWoken);
 }
 
 /* ************************************************************************************** */

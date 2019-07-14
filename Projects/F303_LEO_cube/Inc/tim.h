@@ -95,6 +95,8 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 void TIMScopeEnable(void);
 void TIMScopeDisable(void);
 void MX_TIM15_Init(void);
+void TIM15_SCOPE_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM15_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base);
 uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
 #endif //USE_SCOPE
 /**
@@ -202,6 +204,7 @@ void TIM_SamplingStop(void);
   * @{
   */
 #ifdef USE_COUNTER
+
 typedef enum{
 	false = 0,
 	true = 1
@@ -218,6 +221,17 @@ void TIM_doubleClockVal(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_ETRorREF_Init(void);
 static void MX_TIM2_ICorTI_Init(void);
+
+void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM4_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
+
+void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM1_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 /* Modes initialization functions */
 void TIM_counter_etr_init(void);
@@ -281,10 +295,10 @@ bool DMA_TransferComplete(DMA_HandleTypeDef *dmah);
 void DMA_Restart(DMA_HandleTypeDef *dmah);
 
 void COUNTER_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
+void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
+void COUNTER_IC1_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
+void COUNTER_IC2_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
 
-extern void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah);	
-extern void COUNTER_IC1_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
-extern void COUNTER_IC2_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
 #endif // USE_COUNTER
 /**
   * @}

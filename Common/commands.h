@@ -1,11 +1,11 @@
 /**
-  *****************************************************************************
-  * @file    commands.h
-  * @author  Y3288231
-  * @date    Dec 15, 2014
-  * @brief   This file contains functions for parsing commands
-  ***************************************************************************** 
-*/ 
+ *****************************************************************************
+ * @file    commands.h
+ * @author  Y3288231
+ * @date    Dec 15, 2014
+ * @brief   This file contains functions for parsing commands
+ *****************************************************************************
+ */
 #ifndef COMMANDS_H_
 #define COMMANDS_H_
 // Constant definitions =======================================================
@@ -16,10 +16,16 @@ typedef uint32_t command;
 #define STR_ACK "ACK_"
 #define STR_NACK "NACK"
 #define STR_ERR "ERR_"
+#define STR_UNKNOWN_MSG "XMSG"
 
 #define STR_SCOPE_OK "S_OK"
 #define STR_GEN_OK "G_OK"
 #define STR_GEN_NEXT "G_NX"
+
+#ifdef USE_SCOPE
+#define STR_SCOPE_TRIG "TRIG"
+#define STR_SCOPE_SMPL "SMPL"
+#endif //USE_SCOPE
 
 #ifdef USE_COUNTER
 #define STR_CNT_ETR_DATA "ETRD"		// data from ETR measurement
@@ -57,10 +63,8 @@ typedef uint32_t command;
 #define SWAP_UINT16(x) (((x & 0xff00) >> 8) | ((x & 0x00ff) << 8))
 #define SWAP_UINT32(x) ( (x&0xff000000)>>24 | (x&0x00ff0000)>>8 | (x&0x0000ff00)<<8 | (x&0x000000ff)<<24 )
 
-
 #define REGISTER_CMD(name,value) CMD_##name=(int)BUILD_CMD(STRINGIFY(value))
 
-//typedef const char commandi[4];
 
 //Command definitions
 //Common commands
@@ -239,18 +243,18 @@ typedef uint32_t command;
 
 
 #define isCounterMode(CMD) (((CMD) == CMD_MODE_ETR) || \
-                           ((CMD) == CMD_MODE_IC) || \
-													 ((CMD) == CMD_MODE_REF) || \
-													 ((CMD) == CMD_MODE_TI))
+		((CMD) == CMD_MODE_IC) || \
+		((CMD) == CMD_MODE_REF) || \
+		((CMD) == CMD_MODE_TI))
 
 //Counter ETR sampling times
 
 
 #define isCounterEtrGate(CMD) (((CMD) == CMD_GATE_100m) || \
-															((CMD) == CMD_GATE_500m) || \
-															((CMD) == CMD_GATE_1s) || \
-															((CMD) == CMD_GATE_5s) || \
-															((CMD) == CMD_GATE_10s))
+		((CMD) == CMD_GATE_500m) || \
+		((CMD) == CMD_GATE_1s) || \
+		((CMD) == CMD_GATE_5s) || \
+		((CMD) == CMD_GATE_10s))
 
 //Counter IC prescaler 1
 
@@ -258,18 +262,18 @@ typedef uint32_t command;
 
 
 #define isCounterIcPresc1(CMD) (((CMD) == CMD_PRESC1_1x) || \
-																((CMD) == CMD_PRESC1_2x) || \
-																((CMD) == CMD_PRESC1_4x) || \
-																((CMD) == CMD_PRESC1_8x))		
+		((CMD) == CMD_PRESC1_2x) || \
+		((CMD) == CMD_PRESC1_4x) || \
+		((CMD) == CMD_PRESC1_8x))
 
 //Counter IC prescaler 2
 
 
 
 #define isCounterIcPresc2(CMD) (((CMD) == CMD_PRESC2_1x) || \
-																((CMD) == CMD_PRESC2_2x) || \
-																((CMD) == CMD_PRESC2_4x) || \
-																((CMD) == CMD_PRESC2_8x))		
+		((CMD) == CMD_PRESC2_2x) || \
+		((CMD) == CMD_PRESC2_4x) || \
+		((CMD) == CMD_PRESC2_8x))
 
 //Counter IC pulse mode change configuration + TI (time interval)
 
@@ -277,24 +281,24 @@ typedef uint32_t command;
 
 
 #define isCounterIcTiEvent(CMD) (((CMD) == CMD_EVENT_RF1) || \
-																((CMD) == CMD_EVENT_RF2) || \
-																((CMD) == CMD_EVENT_RO1) || \
-																((CMD) == CMD_EVENT_RO2)	|| \
-																((CMD) == CMD_EVENT_FO1)	|| \
-																((CMD) == CMD_EVENT_FO2)	|| \
-																((CMD) == CMD_EVENT_SEQ_AB)	|| \
-																((CMD) == CMD_EVENT_SEQ_BA))
+		((CMD) == CMD_EVENT_RF2) || \
+		((CMD) == CMD_EVENT_RO1) || \
+		((CMD) == CMD_EVENT_RO2)	|| \
+		((CMD) == CMD_EVENT_FO1)	|| \
+		((CMD) == CMD_EVENT_FO2)	|| \
+		((CMD) == CMD_EVENT_SEQ_AB)	|| \
+		((CMD) == CMD_EVENT_SEQ_BA))
 
 //Counter IC duty cycle init/deinit
 
 
 
 #define isCounterIcDutyCycle(CMD) (((CMD) == CMD_DUTY_CYCLE_INIT_CH1) || \
-																	((CMD) == CMD_DUTY_CYCLE_INIT_CH2) || \
-																	((CMD) == CMD_DUTY_CYCLE_DEINIT_CH1) || \
-																	((CMD) == CMD_DUTY_CYCLE_DEINIT_CH2) || \
-																	((CMD) == CMD_DUTY_CYCLE_ENABLE) || \
-																	((CMD) == CMD_DUTY_CYCLE_DISABLE))
+		((CMD) == CMD_DUTY_CYCLE_INIT_CH2) || \
+		((CMD) == CMD_DUTY_CYCLE_DEINIT_CH1) || \
+		((CMD) == CMD_DUTY_CYCLE_DEINIT_CH2) || \
+		((CMD) == CMD_DUTY_CYCLE_ENABLE) || \
+		((CMD) == CMD_DUTY_CYCLE_DISABLE))
 
 //Counter TI mode
 
@@ -302,7 +306,7 @@ typedef uint32_t command;
 
 
 #define isCounterTiMode(CMD) (((CMD) == CMD_MODE_EVENT_SEQUENCE_DEP) || \
-															((CMD) == CMD_MODE_EVENT_SEQUENCE_INDEP))		
+		((CMD) == CMD_MODE_EVENT_SEQUENCE_INDEP))
 
 
 //Generator modes (NORMAL - DAC BUILD_CMD(STRINGIFY( ABNORMAL - PWM)
@@ -311,22 +315,22 @@ typedef uint32_t command;
 
 
 #define isGeneratorMode(CMD) (((CMD) == CMD_MODE_PWM) || \
-															((CMD) == CMD_MODE_DAC))
+		((CMD) == CMD_MODE_DAC))
 
 //Sync PWM general commands
 
 
 
 #define isSyncPwm(CMD) (((CMD) == CMD_SYNC_PWM_INIT) || \
-												((CMD) == CMD_SYNC_PWM_DEINIT) || \
-												((CMD) == CMD_SYNC_PWM_START) || \
-												((CMD) == CMD_SYNC_PWM_STOP))						
+		((CMD) == CMD_SYNC_PWM_DEINIT) || \
+		((CMD) == CMD_SYNC_PWM_START) || \
+		((CMD) == CMD_SYNC_PWM_STOP))
 
 //Sync PWM general commands
 
 
 #define isSyncPwmStepMode(CMD) (((CMD) == CMD_SYNC_PWM_STEP_ENABLE) || \
-																((CMD) == CMD_SYNC_PWM_STEP_DISABLE))		
+		((CMD) == CMD_SYNC_PWM_STEP_DISABLE))
 
 //Logic analyzer trigger event.
 
@@ -334,25 +338,25 @@ typedef uint32_t command;
 
 
 #define isLogAnlysTriggerMode(CMD) (((CMD) == CMD_TRIG_MODE_AUTO) || \
-																		((CMD) == CMD_TRIG_MODE_NORMAL) || \
-																		((CMD) == CMD_TRIG_MODE_SINGLE))
+		((CMD) == CMD_TRIG_MODE_NORMAL) || \
+		((CMD) == CMD_TRIG_MODE_SINGLE))
 
 //Logic analyzer trigger event.
 
 
 
 #define isLogAnlysTriggerEvent(CMD) (((CMD) == CMD_TRIG_EDGE_RISING) || \
-																		((CMD) == CMD_TRIG_EDGE_FALLING))		
-	
+		((CMD) == CMD_TRIG_EDGE_FALLING))
+
 
 //Scope tigger modes
 
 
 
 #define isScopeTrigMode(CMD) (((CMD) == CMD_MODE_NORMAL) || \
-                              ((CMD) == CMD_MODE_AUTO) || \
-															((CMD) == CMD_MODE_AUTO_FAST) || \
-                              ((CMD) == CMD_MODE_SINGLE))	
+		((CMD) == CMD_MODE_AUTO) || \
+		((CMD) == CMD_MODE_AUTO_FAST) || \
+		((CMD) == CMD_MODE_SINGLE))
 
 //Scope trigger edges
 
@@ -360,58 +364,58 @@ typedef uint32_t command;
 
 
 #define isScopeTrigEdge(CMD) (((CMD) == CMD_EDGE_RISING) || \
-                              ((CMD) == CMD_EDGE_FALLING))	
+		((CMD) == CMD_EDGE_FALLING))
 
 //Scope sampling frequencies
 
 
 
 #define isScopeFreq(CMD) (((CMD) == CMD_FREQ_1K) || \
-                          ((CMD) == CMD_FREQ_2K) || \
-                          ((CMD) == CMD_FREQ_5K) || \
-                          ((CMD) == CMD_FREQ_10K) || \
-                          ((CMD) == CMD_FREQ_20K) || \
-                          ((CMD) == CMD_FREQ_50K) || \
-                          ((CMD) == CMD_FREQ_100K) || \
-                          ((CMD) == CMD_FREQ_200K) || \
-                          ((CMD) == CMD_FREQ_500K) || \
-                          ((CMD) == CMD_FREQ_1M) || \
-                          ((CMD) == CMD_FREQ_2M) || \
-                          ((CMD) == CMD_FREQ_5M) || \
-													((CMD) == CMD_FREQ_10M) || \
-                          ((CMD) == CMD_FREQ_MAX))	
-													
+		((CMD) == CMD_FREQ_2K) || \
+		((CMD) == CMD_FREQ_5K) || \
+		((CMD) == CMD_FREQ_10K) || \
+		((CMD) == CMD_FREQ_20K) || \
+		((CMD) == CMD_FREQ_50K) || \
+		((CMD) == CMD_FREQ_100K) || \
+		((CMD) == CMD_FREQ_200K) || \
+		((CMD) == CMD_FREQ_500K) || \
+		((CMD) == CMD_FREQ_1M) || \
+		((CMD) == CMD_FREQ_2M) || \
+		((CMD) == CMD_FREQ_5M) || \
+		((CMD) == CMD_FREQ_10M) || \
+		((CMD) == CMD_FREQ_MAX))
+
 //Scope data lengths
 
 
 #define isScopeNumOfSamples(CMD) (((CMD) == CMD_SAMPLES_100) || \
-																((CMD) == CMD_SAMPLES_200) || \
-                                ((CMD) == CMD_SAMPLES_500) || \
-                                ((CMD) == CMD_SAMPLES_1K) || \
-                                ((CMD) == CMD_SAMPLES_2K) || \
-                                ((CMD) == CMD_SAMPLES_5K) || \
-                                ((CMD) == CMD_SAMPLES_10K) || \
-                                ((CMD) == CMD_SAMPLES_20K) || \
-																((CMD) == CMD_SAMPLES_50K) || \
-																((CMD) == CMD_SAMPLES_100K))	
+		((CMD) == CMD_SAMPLES_200) || \
+		((CMD) == CMD_SAMPLES_500) || \
+		((CMD) == CMD_SAMPLES_1K) || \
+		((CMD) == CMD_SAMPLES_2K) || \
+		((CMD) == CMD_SAMPLES_5K) || \
+		((CMD) == CMD_SAMPLES_10K) || \
+		((CMD) == CMD_SAMPLES_20K) || \
+		((CMD) == CMD_SAMPLES_50K) || \
+		((CMD) == CMD_SAMPLES_100K))
 
 
 //Scope Data depths
 
 
 #define isScopeDataDepth(CMD) (((CMD) == CMD_DATA_DEPTH_12B) || \
-                               ((CMD) == CMD_DATA_DEPTH_10B) || \
-                               ((CMD) == CMD_DATA_DEPTH_8B) || \
-                               ((CMD) == CMD_DATA_DEPTH_6B))	
-															 
+		((CMD) == CMD_DATA_DEPTH_10B) || \
+		((CMD) == CMD_DATA_DEPTH_8B) || \
+		((CMD) == CMD_DATA_DEPTH_6B))
+
 //Number of channels
 
 
 
 #define isChannel(CMD) (((CMD) == CMD_CHANNELS_1) || \
-                              ((CMD) == CMD_CHANNELS_2) || \
-															((CMD) == CMD_CHANNELS_3) || \
-                              ((CMD) == CMD_CHANNELS_4))		
+		((CMD) == CMD_CHANNELS_2) || \
+		((CMD) == CMD_CHANNELS_3) || \
+		((CMD) == CMD_CHANNELS_4))
 
 // Exported variables =========================================================
 // Exported functions =========================================================

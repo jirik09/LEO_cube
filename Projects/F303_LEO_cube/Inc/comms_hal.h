@@ -15,6 +15,7 @@ void commsSendInt32(int32_t num);
 void commsSendUint32(uint32_t num);
 void commsSendBuff(uint8_t *buff, uint16_t len);
 void commsSendString(char *chr);
+void commsSendDouble(double value);
 //void commsSendDMA(uint8_t chr);
 //void commsSendInt32DMA(int32_t num);
 //void commsSendUint32DMA(uint32_t num);

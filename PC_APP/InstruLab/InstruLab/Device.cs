@@ -1161,18 +1161,8 @@ namespace LEO
                             break;
                         /************************* REF warning *************************/
                         case Commands.CNT_REF_WARN:
-                            //while (port.BytesToRead < 2)
-                            //{
-                            //    wait_for_data(watchDog--);
-                            //}
-
-                            //char[] inputValWarn = new char[64];
-                            //port.Read(inputValWarn, 0, 2);
-
                             try
                             {
-                                //cntMessage = new string(inputValWarn, 0, 2);
-                                //buff = Convert.ToInt32(cntMessage); //int.Parse(cntMessage, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
                                 Counter_form.add_message(new Message(Message.MsgRequest.COUNTER_REF_WARN, "REF_WARN", 1));
                             }
                             catch (Exception ex)
@@ -1182,44 +1172,34 @@ namespace LEO
                             break;
                         /************************* TI TIMEOUT *************************/
                         case Commands.CNT_TI_TIMEOUT_OCCURED:
-                            while (port.BytesToRead < 2)
-                            {
-                                wait_for_data(watchDog--);
-                            }
-
-                            char[] inputValTimout = new char[64];
-                            port.Read(inputValTimout, 0, 2);
-
                             try
-                            {
-                                cntMessage = new string(inputValTimout, 0, 2);
-                                buff = Convert.ToInt32(cntMessage); //int.Parse(cntMessage, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                Counter_form.add_message(new Message(Message.MsgRequest.COUNTER_TI_TIMEOUT, "TI_TIMEOUT", buff));
+                            {                                                                
+                                Counter_form.add_message(new Message(Message.MsgRequest.COUNTER_TI_TIMEOUT, "TI_TIMEOUT", 1));
                             }
                             catch (Exception ex)
                             {
-                                logRecieved("Counter buffer TI was not parsed  " + new string(inputValTimout, 0, 2));
+                                logRecieved("Counter buffer TI was not parsed");
                             }
                             break;
                         /************************* TI DATA *************************/
                         case Commands.CNT_TI_DATA:
-                            while (port.BytesToRead < 16)
+                            while (port.BytesToRead < 8)
                             {
                                 wait_for_data(watchDog--);
                             }
 
-                            char[] inputValBuf2 = new char[64];
-                            port.Read(inputValBuf2, 0, 16);
+                            byte[] inputValBuf2 = new byte[8];
+                            port.Read(inputValBuf2, 0, 8);
 
                             try
                             {
-                                cntMessage = new string(inputValBuf2, 0, 16);
-                                freq = double.Parse(cntMessage, System.Globalization.CultureInfo.InvariantCulture.NumberFormat);
-                                Counter_form.add_message(new Message(Message.MsgRequest.COUNTER_TI_DATA, "TI_BUF2_BIGGER", freq));
+                                cntMessageDouble = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValBuf2, 0)); //BitConverter.ToSingle(inputValEtr, 0);                                                                                               
+                                Counter_form.add_message(new Message(Message.MsgRequest.COUNTER_TI_DATA, "TI_BUF2_BIGGER", cntMessageDouble));
+                                logRecieved("CNT Time Interval Data parsed" + cntMessageDouble.ToString());
                             }
                             catch (Exception ex)
                             {
-                                logRecieved("Counter time TI was not parsed  " + new string(inputValBuf2, 0, 4));
+                                logRecieved("CNT Time Interval Data NOT parsed!" + cntMessageDouble.ToString());
                             }
                             break;
                         /************************* Default *************************/

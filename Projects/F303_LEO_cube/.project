@@ -99,6 +99,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Common/logic_analyzer.h</locationURI>
 		</link>
 		<link>
+			<name>Common/messages.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Common/messages.h</locationURI>
+		</link>
+		<link>
 			<name>Common/scope.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Common/scope.c</locationURI>

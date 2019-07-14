@@ -79,6 +79,14 @@ typedef enum{
 	SAMPLE_COUNT_NOT_CHANGED
 }counterRefSmplCntChange;
 
+/**
+* @brief  Reciprocal mode ISR pass through flag.
+*/
+typedef enum{
+	COUNTER_REF_SEND_DATA = 0,
+	COUNTER_WARNING_FIRED
+}counterRefWarning;
+
 	/**
   * @brief  Time interval (TI) measurement edge rising falling selection. 
   */
@@ -168,6 +176,7 @@ typedef struct{
 	counterState state;
 	
 	counterRefSmplCntChange sampleCntChange;
+	counterRefWarning refWarning;
 	counterIcChannel icChannel1;
 	counterIcChannel icChannel2;	
 	counterIcDutyCycle icDutyCycle;

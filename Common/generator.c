@@ -1,11 +1,11 @@
 /**
-  *****************************************************************************
-  * @file    generator.c
-  * @author  Y3288231
-  * @date    Dec 15, 2014
-  * @brief   This file contains oscilloscope functions
-  ***************************************************************************** 
-*/ 
+ *****************************************************************************
+ * @file    generator.c
+ * @author  Y3288231
+ * @date    Dec 15, 2014
+ * @brief   This file contains oscilloscope functions
+ *****************************************************************************
+ */
 
 // Includes ===================================================================
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
@@ -15,14 +15,15 @@
 #include "generator.h"
 #include "dac.h"
 #include "tim.h"
+#include "messages.h"
 
 /** @defgroup Generator Generator
-  * @{
-  */
+ * @{
+ */
 
 /** @defgroup Generator_Private_Variables Generator Private Variables
-  * @{
-  */
+ * @{
+ */
 xQueueHandle generatorMessageQueue;
 //uint8_t validateGenBuffUsage(void);
 void clearGenBuffer(void);
@@ -32,121 +33,121 @@ uint16_t blindValue=0;
 
 uint16_t generatorBuffer[MAX_GENERATOR_BUFF_SIZE/2];
 /**
-  * @}
-  */
+ * @}
+ */
 
 /** @defgroup Generator_Function_Definitions Generator Function Definitions
-  * @{
-  */
+ * @{
+ */
 /**
-  * @brief  Generator task function.
-  * task is getting messages from other tasks and takes care about generator functions
-  * @param  Task handler, parameters pointer
-  * @retval None
-  */
+ * @brief  Generator task function.
+ * task is getting messages from other tasks and takes care about generator functions
+ * @param  Task handler, parameters pointer
+ * @retval None
+ */
 //portTASK_FUNCTION(vScopeTask, pvParameters){	
 void GeneratorTask(void const *argument){
-	
+
 	//Build error on lines below? Lenght of Pin strings must be 4 chars long!!!
 	CASSERT(sizeof(GEN_CH1_PIN_STR)==5);
 	CASSERT(sizeof(GEN_CH2_PIN_STR)==5);
 
-	generatorMessageQueue = xQueueCreate(5, 20);
+	uint16_t message = 0xFFFF;
+	generatorMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
 	generatorSetDefault();
-	char message[20];
-	
+
 	while(1){
-		xQueueReceive(generatorMessageQueue, message, portMAX_DELAY);
-		if(message[0]=='1'){
+		xQueueReceive(generatorMessageQueue, &message, portMAX_DELAY);
 
-		}else if(message[0]=='2'){
+		if(message==MSG_INVALIDATE){ //invalidate
+			if(generator.state==GENERATOR_IDLE){}
 
-		}else if(message[0]=='3'){ //invalidate
-			if(generator.state==GENERATOR_IDLE){
-				
-			}
-		}else if(message[0]=='4'){ //start
+		}else if(message==MSG_GEN_START){ //start
 			if(generator.state==GENERATOR_IDLE){
 				if(generator.modeState==GENERATOR_DAC){
 					genInit();
 					GeneratingEnable();
 				}else if(generator.modeState==GENERATOR_PWM){
-					#ifdef USE_GEN_PWM
+#ifdef USE_GEN_PWM
 					genPwmInit();
 					PWMGeneratingEnable();
-					#endif //USE_GEN_PWM
+#endif //USE_GEN_PWM
 				}
 				generator.state=GENERATOR_RUN;
 			}
 
-		}else if(message[0]=='5'){ //stop
+		}else if(message==MSG_GEN_STOP){ //stop
 			if(generator.state==GENERATOR_RUN){
 				if(generator.modeState==GENERATOR_DAC){
 					GeneratingDisable();
 				}else if(generator.modeState==GENERATOR_PWM){
-					#ifdef USE_GEN_PWM
+#ifdef USE_GEN_PWM
 					PWMGeneratingDisable();
-					#endif //USE_GEN_PWM
+#endif //USE_GEN_PWM
 				}
 				generator.state=GENERATOR_IDLE;
 			}
-			
-		}else if(message[0]=='6'){ //set PWM mode
-			#ifdef USE_GEN_PWM
+
+		}else if(message==MSG_GEN_PWM_MODE){ //set PWM mode
+#ifdef USE_GEN_PWM
 			generatorSetModePWM();
 			TIMGenPwmInit();
-			#endif //USE_GEN_PWM
-			
-		}else if(message[0]=='7'){ //set DAC mode
+#endif //USE_GEN_PWM
+
+		}else if(message==MSG_GEN_DAC_MODE){ //set DAC mode
 			generatorSetModeDAC();
 			TIMGenInit();
 
-		}else if(message[0]=='8'){ //deinit
+		}else if(message==MSG_GEN_DEINIT){ //deinit
 			if(generator.modeState==GENERATOR_DAC){				
-					TIMGenDacDeinit();
+				TIMGenDacDeinit();
 			}else if(generator.modeState==GENERATOR_PWM){
-					#ifdef USE_GEN_PWM
-					TIMGenPwmDeinit();
-				#endif //USE_GEN_PWM
+#ifdef USE_GEN_PWM
+				TIMGenPwmDeinit();
+#endif //USE_GEN_PWM
 			}	
 		}
 	}
 }
 
 /**
-	* @brief  Sets arb. generator mode.  
-	* @param  mode: GEN_DAC or GEN_PWM
-  * @retval None
-  */
+ * @brief  Sets arb. generator mode.
+ * @param  mode: GEN_DAC or GEN_PWM
+ * @retval None
+ */
 void genSetMode(uint8_t mode)
 {
+	uint16_t passMsg;
+
 	switch(mode){
-		case GEN_PWM:
-			xQueueSendToBack(generatorMessageQueue, "6SetGenPwmMode", portMAX_DELAY);
-			break;
-		case GEN_DAC:
-			xQueueSendToBack(generatorMessageQueue, "7SetGenDacMode", portMAX_DELAY);
-			break;
-		default:
-			break;
+	case GEN_PWM:
+		passMsg = MSG_GEN_PWM_MODE;
+		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
+		break;
+	case GEN_DAC:
+		passMsg = MSG_GEN_DAC_MODE;
+		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
+		break;
+	default:
+		break;
 	}
 }
 
 /**
-	* @brief  Sets generator mode to PWM.  
-	* @param  None
-  * @retval None
-  */
+ * @brief  Sets generator mode to PWM.
+ * @param  None
+ * @retval None
+ */
 void generatorSetModePWM(void){
 	//generator_deinit();
 	generator.modeState = GENERATOR_PWM;
 }
 
 /**
-	* @brief  Sets generator mode to DAC.  
-	* @param  None
-  * @retval None
-  */
+ * @brief  Sets generator mode to DAC.
+ * @param  None
+ * @retval None
+ */
 void generatorSetModeDAC(void){
 	//generator_deinit();
 	//TIMGenPwmDeinit();	
@@ -154,50 +155,50 @@ void generatorSetModeDAC(void){
 }
 
 /**
-	* @brief  Generator deinitialization.  
-	* @param  None
-  * @retval None
-  */
+ * @brief  Generator deinitialization.
+ * @param  None
+ * @retval None
+ */
 void generator_deinit(void){
 	switch(generator.modeState){
-		case GENERATOR_PWM:
-			#ifdef USE_GEN_PWM
-			TIMGenPwmDeinit();
-			#endif //USE_GEN_PWM
-			break;
-		case GENERATOR_DAC:
-			TIMGenDacDeinit();
-			break;	
+	case GENERATOR_PWM:
+#ifdef USE_GEN_PWM
+		TIMGenPwmDeinit();
+#endif //USE_GEN_PWM
+		break;
+	case GENERATOR_DAC:
+		TIMGenDacDeinit();
+		break;
 	}
 }
 
 #ifdef USE_GEN_PWM
 /**
-	* @brief  Arb. PWM Generator frequency configurarion function.  
-	* @param  pscVal:	value of PSC register sent by host
-	* @param  chan: channel number 1 or 2
-  * @retval None
-  */
+ * @brief  Arb. PWM Generator frequency configurarion function.
+ * @param  pscVal:	value of PSC register sent by host
+ * @param  chan: channel number 1 or 2
+ * @retval None
+ */
 void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan){
 	TIM_GEN_PWM_PSC_Config(pscVal, chan);		// -1 subtraction made in PC app
 }
 
 /**
-	* @brief  Arb. PWM Generator frequency configurarion function.  
-	* @param  pscVal:	value of ARR register sent by host
-	* @param  chan: channel number 1 or 2
-  * @retval None
-  */
+ * @brief  Arb. PWM Generator frequency configurarion function.
+ * @param  pscVal:	value of ARR register sent by host
+ * @param  chan: channel number 1 or 2
+ * @retval None
+ */
 void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan){
 	TIM_GEN_PWM_ARR_Config(arrVal, chan);		// -1 subtraction made in PC app
 }
 #endif //USE_GEN_PWM
 
 /**
-  * @brief  Generator set Default values
-  * @param  None
-  * @retval None
-  */
+ * @brief  Generator set Default values
+ * @param  None
+ * @retval None
+ */
 void generatorSetDefault(void)
 {
 	generator.bufferMemory=generatorBuffer;
@@ -205,7 +206,7 @@ void generatorSetDefault(void)
 		generator.generatingFrequency[i]=DEFAULT_GENERATING_FREQ;
 		generator.realGenFrequency[i]=DEFAULT_GENERATING_FREQ;
 	}
-	
+
 	generator.numOfChannles=1;
 	generator.maxOneChanSamples=MAX_GENERATOR_BUFF_SIZE/2;
 	generator.oneChanSamples[0]=MAX_GENERATOR_BUFF_SIZE/2;
@@ -215,10 +216,10 @@ void generatorSetDefault(void)
 }
 
 /**
-  * @brief  Arb. DAC Generator initialization function.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Arb. DAC Generator initialization function.
+ * @param  None
+ * @retval None
+ */
 void genInit(void)
 {	
 	for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
@@ -233,10 +234,10 @@ void genInit(void)
 
 #ifdef USE_GEN_PWM
 /**
-  * @brief  Arb. PWM Generator initialization function.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Arb. PWM Generator initialization function.
+ * @param  None
+ * @retval None
+ */
 void genPwmInit(void)
 {	
 	for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
@@ -249,19 +250,20 @@ void genPwmInit(void)
 #endif //USE_GEN_PWM	
 
 /**
-  * @brief  Common Generator set data length function.
-	* @param  
-  * @retval None
-  */
+ * @brief  Common Generator set data length function.
+ * @param
+ * @retval None
+ */
 uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 	uint8_t result = GEN_INVALID_STATE;
 	if(generator.state==GENERATOR_IDLE ){
 		if ((index*2+length)/2<=generator.oneChanSamples[chan-1] && generator.numOfChannles>=chan){
 			if(commBufferReadNBytes((uint8_t *)generator.pChanMem[chan-1]+index*2,length)==length && commBufferReadByte(&result)==0 && result==';'){
 				result = 0;
-				xQueueSendToBack(generatorMessageQueue, "3Invalidate", portMAX_DELAY);
+				uint16_t passMsg = MSG_INVALIDATE;
+				xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 			}else{
-			result = GEN_INVALID_DATA;
+				result = GEN_INVALID_DATA;
 			}
 		}else{
 			result = GEN_OUT_OF_MEMORY;
@@ -271,11 +273,11 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 }
 
 /**
-  * @brief  Arb. DAC Generator set frequency function.
-	* @param  Freq: required generating frequency
-	* @param  chan: channel number 1 or 2 
-  * @retval None
-  */
+ * @brief  Arb. DAC Generator set frequency function.
+ * @param  Freq: required generating frequency
+ * @param  chan: channel number 1 or 2
+ * @retval None
+ */
 uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
 	uint8_t result = GEN_TO_HIGH_FREQ;
 	uint32_t realFreq;
@@ -288,20 +290,23 @@ uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
 }
 
 /**
-  * @brief  Common function for sending real sampling frequency.
-	* @param  None
-  * @retval None
-  */
+ * @brief  Common function for sending real sampling frequency.
+ * @param  None
+ * @retval None
+ */
 void genSendRealSamplingFreq(void){
-	xQueueSendToBack(messageQueue, "2SendGenFreq", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_SEND_FREQ;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 void genDataOKSendNext(void){
-	xQueueSendToBack(messageQueue, "7GenNext", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_NEXT;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 void genStatusOK(void){
-	xQueueSendToBack(messageQueue, "8GenOK", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_OK;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 uint32_t genGetRealSmplFreq(uint8_t chan){
@@ -319,7 +324,8 @@ uint8_t genSetLength(uint32_t length,uint8_t chan){
 		}else{
 			result = GEN_BUFFER_SIZE_ERR;
 		}
-		xQueueSendToBack(generatorMessageQueue, "3Invalidate", portMAX_DELAY);
+		uint16_t passMsg = MSG_INVALIDATE;
+		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 	}
 	return result;
 }
@@ -342,7 +348,8 @@ uint8_t genSetNumOfChannels(uint8_t chan){
 				generator.pChanMem[i]=(uint16_t *)&generatorBuffer[i*generator.maxOneChanSamples];
 			}
 			result=0;
-			xQueueSendToBack(generatorMessageQueue, "3Invalidate", portMAX_DELAY);
+			uint16_t passMsg = MSG_INVALIDATE;
+			xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 		}
 	}
 	return result;
@@ -350,10 +357,10 @@ uint8_t genSetNumOfChannels(uint8_t chan){
 
 
 /**
-  * @brief 	Checks if scope settings doesn't exceed memory
-  * @param  None
-  * @retval err/ok
-  */
+ * @brief 	Checks if scope settings doesn't exceed memory
+ * @param  None
+ * @retval err/ok
+ */
 //uint8_t validateGenBuffUsage(){
 //	uint8_t result=1;
 //	uint32_t data_len=generator.maxOneChanSamples;
@@ -368,10 +375,10 @@ uint8_t genSetNumOfChannels(uint8_t chan){
 //}
 
 /**
-  * @brief 	Clears generator buffer
-  * @param  None
-  * @retval None
-  */
+ * @brief 	Clears generator buffer
+ * @param  None
+ * @retval None
+ */
 void clearGenBuffer(void){
 	for(uint32_t i=0;i<MAX_GENERATOR_BUFF_SIZE/2;i++){
 		generatorBuffer[i]=0;
@@ -404,42 +411,45 @@ uint8_t genSetDAC(uint16_t chann1,uint16_t chann2){
 	}
 	genStart();	
 
-	
+
 	return result;
 }
 /**
-  * @brief  Start generator terminator skynet
-  * @param  None
-  * @retval None
-  */
+ * @brief  Start generator terminator skynet
+ * @param  None
+ * @retval None
+ */
 void genStart(void){
-	xQueueSendToBack(generatorMessageQueue, "4Start", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_START;
+	xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
-  * @brief  Stop generator
-  * @param  None
-  * @retval None
-  */
+ * @brief  Stop generator
+ * @param  None
+ * @retval None
+ */
 void genStop(void){
-	xQueueSendToBack(generatorMessageQueue, "5Stop", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_STOP;
+	xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
-  * @brief  Disable peripheral by reseting it.
-  * @param  None
-  * @retval None
-  */
+ * @brief  Disable peripheral by reseting it.
+ * @param  None
+ * @retval None
+ */
 void genReset(void){
-	xQueueSendToBack(generatorMessageQueue, "8Reset", portMAX_DELAY);
+	uint16_t passMsg = MSG_GEN_DEINIT;
+	xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 }
 
 /**
-  * @}
-  */
+ * @}
+ */
 
 #endif // USE_GEN || USE_GEN_PWM
 
 /**
-  * @}
-  */
+ * @}
+ */
