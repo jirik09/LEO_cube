@@ -10,10 +10,6 @@
 #include "tim.h"
 #include "logic_analyzer.h"
 #include "mcu_config.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "stm32f3xx_ll_tim.h"
 
 #ifdef USE_LOG_ANLYS
 
@@ -44,7 +40,7 @@ DMA_HandleTypeDef hdma_tim4_up;
 
 /**
  * @brief  TIM1 Configuration.
- * @note   Configures the timer to periodically trigger DMA for tranfering data
+ * @note   Configures the timer to periodically trigger DMA for transferring data
  *					from GPIOs to RAM (Logic analyzer data sampling).
  * @param  None
  * @retval None

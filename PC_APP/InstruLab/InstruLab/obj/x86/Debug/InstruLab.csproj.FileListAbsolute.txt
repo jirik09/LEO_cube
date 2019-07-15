@@ -93,3 +93,45 @@ C:\Users\janmu\GitRepo\LEO_CubeIDE\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Litt
 C:\Users\janmu\GitRepo\LEO_CubeIDE\PC_APP\InstruLab\InstruLab\obj\x86\Debug\InstruLab.csproj.CopyComplete
 C:\Users\janmu\GitRepo\LEO_CubeIDE\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.exe
 C:\Users\janmu\GitRepo\LEO_CubeIDE\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.pdb
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\Little Embedded Oscilloscope.exe.config
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\Little Embedded Oscilloscope.exe.manifest
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\Little Embedded Oscilloscope.application
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\Little Embedded Oscilloscope.exe
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\Little Embedded Oscilloscope.pdb
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\ZedGraph.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\ZedGraph.xml
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\de\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\es\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\fr\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\hu\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\it\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\ja\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\pt\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\ru\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\sk\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\sv\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\tr\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\zh-cn\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\bin\Debug\zh-tw\ZedGraph.resources.dll
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\InstruLab.csprojAssemblyReference.cache
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.AboutBox.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.ArbDialog.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.BodePlot.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Counter.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.feedback.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Instrulab.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Generator.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.LogicAnalyzer.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Properties.Resources.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.SyncPwmGenerator.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Scope.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.VoltageSource.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\LEO.Voltmeter.resources
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\InstruLab.csproj.GenerateResource.cache
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\InstruLab.csproj.CoreCompileInputs.cache
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.TrustInfo.xml
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.exe.manifest
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.application
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\InstruLab.csproj.CopyComplete
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.exe
+C:\Users\janmu\GitRepo\LEO_cube\PC_APP\InstruLab\InstruLab\obj\x86\Debug\Little Embedded Oscilloscope.pdb

@@ -50,26 +50,36 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_
 
 /** @addtogroup Scope
   * @{
-  */	 
+  */
+
 /** @defgroup Scope_TIM_Prototypes Scope Timers Function Prototypes.
   * @{
-  */	 
+  */
+
 #ifdef USE_SCOPE
+
 uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
+
 #endif //USE_SCOPE
+
 /**
   * @}
   */
+
 /**
   * @}
   */	 
 
 /** @defgroup Arbitrary_DAC_PWM_TIM_Prototypes Arbitrary DAC and PWM Timers Function Prototypes
   * @{
-  */	 
+  */
+
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
+
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
+
 #endif //USE_GEN || USE_GEN_PWM
+
 /**
   * @}
   */	 
@@ -77,10 +87,14 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 /** @defgroup Synch_PWM_TIM_Prototypes Synchronized PWM Timers Function Prototypes.
   * @{
   */	
+
 #ifdef USE_SYNC_PWM
+
   #define __STEP_MODE_ENABLE()  		TIM8->CR1 |= TIM_CR1_OPM
 	#define __STEP_MODE_DISABLE()  		TIM8->CR1 &= ~TIM_CR1_OPM
+
 #endif //USE_SYNC_PWM
+
 /**
   * @}
   */	
@@ -88,20 +102,26 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 /** @addtogroup Scope
   * @{
   */	
+
 /** @addtogroup Scope_TIM_Prototypes Scope Timers Function Prototypes
   * @{
   */
+
 #ifdef USE_SCOPE
+
 void TIMScopeEnable(void);
 void TIMScopeDisable(void);
 void MX_TIM15_Init(void);
 void TIM15_SCOPE_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM15_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base);
 uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
+
 #endif //USE_SCOPE
+
 /**
   * @}
   */	
+
 /**
   * @}
   */		
@@ -109,24 +129,36 @@ uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
 /** @addtogroup Arbitrary_DAC_PWM_TIM_Prototypes
   * @{
   */
+
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
+#ifdef USE_GEN
+
 void TIMGenEnable(void);
 void TIMGenDisable(void);
 void MX_TIM6_Init(void);
 void MX_TIM7_Init(void);
 
+void TIM6_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM6_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base);
+
 void TIMGenInit(void);
 void TIMGenPwmDeinit(void);
 void TIMGenDacDeinit(void);
-#endif //USE_GEN || USE_GEN_PWM
+
+#endif //USE_GEN
+
 /**
   * @}
   */
 
+#ifdef USE_GEN_PWM
+
 /** @defgroup Arbitrary_PWM_TIM_Prototypes Arbitrary PWM Timers Function Prototypes
   * @{
   */
-#ifdef USE_GEN_PWM
+
 /* PWM generatin timers */
 static void MX_TIM1_GEN_PWM_Init(void);
 static void MX_TIM3_GEN_PWM_Init(void);
@@ -134,26 +166,40 @@ static void MX_TIM3_GEN_PWM_Init(void);
 static void MX_TIM6_GEN_PWM_Init(void);
 static void MX_TIM7_GEN_PWM_Init(void);
 
+void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM1_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM3_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM6_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+
 void TIM_DMA_Reconfig(uint8_t chan);
 void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan);
 void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan);
-void TIMGenPwmInit(void);
 
-/* TIM1 and TIM3 enable/disable */
-//void TIMGenPWMEnable(void);
-//void TIMGenPWMDisable(void);
+void TIMGenPwmInit(void);
 void PWMGeneratingEnable(void);
 void PWMGeneratingDisable(void);
+
 #endif //USE_GEN_PWM
+#endif //USE_GEN || USE_GEN_PWM
+
 /**
   * @}
   */
 
 /** @addtogroup Synch_PWM_TIM_Prototypes
   * @{
-  */	
+  */
+
 #ifdef USE_SYNC_PWM
+
 static void MX_TIM8_SYNC_PWM_Init(void);
+void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+
 void TIM_SYNC_PWM_Init(void);
 void TIM_SYNC_PWM_Deinit(void);
 void TIM_SYNC_PWM_Start(void);
@@ -165,7 +211,9 @@ void TIM_ARR_PSC_Reconfig(uint32_t arrPsc);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
+
 #endif // USE_SYNC_PWM
+
 /**
   * @}
   */
@@ -173,11 +221,18 @@ void TIM_SYNC_PWM_StepMode_Disable(void);
 /** @addtogroup Logic_Analyzer_TIM_Prototypes
   * @{
   */
+
 #ifdef USE_LOG_ANLYS
+
 extern DMA_HandleTypeDef hdma_tim4_up;
 
 void MX_TIM1_LOG_ANLYS_Init(void);
 void MX_TIM4_LOG_ANLYS_Init(void);
+
+void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM1_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 void TIM_LogAnlys_Init(void);
 void TIM_LogAnlys_Deinit(void);
@@ -195,7 +250,9 @@ void TIM_PostTrigger_SoftwareStart(void);
 void LOG_ANLYS_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 void LOG_ANLYS_TriggerEventOccured(void);
 void TIM_SamplingStop(void);
+
 #endif //USE_LOG_ANLYS
+
 /**
   * @}
   */
@@ -203,6 +260,7 @@ void TIM_SamplingStop(void);
 /** @defgroup Counter_TIM_Prototypes Counter Timers Function Prototypes
   * @{
   */
+
 #ifdef USE_COUNTER
 
 typedef enum{
@@ -227,11 +285,6 @@ void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM4_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
-
-void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM4_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM4_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
-void TIM1_LOG_ANLYS_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 /* Modes initialization functions */
 void TIM_counter_etr_init(void);

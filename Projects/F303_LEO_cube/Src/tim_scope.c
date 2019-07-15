@@ -8,12 +8,7 @@
  */
 
 #include "tim.h"
-#include "logic_analyzer.h"
 #include "mcu_config.h"
-#include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "stm32f3xx_ll_tim.h"
 
 #ifdef USE_SCOPE
 
