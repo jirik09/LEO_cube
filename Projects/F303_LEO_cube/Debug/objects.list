@@ -99,7 +99,7 @@
 "Src/tim_counter.o"
 "Src/tim_gen.o"
 "Src/tim_logan.o"
-"Src/tim_pwm_sync.o"
 "Src/tim_scope.o"
+"Src/tim_sync_pwm.o"
 "Src/usart.o"
 "Startup/startup_stm32f303retx.o"

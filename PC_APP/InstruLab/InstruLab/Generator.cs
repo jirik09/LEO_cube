@@ -103,6 +103,7 @@ namespace LEO
         double realPwmFreq_ch2 = defaultFreq;
         double pwmFreq_ch1 = defaultFreq;
         double pwmFreq_ch2 = defaultFreq;
+        UInt32 frequencyToSend;
 
         ushort genPwm1Arr = defaultArr_ch1;
         ushort genPwm1Psc = 0;
@@ -419,6 +420,14 @@ namespace LEO
                             generating = false;
                             sending = false;
                             gen_stop();
+                            this.Invalidate();
+                            break;
+                        case Message.MsgRequest.GEN_PWM_REAL_FREQ_CH1:
+                            realPwmFreq_ch1 = messg.GetFlt();
+                            this.Invalidate();
+                            break;
+                        case Message.MsgRequest.GEN_PWM_REAL_FREQ_CH2:
+                            realPwmFreq_ch2 = messg.GetFlt();
                             this.Invalidate();
                             break;
                     }
@@ -2762,6 +2771,7 @@ namespace LEO
         /* Maximal PWM frequency set to 9MHz - leads to minimal 4bit PWM resolution (144MHz / (16*1) = 9MHz) */        
         private double genProcessPwmFrequency(uint chan, double freq)
         {
+            //frequencyToSend = (UInt32)freq;
             UInt32 psc = 0, arr = 1;  // MCU TIM Prescaler and Auto Reload Register
             UInt32 arrMultipliedByPsc = 0;  
             /* Application needs to ask the device for both values - do it later. */
@@ -2841,18 +2851,40 @@ namespace LEO
 
         /* Send computed values of ARR and PSC to device */
         private void sendPwmFrequency(ushort chan, ushort psc, ushort arr)
-        {
+        {           
             device.takeCommsSemaphore(semaphoreTimeout + 121);
 
-            device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_FREQ_PSC + " ");
-            device.send_int((psc << 8) + chan);
-            device.send(";");
+            //device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_FREQ_PSC + " ");
+            //device.send_int((psc << 8) + chan);
+            //device.send(";");
 
-            Thread.Sleep(120);
+            //Thread.Sleep(120);
 
-            device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_FREQ_ARR + " ");
-            device.send_short((arr << 8) + chan);
-            device.send(";");
+            //device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_FREQ_ARR + " ");
+            //device.send_short((arr << 8) + chan);
+            //device.send(";");
+            if (chan == 1)
+            {
+                long val = BitConverter.DoubleToInt64Bits(pwmFreq_ch1);                
+                byte[] valueBytes = BitConverter.GetBytes(val);
+                int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
+                int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+                device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_SET_FREQ_CH1 + " ");
+                device.send_int(valueHigh);
+                device.send_int(valueLow);
+                device.send(";");
+            }
+            else if (chan == 2)
+            {
+                long val = BitConverter.DoubleToInt64Bits(pwmFreq_ch2);
+                byte[] valueBytes = BitConverter.GetBytes(val);
+                int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
+                int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+                device.send(Commands.GENERATOR + ":" + Commands.GEN_PWM_SET_FREQ_CH2 + " ");
+                device.send_int(valueHigh);
+                device.send_int(valueLow);
+                device.send(";");
+            }
 
             device.giveCommsSemaphore();
         }

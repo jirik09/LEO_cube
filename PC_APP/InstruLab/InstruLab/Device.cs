@@ -946,6 +946,48 @@ namespace LEO
                             //Console.WriteLine(Commands.TRIGGERED);
                             logRecieved("GEN_FRQ?" + new string(inputMsg, 1, 3) + " CH" + inputData[3].ToString());
                             break;
+                        case Commands.GEN_PWM_REAL_FREQ_CH1:
+                            while (port.BytesToRead < 8)
+                            {
+                                wait_for_data(watchDog--);
+                            }
+
+                            byte[] inputValRealFreq = new byte[8];
+                            port.Read(inputValRealFreq, 0, 8);
+                            double message = 0;
+
+                            try
+                            {
+                                message = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValRealFreq, 0));
+                                Counter_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH1, "GEN_REAL_FREQ", message));
+                                logRecieved("Gen PWM Real Freq " + message.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                logRecieved("Gen PWM Real Freq not parsed  " + message.ToString());
+                            }
+                            break;
+                        case Commands.GEN_PWM_REAL_FREQ_CH2:
+                            while (port.BytesToRead < 8)
+                            {
+                                wait_for_data(watchDog--);
+                            }
+
+                            byte[] inputValRealFreq2 = new byte[8];
+                            port.Read(inputValRealFreq2, 0, 8);
+                            double message2 = 0;
+
+                            try
+                            {
+                                message2 = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValRealFreq2, 0));
+                                Counter_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH2, "GEN_REAL_FREQ", message2));
+                                logRecieved("Gen PWM Real Freq " + message2.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                logRecieved("Gen PWM Real Freq not parsed  " + message2.ToString());
+                            }
+                            break;
                         /* -------------------------------------------------------------------------------------------------------------------------------- */
                         /* ---------------------------------------------- LOGIC ANALYZER RECEIVED MESSAGES ------------------------------------------------ */
                         /* -------------------------------------------------------------------------------------------------------------------------------- */

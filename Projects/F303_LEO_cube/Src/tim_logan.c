@@ -10,6 +10,7 @@
 #include "tim.h"
 #include "logic_analyzer.h"
 #include "mcu_config.h"
+#include "stm32f3xx_ll_tim.h"
 
 #ifdef USE_LOG_ANLYS
 
@@ -311,10 +312,12 @@ void TIM_PostTrigger_ARR_PSC_Reconfig(uint32_t arrPsc)
 	__HAL_TIM_SET_AUTORELOAD(&htim4, arr);
 	__HAL_TIM_SET_PRESCALER(&htim4, psc);
 
-	TIM4->EGR |= TIM_EGR_UG;
-	TIM4->CR1 &= ~(TIM_CR1_CEN);
+	//TIM4->EGR |= TIM_EGR_UG;
+	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
+	//TIM4->CR1 &= ~(TIM_CR1_CEN);
+	HAL_TIM_Base_Stop(&htim4);
+
 	//	TIM_LogAnlys_Stop();
-	//	HAL_TIM_Base_Stop(&htim4);
 }
 
 /**

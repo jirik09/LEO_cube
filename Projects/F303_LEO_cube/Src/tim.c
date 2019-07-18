@@ -13,6 +13,7 @@
 #include "logic_analyzer.h"
 #include "generator.h"
 #include "mcu_config.h"
+#include "stm32f3xx_ll_tim.h"
 
 /** @defgroup Timers Timers
  * @{
@@ -276,12 +277,73 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
 		//		}
 	}
 
-	htim_base->Init.Period = autoReloadReg;
-	htim_base->Init.Prescaler = prescaler;
-	HAL_TIM_Base_Init(htim_base);
+//	htim_base->Init.Period = autoReloadReg;
+//	htim_base->Init.Prescaler = prescaler;
+//	HAL_TIM_Base_Init(htim_base);
+
+	htim_base->Instance->ARR = autoReloadReg;
+	htim_base->Instance->PSC = prescaler;
+	LL_TIM_GenerateEvent_UPDATE(htim_base->Instance);
 
 	return result;
 }
+
+/**
+ * @brief  Common Timer reconfiguration function working with double.
+ * @retval result: real frequency
+ */
+double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq) {
+
+	uint32_t arr, psc = 0;
+	uint32_t clkDiv;
+	double realFreq;
+
+	clkDiv = roundNumber((double)periphClock / reqFreq);
+
+	if(clkDiv <= 0xFFFF){
+		arr = clkDiv;
+		psc = 1;
+	}else{
+		for( ; psc==0; clkDiv--){
+			for(uint32_t pscTmp = 0xFFFF; pscTmp > 1; pscTmp--){
+				if((clkDiv % pscTmp) == 0){
+					if((clkDiv / pscTmp) <= 0xFFFF){
+						psc = pscTmp;
+						break;
+					}
+				}
+			}
+			if(psc != 0){
+				if(clkDiv / psc <= 0xFFFF){
+					break;
+				}
+			}
+		}
+		arr = clkDiv / psc;
+		if(arr < psc){
+			uint32_t swapVar = arr;
+			arr = psc;
+			psc = swapVar;
+		}
+	}
+
+	realFreq = periphClock / (double)(arr * psc);
+	htim_base->Instance->ARR = (arr - 1);
+	htim_base->Instance->PSC = (psc - 1);
+
+	return realFreq;
+}
+
+/**
+ * @brief  Rounding function.
+ * @retval rounded: rounded value
+ */
+uint32_t roundNumber(double num)
+{
+     uint32_t rounded = (uint32_t)(num + 0.5);
+     return rounded;
+}
+
 
 /**
  * @}

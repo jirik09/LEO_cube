@@ -47,6 +47,8 @@
   */
 
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
+double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq);
+uint32_t roundNumber(double num);
 
 /** @addtogroup Scope
   * @{
@@ -77,6 +79,7 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
+double TIM_Reconfig_genPwm(double reqFreq, uint8_t chan);
 
 #endif //USE_GEN || USE_GEN_PWM
 
@@ -312,8 +315,8 @@ void TIM_TI_Deinit(void);
 
 /* counter specific */
 void TIM_ETRP_Config(double freq);
-void TIM_IC1PSC_Config(double freq);
-void TIM_IC2PSC_Config(double freq);
+//void TIM_IC1PSC_Config(double freq);
+//void TIM_IC2PSC_Config(double freq);
 void TIM_IC1_PSC_Config(uint8_t prescVal);
 void TIM_IC2_PSC_Config(uint8_t prescVal);
 void TIM_ARR_PSC_Config(uint16_t arr, uint16_t psc);

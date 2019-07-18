@@ -105,8 +105,7 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	/* Peripheral clock enable */
-	__HAL_RCC_TIM8_CLK_ENABLE()
-	;
+	__HAL_RCC_TIM8_CLK_ENABLE();
 
 	/**TIM8 GPIO Configuration
 	 PC6     ------> TIM8_CH1
@@ -132,7 +131,8 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch1.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch1.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch1);
-	TIM8->DIER |= TIM_DIER_CC1DE;
+	//TIM8->DIER |= TIM_DIER_CC1DE;
+	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
 
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC1], hdma_tim8_ch1);
 
@@ -146,7 +146,8 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch2.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch2.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch2);
-	TIM8->DIER |= TIM_DIER_CC2DE;
+	//TIM8->DIER |= TIM_DIER_CC2DE;
+	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
 
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC2], hdma_tim8_ch2);
 
@@ -160,7 +161,8 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch3_up.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch3_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch3_up);
-	TIM8->DIER |= TIM_DIER_CC3DE; //__HAL_TIM_ENABLE_DMA(htim_base, TIM_DMA_CC3);
+	//TIM8->DIER |= TIM_DIER_CC3DE;
+	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
 
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC3], hdma_tim8_ch3_up);
 	//__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim8_ch3_up);
@@ -175,7 +177,8 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch4_trig_com.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch4_trig_com.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch4_trig_com);
-	TIM8->DIER |= TIM_DIER_CC4DE;
+	//TIM8->DIER |= TIM_DIER_CC4DE;
+	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
 
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC4], hdma_tim8_ch4_trig_com);
 }
@@ -214,7 +217,7 @@ void TIM_SYNC_PWM_Init(void) {
 	MX_TIM8_SYNC_PWM_Init();
 	/* Very thanks to optimization 3, TIM Base Init function
 	 is not called from SYNC PWM Initi function. */
-	HAL_TIM_Base_Init(&htim8);
+//	HAL_TIM_Base_Init(&htim8);
 }
 
 /**
@@ -227,8 +230,10 @@ void TIM_SYNC_PWM_Deinit(void) {
 	HAL_TIM_Base_DeInit(&htim8);
 
 	/* Reset TIM8 preipheral */
-	RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
-	RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
+	//RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
+	//RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
+	__HAL_RCC_TIM8_FORCE_RESET();
+	__HAL_RCC_TIM8_RELEASE_RESET();
 }
 
 /* Set the channel to be enabled or disabled. */
@@ -260,7 +265,8 @@ void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
 void TIM_SYNC_PWM_Start(void) {
 	if (syncPwm.chan1 == CHAN_ENABLE) {
 		TIM8->CCR1 = syncPwm.dataEdgeChan1[1];
-		TIM8->DIER |= TIM_DIER_CC1DE;
+		//TIM8->DIER |= TIM_DIER_CC1DE;
+		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
 		HAL_DMA_Start(&hdma_tim8_ch1, (uint32_t) &syncPwm.dataEdgeChan1[0],
 				(uint32_t) &(TIM8->CCR1), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
@@ -268,7 +274,8 @@ void TIM_SYNC_PWM_Start(void) {
 
 	if (syncPwm.chan2 == CHAN_ENABLE) {
 		TIM8->CCR2 = syncPwm.dataEdgeChan2[1];
-		TIM8->DIER |= TIM_DIER_CC2DE;
+		//TIM8->DIER |= TIM_DIER_CC2DE;
+		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
 		HAL_DMA_Start(&hdma_tim8_ch2, (uint32_t) &syncPwm.dataEdgeChan2[0],
 				(uint32_t) &(TIM8->CCR2), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
@@ -276,7 +283,8 @@ void TIM_SYNC_PWM_Start(void) {
 
 	if (syncPwm.chan3 == CHAN_ENABLE) {
 		TIM8->CCR3 = syncPwm.dataEdgeChan3[1];
-		TIM8->DIER |= TIM_DIER_CC3DE;
+		//TIM8->DIER |= TIM_DIER_CC3DE;
+		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
 		HAL_DMA_Start(&hdma_tim8_ch3_up, (uint32_t) &syncPwm.dataEdgeChan3[0],
 				(uint32_t) &(TIM8->CCR3), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
@@ -284,7 +292,8 @@ void TIM_SYNC_PWM_Start(void) {
 
 	if (syncPwm.chan4 == CHAN_ENABLE) {
 		TIM8->CCR4 = syncPwm.dataEdgeChan4[1];
-		TIM8->DIER |= TIM_DIER_CC4DE;
+		//TIM8->DIER |= TIM_DIER_CC4DE;
+		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
 		HAL_DMA_Start(&hdma_tim8_ch4_trig_com,
 				(uint32_t) &syncPwm.dataEdgeChan4[0], (uint32_t) &(TIM8->CCR4),
 				2);
@@ -293,7 +302,8 @@ void TIM_SYNC_PWM_Start(void) {
 	/* Master Output Enable. */
 	__HAL_TIM_MOE_ENABLE(&htim8);
 	/* Start generating. */
-	TIM8->CR1 |= TIM_CR1_CEN;
+	//TIM8->CR1 |= TIM_CR1_CEN;
+	HAL_TIM_Base_Start(&htim8);
 }
 
 /* Stop generating Output Compare signals. */
@@ -309,37 +319,43 @@ void TIM_SYNC_PWM_Stop(void) {
 	__HAL_TIM_MOE_DISABLE(&htim8);
 
 	if (syncPwm.chan1 == CHAN_ENABLE) {
-		TIM8->DIER &= ~TIM_DIER_CC1DE;
+		//TIM8->DIER &= ~TIM_DIER_CC1DE;
+		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC1);
 		HAL_DMA_Abort(&hdma_tim8_ch1);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan2 == CHAN_ENABLE) {
-		TIM8->DIER &= ~TIM_DIER_CC2DE;
+		//TIM8->DIER &= ~TIM_DIER_CC2DE;
+		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC2);
 		HAL_DMA_Abort(&hdma_tim8_ch2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan3 == CHAN_ENABLE) {
-		TIM8->DIER &= ~TIM_DIER_CC3DE;
+		//TIM8->DIER &= ~TIM_DIER_CC3DE;
+		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC3);
 		HAL_DMA_Abort(&hdma_tim8_ch3_up);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan4 == CHAN_ENABLE) {
-		TIM8->DIER &= ~TIM_DIER_CC4DE;
+		//TIM8->DIER &= ~TIM_DIER_CC4DE;
+		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC4);
 		HAL_DMA_Abort(&hdma_tim8_ch4_trig_com);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_DISABLE);
 	}
 
 	/* Save configuration. */
-	syncPwm.timAutoReloadReg = TIM8->ARR;
+	syncPwm.timAutoReloadReg = __HAL_TIM_GET_AUTORELOAD(&htim8); //TIM8->ARR;
 	syncPwm.timPrescReg = TIM8->PSC;
 
 	/* There are DMA pending requests when stopped. Unfortunately
 	 cannot be cleared in another way. */
-	RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
-	RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
+	//RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
+	//RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
+	__HAL_RCC_TIM8_FORCE_RESET();
+	__HAL_RCC_TIM8_RELEASE_RESET();
 
 	MX_TIM8_SYNC_PWM_Init();
 

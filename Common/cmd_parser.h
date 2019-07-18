@@ -23,6 +23,8 @@ extern xQueueHandle cmdParserMessageQueue;
   * @{
   */
 void CmdParserTask(void const *argument);
+double makeDoubleFromTwo32bit(uint32_t word1, uint32_t word2);
+
 /**
   * @}
   */

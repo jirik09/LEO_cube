@@ -139,7 +139,8 @@ void CommTask(void const *argument){
 		xSemaphoreTakeRecursive(commsMutex, portMAX_DELAY);
 
 		/* send IDN string */
-		if(message==MSG_DEVICE_IDN){
+		switch(message){
+		case MSG_DEVICE_IDN:
 			commsSendString(STR_ACK);
 			commsSendString(IDN_STRING);
 #ifdef USE_SHIELD
@@ -149,9 +150,9 @@ void CommTask(void const *argument){
 				commsSendString(SHIELD_STRING_2);
 			}
 #endif
-
+			break;
 			//send data
-		}else if(message==MSG_SCOPE_DATA_READY){
+		case MSG_SCOPE_DATA_READY:
 #ifdef USE_SCOPE
 			if(getScopeState() == SCOPE_DATA_SENDING){
 				oneChanMemSize=getOneChanMemSize();
@@ -231,9 +232,10 @@ void CommTask(void const *argument){
 				xQueueSendToBack(scopeMessageQueue, &passMsg, portMAX_DELAY);
 
 			}
+			break;
 #endif //USE_SCOPE
 			//send generating frequency
-		}else if(message==MSG_GEN_SEND_FREQ){
+		case MSG_GEN_SEND_FREQ:
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 			for(i = 0;i<MAX_DAC_CHANNELS;i++){
 				header_gen[4]=i+1+48;
@@ -243,12 +245,20 @@ void CommTask(void const *argument){
 				header_gen[11]=(uint8_t)(j);
 				commsSendBuff(header_gen,12);
 			}
+		case MSG_GEN_PWM_REAL_FREQ_CH1:
+			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
+			commsSendDouble(generator.realPwmFreqCh1);
+			break;
+		case MSG_GEN_PWM_REAL_FREQ_CH2:
+			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
+			commsSendDouble(generator.realPwmFreqCh2);
+			break;
 #endif //USE_GEN || USE_GEN_PWM
-
+			break;
 			/* ---------------------------------------------------- */
 			/********************* COUNTER DATA *********************/
 			/* ---------------------------------------------------- */
-		}else if(message==MSG_CNT_SEND_DATA){
+		case MSG_CNT_SEND_DATA:
 #ifdef USE_COUNTER
 
 			/* ETR mode configured */	
@@ -300,13 +310,13 @@ void CommTask(void const *argument){
 				}
 				counter.tiState = CLEAR;
 			}
-
+			break;
 #endif //USE_COUNTER
 			/* ---------------------------------------------------- */
 			/* ------------------ END OF COUNTER ------------------ */
 			/* ---------------------------------------------------- */
 			/* Send LOGIC ANALYZER data */
-		}else if(message==MSG_LOGAN_SEND_DATA){
+		case MSG_LOGAN_SEND_DATA:
 #ifdef USE_LOG_ANLYS
 			logAnlys.state = LOGA_DATA_SENDING;
 			if(logAnlys.trigOccur == TRIG_OCCURRED){
@@ -335,99 +345,87 @@ void CommTask(void const *argument){
 			//				taskYIELD();
 			//      }
 #endif //USE_LOG_ANLYS
-
-			// send system config
-		}else if(message==MSG_SYSTEM_CONFIG){
+			break;
+		case MSG_SYSTEM_CONFIG:
 			sendSystConf();
-
-			// send comms config
-		}else if(message==MSG_COMMS_CONFIG){
+			break;
+		case MSG_COMMS_CONFIG:
 			sendCommsConf();
-
-			// send scope config
-		}else if(message==MSG_SCOPE_CONFIG){
+			break;
+		case MSG_SCOPE_CONFIG:
 #ifdef USE_SCOPE
 			sendScopeConf();
 #endif //USE_SCOPE
-
-			// send counter config
-		}else if(message==MSG_CNT_CONFIG){
+			break;
+		case MSG_CNT_CONFIG:
 #ifdef USE_COUNTER
 			sendCounterConf();
 #endif //USE_COUNTER
-			// send scope inputs
-		}else if(message==MSG_SCOPE_INPUTS){
+			break;
+		case MSG_SCOPE_INPUTS:
 #ifdef USE_SCOPE
 			sendScopeInputs();
 #endif //USE_SCOPE
-
-			// send shield presence
-		}else if(message==MSG_SHIELD_AVAIL){
+			break;
+		case MSG_SHIELD_AVAIL:	/* shield present? */
 #ifdef USE_SHIELD
 			sendShieldPresence();
 #endif //USE_SHIELD
-
-			// send gen config
-		}else if(message==MSG_GEN_CONFIG){
+			break;
+		case MSG_GEN_CONFIG:
 #ifdef USE_GEN
 			sendGenConf();
 #endif //USE_GEN
-
-			// send PWM gen config
-		}else if(message==MSG_GEN_PWM_CONFIG){
+			break;
+		case MSG_GEN_PWM_CONFIG:
 #ifdef USE_GEN_PWM
 			sendGenPwmConf();
 #endif //USE_GEN_PWM
-
-			// send Synchronized PWM gen config
-		}else if(message==MSG_SYNCPWM_CONFIG){
+			break;
+		case MSG_SYNCPWM_CONFIG:
 #ifdef USE_SYNC_PWM
 			sendSyncPwmConf();
 #endif //USE_GEN_PWM
-
-			// send Logic Analyzer config
-		}else if(message==MSG_LOGAN_CONFIG){
+			break;
+		case MSG_LOGAN_CONFIG:
 #ifdef USE_LOG_ANLYS
 			sendLogAnlysConf();
 #endif //USE_LOG_ANLYS
-
-			// send gen next data block
-		}else if(message==MSG_GEN_NEXT){
+			break;
+		case MSG_GEN_NEXT:	/* Gen send next data block */
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 			commsSendString(STR_GEN_NEXT);
 #endif //USE_GEN || USE_GEN_PWM
-
-			// send gen ok status
-		}else if(message==MSG_GEN_OK){
+			break;
+		case MSG_GEN_OK:	/* Gen send OK status */
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 			commsSendString(STR_GEN_OK);
 #endif //USE_GEN || USE_GEN_PWM
-
-		}else if (message==MSG_SYSTEM_VERSION){
+			break;
+		case MSG_SYSTEM_VERSION:
 			sendSystemVersion();
+			break;
+		case MSG_COMMS_FLUSH:
 
-		}else if (message==MSG_COMMS_FLUSH){
-			//			flushBuff(0);
-			//		}else if (message == 'I'){
-			//			xQueueReceive(messageQueue, message, portMAX_DELAY);
-			//			commsSendString(message);
-			//			/////commsSendString("\r\n");
-
-		}else if (message==MSG_ACK){
+			break;
+		case MSG_ACK:
 			commsSendString(STR_ACK);
-
-		}else if (message==MSG_SCOPE_TRIGGER){
+			break;
+		case MSG_SCOPE_TRIGGER:
 			commsSendString(STR_SCOPE_TRIG);
-		}else if (message==MSG_SCOPE_SMPL_STARTED){
+			break;
+		case MSG_SCOPE_SMPL_STARTED:
 			commsSendString(STR_SCOPE_SMPL);
-		}else{
+			break;
+		default:
 			/* Not known message send */
 			commsSendString(STR_UNKNOWN_MSG);
 		}
 		//flushBuff(200);
-		xSemaphoreGiveRecursive(commsMutex);		
+		xSemaphoreGiveRecursive(commsMutex);
 	}
 }
+
 
 /**
  * @brief  Communication initialisation.
@@ -504,6 +502,16 @@ uint8_t commBufferReadNBytes(uint8_t *mem, uint16_t count){
 		}
 	}
 	return count;
+}
+
+uint32_t commBufferReadUInt32(void){
+	uint8_t array[4];
+	commBufferReadNBytes(array, sizeof(array)/sizeof(array[0]));
+	uint32_t finalVal = array[0] & 0xFF;
+	finalVal |= (0xFF & array[1]) << 8;
+	finalVal |= (0xFF & array[2]) << 16;
+	finalVal |= (0xFF & array[3]) << 24;
+	return finalVal;
 }
 
 /**

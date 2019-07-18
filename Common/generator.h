@@ -50,6 +50,8 @@ typedef struct{
 	uint16_t *bufferMemory;		
 	uint32_t generatingFrequency[MAX_DAC_CHANNELS];
 	uint32_t realGenFrequency[MAX_DAC_CHANNELS];
+	double realPwmFreqCh1;
+	double realPwmFreqCh2;
 	generatorState state;	
 	generatorModeState modeState;
 	uint8_t numOfChannles;
@@ -74,7 +76,11 @@ extern volatile generatorTypeDef generator;
 void GeneratorTask(void const *argument);
 void generatorSetDefault(void);
 void genInit(void);
+
 void genPwmInit(void);
+void genPwmSetFrequency(double freq, uint8_t channel);
+double genPwmGetRealFreq(void);
+
 uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan);
 uint8_t genSetFrequency(uint32_t freq,uint8_t chan);
 void genSendRealSamplingFreq(void);
@@ -100,8 +106,8 @@ void genSetMode(uint8_t mode);
 void generatorSetModePWM(void);
 void generatorSetModeDAC(void);
 void generator_deinit(void);
-void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan);
-void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan);
+//void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan);
+//void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan);
 
 /**
   * @}

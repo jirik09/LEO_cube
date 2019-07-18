@@ -416,6 +416,19 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}
 }
 
+double TIM_Reconfig_genPwm(double reqFreq, uint8_t chan){
+	uint32_t periphClock;
+	if(chan==0){
+		periphClock = HAL_RCC_GetPCLK1Freq()*2;
+		return TIM_ReconfigPrecise(&htim3,periphClock,reqFreq);
+	}else if(chan==1){
+		periphClock = HAL_RCC_GetPCLK2Freq();
+		return TIM_ReconfigPrecise(&htim1,periphClock,reqFreq);
+	}else{
+		return 0;
+	}
+}
+
 /**
  * @brief  Enable TIM6 & TIM7 that trigger DMA - generating DAC.
  * @param  None
@@ -481,10 +494,10 @@ void TIMGenDacDeinit(void){
 void TIM_DMA_Reconfig(uint8_t chan){
 	if(chan==0){
 		HAL_DMA_Abort(&hdma_tim6_up);
-		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(TIM1->CCR2), generator.oneChanSamples[0]);
+		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&htim1.Instance->CCR2/*(TIM1->CCR2)*/, generator.oneChanSamples[0]);
 	}else if(chan==1){
 		HAL_DMA_Abort(&hdma_tim7_up);
-		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(TIM3->CCR1), generator.oneChanSamples[1]);
+		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[1], (uint32_t)&htim3.Instance->CCR1/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
 	}
 }
 
@@ -563,35 +576,35 @@ void TIMGenPwmDeinit(void){
 	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM3RST;
 }
 
-/**
- * @brief  Configuration of Timer Prescaler (PSC).
- * @note		Calculated for TIM1 & TIM3 by host application.
- * @param  pscVal: Prescaler value
- * @param  chan: channel number 1 or 2
- * @retval None
- */
-void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan){
-	if(chan == 1){
-		TIM1->PSC = pscVal;
-	}else{
-		TIM3->PSC = pscVal;
-	}
-}
+///**
+// * @brief  Configuration of Timer Prescaler (PSC).
+// * @note		Calculated for TIM1 & TIM3 by host application.
+// * @param  pscVal: Prescaler value
+// * @param  chan: channel number 1 or 2
+// * @retval None
+// */
+//void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan){
+//	if(chan == 1){
+//		TIM1->PSC = pscVal;
+//	}else{
+//		TIM3->PSC = pscVal;
+//	}
+//}
 
-/**
- * @brief  Configuration of Timer Auto-Reload register (ARR).
- * @note		Calculated for TIM1 & TIM3 by host application.
- * @param  arrVal: Auto-Reload register value
- * @param  chan: channel number 1 or 2
- * @retval None
- */
-void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan){
-	if(chan == 1){
-		TIM1->ARR = arrVal;
-	}else{
-		TIM3->ARR = arrVal;
-	}
-}
+///**
+// * @brief  Configuration of Timer Auto-Reload register (ARR).
+// * @note		Calculated for TIM1 & TIM3 by host application.
+// * @param  arrVal: Auto-Reload register value
+// * @param  chan: channel number 1 or 2
+// * @retval None
+// */
+//void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan){
+//	if(chan == 1){
+//		TIM1->ARR = arrVal;
+//	}else{
+//		TIM3->ARR = arrVal;
+//	}
+//}
 
 #endif //USE_GEN_PWM
 

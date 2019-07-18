@@ -57,12 +57,14 @@ void GeneratorTask(void const *argument){
 	generatorSetDefault();
 
 	while(1){
+
 		xQueueReceive(generatorMessageQueue, &message, portMAX_DELAY);
 
-		if(message==MSG_INVALIDATE){ //invalidate
+		switch(message){
+		case MSG_INVALIDATE:
 			if(generator.state==GENERATOR_IDLE){}
-
-		}else if(message==MSG_GEN_START){ //start
+			break;
+		case MSG_GEN_START:
 			if(generator.state==GENERATOR_IDLE){
 				if(generator.modeState==GENERATOR_DAC){
 					genInit();
@@ -75,8 +77,8 @@ void GeneratorTask(void const *argument){
 				}
 				generator.state=GENERATOR_RUN;
 			}
-
-		}else if(message==MSG_GEN_STOP){ //stop
+			break;
+		case MSG_GEN_STOP:
 			if(generator.state==GENERATOR_RUN){
 				if(generator.modeState==GENERATOR_DAC){
 					GeneratingDisable();
@@ -87,25 +89,28 @@ void GeneratorTask(void const *argument){
 				}
 				generator.state=GENERATOR_IDLE;
 			}
-
-		}else if(message==MSG_GEN_PWM_MODE){ //set PWM mode
+			break;
+		case MSG_GEN_PWM_MODE: /* Set PWM mode */
 #ifdef USE_GEN_PWM
 			generatorSetModePWM();
 			TIMGenPwmInit();
 #endif //USE_GEN_PWM
-
-		}else if(message==MSG_GEN_DAC_MODE){ //set DAC mode
+			break;
+		case MSG_GEN_DAC_MODE:  /* Set DAC mode */
 			generatorSetModeDAC();
 			TIMGenInit();
-
-		}else if(message==MSG_GEN_DEINIT){ //deinit
+			break;
+		case MSG_GEN_DEINIT:
 			if(generator.modeState==GENERATOR_DAC){				
 				TIMGenDacDeinit();
 			}else if(generator.modeState==GENERATOR_PWM){
 #ifdef USE_GEN_PWM
 				TIMGenPwmDeinit();
 #endif //USE_GEN_PWM
-			}	
+			}
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -172,27 +177,27 @@ void generator_deinit(void){
 	}
 }
 
-#ifdef USE_GEN_PWM
-/**
- * @brief  Arb. PWM Generator frequency configurarion function.
- * @param  pscVal:	value of PSC register sent by host
- * @param  chan: channel number 1 or 2
- * @retval None
- */
-void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan){
-	TIM_GEN_PWM_PSC_Config(pscVal, chan);		// -1 subtraction made in PC app
-}
+//#ifdef USE_GEN_PWM
+///**
+// * @brief  Arb. PWM Generator frequency configurarion function.
+// * @param  pscVal:	value of PSC register sent by host
+// * @param  chan: channel number 1 or 2
+// * @retval None
+// */
+//void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan){
+//	TIM_GEN_PWM_PSC_Config(pscVal, chan);		// -1 subtraction made in PC app
+//}
 
-/**
- * @brief  Arb. PWM Generator frequency configurarion function.
- * @param  pscVal:	value of ARR register sent by host
- * @param  chan: channel number 1 or 2
- * @retval None
- */
-void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan){
-	TIM_GEN_PWM_ARR_Config(arrVal, chan);		// -1 subtraction made in PC app
-}
-#endif //USE_GEN_PWM
+///**
+// * @brief  Arb. PWM Generator frequency configurarion function.
+// * @param  pscVal:	value of ARR register sent by host
+// * @param  chan: channel number 1 or 2
+// * @retval None
+// */
+//void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan){
+//	TIM_GEN_PWM_ARR_Config(arrVal, chan);		// -1 subtraction made in PC app
+//}
+//#endif //USE_GEN_PWM
 
 /**
  * @brief  Generator set Default values
@@ -247,6 +252,28 @@ void genPwmInit(void)
 		}
 	}
 }
+
+void genPwmSetFrequency(double freq, uint8_t channel){
+	double realPwmFrq;
+	realPwmFrq = TIM_Reconfig_genPwm(freq, channel);
+
+	uint16_t passMsg;
+	if(channel == 0){
+		passMsg = MSG_GEN_PWM_REAL_FREQ_CH1;
+		generator.realPwmFreqCh1 = realPwmFrq;
+	}else if(channel == 1){
+		passMsg = MSG_GEN_PWM_REAL_FREQ_CH2;
+		generator.realPwmFreqCh2 = realPwmFrq;
+	}
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+}
+
+/* not used yet */
+double genPwmGetRealFreqCh1(void){
+	return generator.realPwmFreqCh1;
+}
+
+
 #endif //USE_GEN_PWM	
 
 /**
@@ -288,6 +315,8 @@ uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
 	}
 	return result;
 }
+
+
 
 /**
  * @brief  Common function for sending real sampling frequency.

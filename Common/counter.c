@@ -59,23 +59,33 @@ void CounterTask(void const *argument)
 		xQueueReceive(counterMessageQueue, &message, portMAX_DELAY);
 		xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
 
-		if(message==MSG_CNT_SET_DIRECT_MODE){
+		switch(message){
+		case MSG_CNT_SET_DIRECT_MODE:
 			counterInitETR();
-		}else if(message==MSG_CNT_SET_RECIPROCAL_MODE){
+			break;
+		case MSG_CNT_SET_RECIPROCAL_MODE:
 			counterInitIC();
-		}else if(message==MSG_CNT_SET_REFERENCE_MODE){
+			break;
+		case MSG_CNT_SET_REFERENCE_MODE:
 			counterInitREF();
-		}else if(message==MSG_CNT_SET_INTERVAL_MODE){
+			break;
+		case MSG_CNT_SET_INTERVAL_MODE:
 			counterInitTI();
-		}else if(message==MSG_CNT_START){
+			break;
+		case MSG_CNT_START:
 			counterStart();
-		}else if(message==MSG_CNT_STOP){
+			break;
+		case MSG_CNT_STOP:
 			counterStop();
-		}else if(message==MSG_CNT_DEINIT){
+			break;
+		case MSG_CNT_DEINIT:
 			counter_deinit();
-		}else if(message==MSG_CNT_SET_GATE_TIME){
+			break;
+		case MSG_CNT_SET_GATE_TIME:
 			counterGateConfig(counter.counterEtr.gateTime);
-		}else{		
+			break;
+		default:
+			break;
 		}	
 
 		xSemaphoreGiveRecursive(counterMutex);
@@ -541,7 +551,7 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 	if(counter.state == COUNTER_ETR){
 
 		counter.counterEtr.etrp = TIM_ETPS_GetPrescaler();
-		float gateFreq = ((double)tim4clk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */
+		float gateFreq = ((double)counter.tim4PrphClk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */
 		counter.counterEtr.freq = ((double)counter.counterEtr.buffer * gateFreq * counter.counterEtr.etrp);								/* Sampled frequency */
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);	
@@ -619,7 +629,7 @@ void counterIcProcess(void)
 
 			counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();			
 			uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize-1] - counter.counterIc.ic1buffer[0];
-			counter.counterIc.ic1freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
+			counter.counterIc.ic1freq = (double)(counter.tim2PrphClk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
 
 			DMA_Restart(&hdma_tim2_ch1);
 			counter.icChannel1 = COUNTER_IRQ_IC;
@@ -634,7 +644,7 @@ void counterIcProcess(void)
 
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();				
 			uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize-1] - counter.counterIc.ic2buffer[0];
-			counter.counterIc.ic2freq = (double)(tim2clk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
+			counter.counterIc.ic2freq = (double)(counter.tim2PrphClk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
 
 			DMA_Restart(&hdma_tim2_ch2_ch4);		
 			counter.icChannel2 = COUNTER_IRQ_IC;
@@ -662,7 +672,7 @@ void counterTiProcess(void)
 		if(counter.abba == BIN0){			
 			/* Check DMA transfer channel 1 occured */			
 			if(DMA_TransferComplete(&hdma_tim2_ch2_ch4)){					
-				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0] / (double)tim2clk;
+				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0] / (double)counter.tim2PrphClk;
 				TIM_TI_Stop();		
 				counter.tiState = SEND_TI_DATA;						
 				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
@@ -671,7 +681,7 @@ void counterTiProcess(void)
 		}else{				
 			/* Check DMA transfer channel 2 occured */			
 			if(DMA_TransferComplete(&hdma_tim2_ch1)){					
-				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0] / (double)tim2clk;
+				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0] / (double)counter.tim2PrphClk;
 				TIM_TI_Stop();					
 				counter.tiState = SEND_TI_DATA;						
 				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
@@ -701,7 +711,7 @@ void counterIcDutyCycleProcess(void)
 		if(DMA_TransferComplete(&hdma_tim2_ch1)){
 			/* Calculate duty cycle (ic1freq) and pulse width(ic2freq). Frequency struct variables temporarily used. */
 			counter.counterIc.ic1freq = (counter.counterIc.ic2buffer[0] / (double)counter.counterIc.ic1buffer[0]) * 100;
-			counter.counterIc.ic2freq = counter.counterIc.ic2buffer[0] / (double)tim2clk;
+			counter.counterIc.ic2freq = counter.counterIc.ic2buffer[0] / (double)counter.tim2PrphClk;
 
 			TIM_IC_DutyCycleDmaRestart();		
 
@@ -716,7 +726,7 @@ void counterIcDutyCycleProcess(void)
 	}else if(counter.icDutyCycle == DUTY_CYCLE_CH2_ENABLED){
 		if(DMA_TransferComplete(&hdma_tim2_ch2_ch4)){			
 			counter.counterIc.ic1freq = (counter.counterIc.ic1buffer[0] / (double)counter.counterIc.ic2buffer[0]) * 100;
-			counter.counterIc.ic2freq = counter.counterIc.ic1buffer[0] / (double)tim2clk;
+			counter.counterIc.ic2freq = counter.counterIc.ic1buffer[0] / (double)counter.tim2PrphClk;
 
 			TIM_IC_DutyCycleDmaRestart();			
 
@@ -740,7 +750,7 @@ void counterIcDutyCycleProcess(void)
 void counterGateConfig(uint16_t gateTime)
 {				
 	switch(gateTime){
-	case 100:														/* min.	gate time 00.10 second */
+	case 100:													/* min.	gate time 00.10 second */
 		counter.counterEtr.psc = 7199;
 		counter.counterEtr.arr = 999;
 		break;

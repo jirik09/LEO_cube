@@ -60,19 +60,28 @@ void LogAnlysTask(void const *argument)
 		xQueueReceive(logAnlysMessageQueue, &message, portMAX_DELAY);
 		xSemaphoreTakeRecursive(logAnlysMutex, portMAX_DELAY);
 		
-		if(message==MSG_LOGAN_INIT){
+		switch(message){
+		uint16_t passMsg;
+		case MSG_LOGAN_INIT:
 //			logAnlys.state = LOGA_IDLE;
 			logAnlysInit();
-		}else if(message==MSG_LOGAN_INIT){
+			break;
+		case MSG_LOGAN_DEINIT:
 			logAnlysDeinit();
 //			logAnlys.state = LOGA_IDLE;
-		}else if(message==MSG_LOGAN_START){
+			break;
+		case MSG_LOGAN_START:
 			logAnlysStart();
-		}else if(message==MSG_LOGAN_STOP){
+			break;
+		case MSG_LOGAN_STOP:
 			logAnlysStop();
-		}else if(message==MSG_LOGAN_SAMPLING_END){
-			uint16_t passMsg = MSG_LOGAN_SEND_DATA;
+			break;
+		case MSG_LOGAN_SAMPLING_END:
+			passMsg = MSG_LOGAN_SEND_DATA;
 			xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+			break;
+		default:
+			break;
 		}			
 		
 		xSemaphoreGiveRecursive(logAnlysMutex);

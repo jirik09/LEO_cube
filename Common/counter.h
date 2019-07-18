@@ -136,7 +136,8 @@ typedef struct{
 	uint16_t arr;		// TIM4 ARR
 	uint16_t psc;		// TIM4 PSC
 	uint16_t arrTemp;
-	uint16_t pscTemp;			
+	uint16_t pscTemp;
+
 	uint8_t etrp;		// TIM2 ETRP
 	uint32_t buffer;
 	uint32_t refBuffer;
@@ -174,6 +175,8 @@ typedef struct{
 	counterEtrTypeDef counterEtr;	
 //  counterRefTypeDef counterRef;	-> ETR structure used for REF	counter
 	counterState state;
+	uint32_t tim4PrphClk;
+	uint32_t tim2PrphClk;
 	
 	counterRefSmplCntChange sampleCntChange;
 	counterRefWarning refWarning;
@@ -255,7 +258,6 @@ void COUNTER_IC_TIM_Elapse(void);
 void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
 extern volatile counterTypeDef counter;
-extern uint32_t tim2clk, tim4clk;
 
 extern DMA_HandleTypeDef hdma_tim2_up;
 extern DMA_HandleTypeDef hdma_tim2_ch1;

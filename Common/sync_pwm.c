@@ -46,14 +46,21 @@ void SyncPwmTask(void const *argument)
 		xQueueReceive(syncPwmMessageQueue, &message, portMAX_DELAY);
 		xSemaphoreTakeRecursive(syncPwmMutex, portMAX_DELAY);
 
-		if(message==MSG_SYNCPWM_INIT){
+		switch(message){
+		case MSG_SYNCPWM_INIT:
 			syncPwmInit();
-		}else if(message==MSG_SYNCPWM_DEINIT){
+			break;
+		case MSG_SYNCPWM_DEINIT:
 			syncPwmDeinit();
-		}else if(message==MSG_SYNCPWM_START){
+			break;
+		case MSG_SYNCPWM_START:
 			syncPwmStart();
-		}else if(message==MSG_SYNCPWM_STOP){
+			break;
+		case MSG_SYNCPWM_STOP:
 			syncPwmStop();
+			break;
+		default:
+			break;
 		}
 
 		xSemaphoreGiveRecursive(syncPwmMutex);
@@ -156,7 +163,5 @@ void syncPwmSetDefault(void)
 	syncPwm.dataEdgeChan4[1] = 10400;		
 }
 
-
 #endif //USE_SYNC_PWM
-
 

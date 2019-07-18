@@ -124,8 +124,12 @@ namespace LEO
         public const string GEN_PWM_CONFIGRequest = "PCF?";
 
         public const string GEN_DATA = "DATA";
-        public const string GEN_PWM_FREQ_PSC = "FPWP";
-        public const string GEN_PWM_FREQ_ARR = "FPWA";
+        //public const string GEN_PWM_FREQ_PSC = "FPWP";
+        //public const string GEN_PWM_FREQ_ARR = "FPWA";
+        public const string GEN_PWM_SET_FREQ_CH1 = "GFR1";
+        public const string GEN_PWM_SET_FREQ_CH2 = "GFR2";
+        public const string GEN_PWM_REAL_FREQ_CH1 = "GPR1";
+        public const string GEN_PWM_REAL_FREQ_CH2 = "GPR2";
         public const string GEN_PWM_DEINIT = "GPDI";
 
         public const string GEN_OK = "G_OK";

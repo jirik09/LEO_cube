@@ -377,25 +377,25 @@ command parseCounterCmd(void)
 			error = COUNTER_INVALID_FEATURE_PARAM;
 		}
 		break;
-	case CMD_CNT_MULT_PSC:
-		cmdIn = giveNextCmd();
-		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			//	counterSetRefPsc((uint16_t)cmdIn);
-		}else{
-			cmdIn = CMD_ERR;
-			error = COUNTER_INVALID_FEATURE_PARAM;
-		}
-		break;
-	case CMD_CNT_MULT_ARR:
-		cmdIn = giveNextCmd();
-		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			//	counterSetRefArr((uint16_t)cmdIn);
-
-		}else{
-			cmdIn = CMD_ERR;
-			error = COUNTER_INVALID_FEATURE_PARAM;
-		}
-		break;
+//	case CMD_CNT_MULT_PSC:
+//		cmdIn = giveNextCmd();
+//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+//			//	counterSetRefPsc((uint16_t)cmdIn);
+//		}else{
+//			cmdIn = CMD_ERR;
+//			error = COUNTER_INVALID_FEATURE_PARAM;
+//		}
+//		break;
+//	case CMD_CNT_MULT_ARR:
+//		cmdIn = giveNextCmd();
+//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+//			//	counterSetRefArr((uint16_t)cmdIn);
+//
+//		}else{
+//			cmdIn = CMD_ERR;
+//			error = COUNTER_INVALID_FEATURE_PARAM;
+//		}
+//		break;
 	case CMD_CNT_REF_SAMPLE_COUNT:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
@@ -929,7 +929,7 @@ command parseLogAnlysCmd(void){
  * @brief  Generator command parse function.
  * @param  None
  * @retval Command ACK or ERR
- */
+ */double freq;
 command parseGeneratorCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
@@ -982,23 +982,44 @@ command parseGeneratorCmd(void){
 		break;	
 
 #ifdef USE_GEN_PWM
-	case CMD_GEN_PWM_FREQ_PSC: 
+//	case CMD_GEN_PWM_FREQ_PSC:
+//		cmdIn = giveNextCmd();
+//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+//			genSetPwmFrequencyPSC(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
+//		}else{
+//			cmdIn = CMD_ERR;
+//		}
+//		break;
+//
+//	case CMD_GEN_PWM_FREQ_ARR:
+//		cmdIn = giveNextCmd();
+//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+//			genSetPwmFrequencyARR(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
+//		}else{
+//			cmdIn = CMD_ERR;
+//		}
+//		break;
+
+	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
+		uint32_t secondHalf1 = commBufferReadUInt32();
+		freq = makeDoubleFromTwo32bit(secondHalf1, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			genSetPwmFrequencyPSC(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
+			genPwmSetFrequency(freq, 0);
 		}else{
 			cmdIn = CMD_ERR;
 		}
 		break;
-
-	case CMD_GEN_PWM_FREQ_ARR:
+	case CMD_GEN_PWM_FREQ_CH2:
 		cmdIn = giveNextCmd();
+		uint32_t secondHalf2 = commBufferReadUInt32();
+		freq = makeDoubleFromTwo32bit(secondHalf2, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			genSetPwmFrequencyARR(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
+			genPwmSetFrequency(freq, 1);
 		}else{
 			cmdIn = CMD_ERR;
 		}
-		break;	
+		break;
 	case CMD_GEN_PWM_DEINIT:
 		generator_deinit();
 		break;
@@ -1011,7 +1032,7 @@ command parseGeneratorCmd(void){
 	case CMD_GEN_DATA_LENGTH_CH1: //set data length
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			error=genSetLength(cmdIn,1);
+			error=genSetLength(cmdIn, 1);
 		}else{
 			cmdIn = CMD_ERR;
 		}
@@ -1020,7 +1041,7 @@ command parseGeneratorCmd(void){
 	case CMD_GEN_DATA_LENGTH_CH2: //set data length
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			error=genSetLength(cmdIn,2);
+			error=genSetLength(cmdIn, 2);
 		}else{
 			cmdIn = CMD_ERR;
 		}
@@ -1136,6 +1157,17 @@ void printErrResponse(command cmd){
 		xQueueSendToBack(messageQueue, err, portMAX_DELAY);
 	}
 }
+
+double makeDoubleFromTwo32bit(uint32_t word1, uint32_t word2){
+	uint32_t makeArray[2];
+	makeArray[0] = word1;
+	makeArray[1] = word2;
+
+	double doubleVal;
+	memcpy(&doubleVal, makeArray, sizeof(doubleVal));
+	return doubleVal;
+}
+
 
 /**
  * @}

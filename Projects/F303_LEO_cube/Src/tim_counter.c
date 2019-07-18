@@ -29,7 +29,6 @@
  * @{
  */
 
-uint32_t tim2clk, tim4clk;
 extern portTickType xStartTime;
 extern xSemaphoreHandle counterMutex;
 uint32_t timCcerRegCc1eVal = 0x01;
@@ -140,10 +139,9 @@ static void MX_TIM2_ETRorREF_Init(void)
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
 
-	TIM2 -> CCMR1 &= ~TIM_CCMR1_CC1S;
-	TIM2 -> CCMR1 &= ~TIM_CCMR1_CC2S;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_UPDATE);
 
-	TIM2 -> DIER  |= TIM_DIER_UDE;					/* __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_UPDATE); */
+	TIM2 -> CCMR1 &= ~TIM_CCMR1_CC2S;
 	TIM2 -> CCMR1 |= TIM_CCMR1_CC1S;  			/* Capture/Compare 1 Selection - CC1 channel is configured as input, IC1 is mapped on TRC	*/
 }
 
@@ -185,7 +183,6 @@ static void MX_TIM2_ICorTI_Init(void)
 	HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_1);
 	HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2);
 
-	//	TIM2 -> DIER |= TIM_DIER_UDE;					/* __HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_UPDATE); */
 	TIM2->CCMR1 |= TIM_CCMR1_CC1S_0;  	/* Capture/Compare 1 Selection - CC1 channel is configured as input, IC1 is mapped on TI1	*/
 	TIM2->CCMR1 |= TIM_CCMR1_CC2S_0;		/* IC2 is mapped on TI2 */
 
@@ -193,8 +190,8 @@ static void MX_TIM2_ICorTI_Init(void)
 																					 actually be done into the input capture/compare register 1 (TIMx_CCR1) or not.  */
 	TIM2->CCER |= TIM_CCER_CC2E;
 
-	TIM2->DIER |= TIM_DIER_CC1DE;				/* Capture/Compare 1 DMA request */
-	TIM2->DIER |= TIM_DIER_CC2DE;				/* Capture/Compare 1 DMA request */
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1); /* Capture/Compare 1 DMA request */
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC2); /* Capture/Compare 1 DMA request */
 }
 
 /**
@@ -335,26 +332,15 @@ void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base)
 		HAL_DMA_UnRegisterCallback(&hdma_tim2_up, HAL_DMA_XFER_CPLT_CB_ID);
 		HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_UPDATE]);
 
-		//			TIM2 -> DIER &= ~TIM_DIER_UDE;
-		//			TIM2 -> CCMR1 &= ~TIM_CCMR1_CC1S_Msk;
-		//			TIM2 -> CCER &= ~TIM_CCER_CC1E;
-
 	}else if(counter.state==COUNTER_IC||counter.state == COUNTER_TI){
 
 		HAL_GPIO_DeInit(GPIOA, GPIO_PIN_0|GPIO_PIN_1);
 		HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC2]);
 		HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC1]);
-
-		__HAL_RCC_TIM2_FORCE_RESET();
-		__HAL_RCC_TIM2_RELEASE_RESET();
-
-		//			TIM2 -> CCMR1 &= ~TIM_CCMR1_CC1S_0;
-		//			TIM2 -> CCMR1 &= ~TIM_CCMR1_CC2S_0;
-		//			TIM2 -> CCER &= ~TIM_CCER_CC1E;
-		//			TIM2 -> CCER &= ~TIM_CCER_CC2E;
-		//			TIM2 -> DIER &= ~TIM_DIER_CC1DE;				/* Capture/Compare 1 DMA request deinit */
-		//			TIM2 -> DIER &= ~TIM_DIER_CC2DE;				/* Capture/Compare 1 DMA request deinit */
 	}
+
+	__HAL_RCC_TIM2_FORCE_RESET();
+	__HAL_RCC_TIM2_RELEASE_RESET();
 }
 
 void TIM4_CNT_MspDeinit(TIM_HandleTypeDef* htim_base)
@@ -419,13 +405,16 @@ void COUNTER_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  * @retval None
  */
 void TIM_counter_etr_init(void){
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim2.State = HAL_TIM_STATE_RESET;
+	/* Initialized as a first mode */
+	__HAL_RCC_TIM2_FORCE_RESET();
+	__HAL_RCC_TIM2_RELEASE_RESET();
+	__HAL_RCC_TIM4_FORCE_RESET();
+	__HAL_RCC_TIM4_RELEASE_RESET();
 
 	TIM_doubleClockVal();
 	MX_TIM4_Init();
 	MX_TIM2_ETRorREF_Init();
-	tim4clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
+	counter.tim4PrphClk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
 }
 
 /**
@@ -436,17 +425,6 @@ void TIM_counter_etr_init(void){
  * @retval None
  */
 void TIM_counter_ref_init(void){
-	/* There are DMA pending requests when stopped. Unfortunately
-	cannot be cleared in another way. */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
-
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM4RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM4RST;
-
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim2.State = HAL_TIM_STATE_RESET;
-
 	TIM_doubleClockVal();
 	MX_TIM4_Init();
 	MX_TIM2_ETRorREF_Init();
@@ -460,9 +438,6 @@ void TIM_counter_ref_init(void){
  * @retval None
  */
 void TIM_counter_ic_init(void){
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim2.State = HAL_TIM_STATE_RESET;
-
 	TIM_doubleClockVal();
 	MX_TIM4_Init();
 	MX_TIM2_ICorTI_Init();
@@ -476,17 +451,6 @@ void TIM_counter_ic_init(void){
  * @retval None
  */
 void TIM_counter_ti_init(void){
-	/* There are DMA pending requests when stopped. Unfortunately
-	cannot be cleared in another way. */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
-
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM4RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM4RST;
-
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim2.State = HAL_TIM_STATE_RESET;
-
 	TIM_doubleClockVal();
 	MX_TIM4_Init();
 	MX_TIM2_ICorTI_Init();
@@ -502,9 +466,9 @@ void TIM_counter_ti_init(void){
  */
 void TIM_doubleClockVal(void){
 	if (RCC->CFGR3&RCC_TIM2CLK_PLLCLK){
-		tim2clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM2) * 2;
+		counter.tim2PrphClk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM2) * 2;
 	}	else {
-		tim2clk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM2);
+		counter.tim2PrphClk = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM2);
 	}
 }
 
@@ -517,8 +481,6 @@ void TIM_doubleClockVal(void){
  * @retval None
  */
 void TIM_etr_deinit(void){
-	//	TIM_Counter_Deinit();
-
 	HAL_TIM_Base_DeInit(&htim2);
 	HAL_TIM_Base_DeInit(&htim4);
 }
@@ -529,8 +491,6 @@ void TIM_etr_deinit(void){
  * @retval None
  */
 void TIM_ref_deinit(void){
-	//	TIM_Counter_Deinit();
-
 	HAL_TIM_Base_DeInit(&htim2);
 	HAL_TIM_Base_DeInit(&htim4);
 }
@@ -541,8 +501,6 @@ void TIM_ref_deinit(void){
  * @retval None
  */
 void TIM_ic_deinit(void){
-	//	TIM_Counter_Deinit();
-
 	HAL_TIM_Base_DeInit(&htim2);
 	HAL_TIM_Base_DeInit(&htim4);
 }
@@ -553,25 +511,9 @@ void TIM_ic_deinit(void){
  * @retval None
  */
 void TIM_ti_deinit(void){
-	//	TIM_Counter_Deinit();
-
 	HAL_TIM_Base_DeInit(&htim2);
 	HAL_TIM_Base_DeInit(&htim4);
 	TIM_TI_Deinit();
-}
-
-/**
- * @brief  Deinits Counter by resetting both TIM2 & TIM4 periphs.
- * @params None
- * @retval None
- */
-void TIM_Counter_Deinit(void){
-	/* Reset TIM4 preipheral */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM4RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM4RST;
-	/* Reset TIM2 preipheral */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM2RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM2RST;
 }
 
 /* ************************************************************************************** */
@@ -586,12 +528,14 @@ void TIM_ETR_Start(void)
 {
 	HAL_TIM_Base_Start(&htim2);
 	HAL_TIM_Base_Start(&htim4);
-	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&(TIM2->CCR1), (uint32_t)&counter.counterEtr.buffer, 1);
+	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&htim2.Instance->CCR1, (uint32_t)&counter.counterEtr.buffer, 1);
 
 	/* DMA requests enable */
-	TIM2->DIER |= TIM_DIER_CC1DE;
-	TIM2->CCER |= TIM_CCER_CC1E;
-	TIM4->EGR |= TIM_EGR_UG;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->CCER |= TIM_CCER_CC1E;
+	TIM_CCxChannelCmd(htim2.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+	//TIM4->EGR |= TIM_EGR_UG;
+	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 }
@@ -606,7 +550,7 @@ void TIM_ETR_Stop(void)
 	//	HAL_TIM_Base_Stop_DMA(&htim2);
 	HAL_DMA_Abort_IT(&hdma_tim2_up);
 	/* DMA requests disable */
-	TIM2->DIER &= ~TIM_DIER_CC1DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
 
 	HAL_TIM_Base_Stop(&htim2);
 	HAL_TIM_Base_Stop(&htim4);
@@ -620,11 +564,11 @@ void TIM_ETR_Stop(void)
 void TIM_IC_Start(void)
 {
 	/* DMA requests enable */
-	TIM2->DIER |= TIM_DIER_CC1DE;
-	TIM2->DIER |= TIM_DIER_CC2DE;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC2);
 
-	HAL_DMA_Start(&hdma_tim2_ch1, (uint32_t)&(TIM2->CCR1), (uint32_t)counter.counterIc.ic1buffer, counter.counterIc.ic1BufferSize);
-	HAL_DMA_Start(&hdma_tim2_ch2_ch4, (uint32_t)&(TIM2->CCR2), (uint32_t)counter.counterIc.ic2buffer, counter.counterIc.ic2BufferSize);
+	HAL_DMA_Start(&hdma_tim2_ch1, (uint32_t)&htim2.Instance->CCR1, (uint32_t)counter.counterIc.ic1buffer, counter.counterIc.ic1BufferSize);
+	HAL_DMA_Start(&hdma_tim2_ch2_ch4, (uint32_t)&htim2.Instance->CCR2, (uint32_t)counter.counterIc.ic2buffer, counter.counterIc.ic2BufferSize);
 
 	HAL_TIM_Base_Start(&htim2);
 	HAL_TIM_Base_Start_IT(&htim4);
@@ -651,8 +595,10 @@ void TIM_IC_Stop(void)
 	//	HAL_TIM_Base_Stop_DMA(&htim2);
 
 	/* DMA requests disable */
-	TIM2->DIER &= ~TIM_DIER_CC1DE;
-	TIM2->DIER &= ~TIM_DIER_CC2DE;
+	//TIM2->DIER &= ~TIM_DIER_CC1DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->DIER &= ~TIM_DIER_CC2DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC2);
 
 	/* Stop timers */
 	HAL_TIM_Base_Stop_IT(&htim4);
@@ -708,7 +654,7 @@ void TIM_TI_Start(void)
 			TIM_TI_ReconfigActiveEdges();
 			/* Set DMA to enable capturing of the channel 1 after an event comes on channel 2. This Method
 			prevents capturing an event if no event came first on the desired channel. */
-			HAL_DMA_Start(&hdma_tim2_ch2_ch4, (uint32_t)&timCcerRegCc1eVal, (uint32_t)TIM2_CCER_ADDR, 1);
+			HAL_DMA_Start(&hdma_tim2_ch2_ch4, (uint32_t)&timCcerRegCc1eVal, (uint32_t)&htim2.Instance->CCER, 1);  //TIM2_CCER_ADDR
 			/* Disable Capturing on channel 1 to be enabled later after an event on channel 2 comes. */
 			TIM2->CCER &= ~TIM_CCER_CC1E;
 			/* Enable Capturing on channel 2. */
@@ -728,7 +674,7 @@ void TIM_TI_Start(void)
 			TIM_TI_ReconfigActiveEdges();
 			/* Set DMA to enable capturing of the channel 2 after an event comes on channel 1. This Method
 			prevents capturing an event if no event came first on the desired channel. */
-			HAL_DMA_Start(&hdma_tim2_ch1, (uint32_t)&timCcerRegCc2eVal, (uint32_t)TIM2_CCER_ADDR, 1);
+			HAL_DMA_Start(&hdma_tim2_ch1, (uint32_t)&timCcerRegCc2eVal, (uint32_t)&htim2.Instance->CCER, 1);  //TIM2_CCER_ADDR
 			/* Disable Capturing on channel 2 to be enabled later after an event on channel 1 comes. */
 			TIM2->CCER &= ~TIM_CCER_CC2E;
 			/* Enable Capturing on channel 1. */
@@ -742,8 +688,10 @@ void TIM_TI_Start(void)
 	HAL_TIM_Base_Start_IT(&htim4);
 
 	/* DMA requests enable */
-	TIM2->DIER |= TIM_DIER_CC1DE;
-	TIM2->DIER |= TIM_DIER_CC2DE;
+	//TIM2->DIER |= TIM_DIER_CC1DE;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->DIER |= TIM_DIER_CC2DE;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC2);
 
 	if(counter.tiMode!=TI_MODE_EVENT_SEQUENCE_INDEP){
 		/* Enable capturing */
@@ -772,8 +720,10 @@ void TIM_TI_Stop(void)
 	TIM2->CCER &= ~TIM_CCER_CC2E;
 
 	/* DMA requests disable */
-	TIM2->DIER &= ~TIM_DIER_CC1DE;
-	TIM2->DIER &= ~TIM_DIER_CC2DE;
+	//TIM2->DIER &= ~TIM_DIER_CC1DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->DIER &= ~TIM_DIER_CC2DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC2);
 }
 
 /**
@@ -950,8 +900,10 @@ void TIM_IC_DutyCycle_Start(void)
 	HAL_TIM_Base_Start_IT(&htim4);
 
 	/* DMA requests enable */
-	TIM2->DIER |= TIM_DIER_CC1DE;
-	TIM2->DIER |= TIM_DIER_CC2DE;
+	//TIM2->DIER |= TIM_DIER_CC1DE;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->DIER |= TIM_DIER_CC2DE;
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC2);
 
 	/* Enable capturing */
 	TIM2->CCER |= TIM_CCER_CC2E;
@@ -978,8 +930,10 @@ void TIM_IC_DutyCycle_Stop(void)
 	TIM2->CCER &= ~TIM_CCER_CC2E;
 
 	/* DMA requests disable */
-	TIM2->DIER &= ~TIM_DIER_CC1DE;
-	TIM2->DIER &= ~TIM_DIER_CC2DE;
+	//TIM2->DIER &= ~TIM_DIER_CC1DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
+	//TIM2->DIER &= ~TIM_DIER_CC2DE;
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC2);
 }
 
 /* ************************************************************************************** */
@@ -996,15 +950,15 @@ void TIM_ETRP_Config(double freq)
 {
 	uint32_t smcr = TIM2 -> SMCR;
 	/* Check the range of the input frequency and set the ETR prescaler */
-	if(freq < (tim2clk / 4)){
+	if(freq < (counter.tim2PrphClk / 4)){
 		TIM2 -> SMCR &= ~TIM_SMCR_ETPS;													/* Set ETR prescaler to 1 */
 
-	} else if ((freq >= (tim2clk / 4)) && freq < ((tim2clk / 2))){
+	} else if ((freq >= (counter.tim2PrphClk / 4)) && freq < ((counter.tim2PrphClk / 2))){
 		if ((smcr & 0x3000) != TIM_SMCR_ETPS_0){
 			TIM2 -> SMCR &= ~TIM_SMCR_ETPS;
 			TIM2 -> SMCR |= TIM_SMCR_ETPS_0;												/* Set ETR prescaler to 2 */
 		}
-	} else if ((freq >= (tim2clk / 2)) && (freq < (tim2clk))) {
+	} else if ((freq >= (counter.tim2PrphClk / 2)) && (freq < (counter.tim2PrphClk))) {
 		if ((smcr & 0x3000) != TIM_SMCR_ETPS_1){
 			TIM2 -> SMCR &= ~TIM_SMCR_ETPS;
 			TIM2 -> SMCR |= TIM_SMCR_ETPS_1;												/* Set ETR prescaler to 4 */
@@ -1017,73 +971,73 @@ void TIM_ETRP_Config(double freq)
 	}
 }
 
-/**
- * @brief  Selects the required prescaler of IC1 of TIM2 in Counter.
-						Automatic change according to frequency.
- * @param  freq: frequency
- * @retval none
- * @state  NOT USED, OBSOLETE
- */
-void TIM_IC1PSC_Config(double freq)
-{
-	uint32_t ccmr1 = (TIM2->CCMR1) & TIM_CCMR1_IC1PSC_Msk;
+///**
+// * @brief  Selects the required prescaler of IC1 of TIM2 in Counter.
+//						Automatic change according to frequency.
+// * @param  freq: frequency
+// * @retval none
+// * @state  NOT USED, OBSOLETE
+// */
+//void TIM_IC1PSC_Config(double freq)
+//{
+//	uint32_t ccmr1 = (TIM2->CCMR1) & TIM_CCMR1_IC1PSC_Msk;
+//
+//	/* PSC1 configuration */
+//	/* For IC_THRESHOLD = max (8), range is 9 MHz - 18 MHz */
+//	if ((freq >= (double)(counter.tim2PrphClk/IC_THRESHOLD*2)) && (freq < (double)(counter.tim2PrphClk/IC_THRESHOLD))){
+//		if (ccmr1 != TIM_CCMR1_IC1PSC_0) {
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_0;				/* Set IC prescaler to 2 */
+//		}
+//		/* 18 MHz - 36 MHz */
+//	} else if ((freq >= (double)(counter.tim2PrphClk/IC_THRESHOLD)) && (freq < (double)(counter.tim2PrphClk*2/IC_THRESHOLD))){
+//		if (ccmr1 != TIM_CCMR1_IC1PSC_1){
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_1;				/* Set IC prescaler to 4 */
+//		}
+//		/* 36 MHz - 72 MHz */
+//	} else if ((freq >= (double)(counter.tim2PrphClk*2/IC_THRESHOLD)) && (freq < (double)(counter.tim2PrphClk*4/IC_THRESHOLD))){
+//		if (ccmr1 != TIM_CCMR1_IC1PSC){
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC;					/* Set IC prescaler to 8 */
+//		}
+//		/* 0.0335276126861572265625 Hz - 9 MHz */
+//	} else if (ccmr1 != 0x00) {
+//		TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC; 					/* Set IC prescaler to 1 */
+//	}
+//}
 
-	/* PSC1 configuration */
-	/* For IC_THRESHOLD = max (8), range is 9 MHz - 18 MHz */
-	if ((freq >= (double)(tim2clk/IC_THRESHOLD*2)) && (freq < (double)(tim2clk/IC_THRESHOLD))){
-		if (ccmr1 != TIM_CCMR1_IC1PSC_0) {
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_0;				/* Set IC prescaler to 2 */
-		}
-		/* 18 MHz - 36 MHz */
-	} else if ((freq >= (double)(tim2clk/IC_THRESHOLD)) && (freq < (double)(tim2clk*2/IC_THRESHOLD))){
-		if (ccmr1 != TIM_CCMR1_IC1PSC_1){
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_1;				/* Set IC prescaler to 4 */
-		}
-		/* 36 MHz - 72 MHz */
-	} else if ((freq >= (double)(tim2clk*2/IC_THRESHOLD)) && (freq < (double)(tim2clk*4/IC_THRESHOLD))){
-		if (ccmr1 != TIM_CCMR1_IC1PSC){
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC;					/* Set IC prescaler to 8 */
-		}
-		/* 0.0335276126861572265625 Hz - 9 MHz */
-	} else if (ccmr1 != 0x00) {
-		TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC; 					/* Set IC prescaler to 1 */
-	}
-}
-
-/**
- * @brief  This function is used to select the desired prescaler of IC2 of TIM2 in Counter.
-						Automatic change due to frequency.
- * @param  freq: frequency
- * @retval none
- * @state  NOT USED, OBSOLETE
- */
-void TIM_IC2PSC_Config(double freq)
-{
-	uint32_t ccmr2 = (TIM2->CCMR1) & TIM_CCMR1_IC2PSC_Msk;
-
-	/* PSC2 configuration */
-	if ((freq >= (tim2clk/IC_THRESHOLD*2)) && (freq < (tim2clk/IC_THRESHOLD))){
-		if (ccmr2 != TIM_CCMR1_IC2PSC_0) {
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_0;				/* Set IC prescaler to 2 */
-		}
-	} else if ((freq >= (tim2clk)/IC_THRESHOLD) && (freq < (tim2clk*2/IC_THRESHOLD))){
-		if (ccmr2 != TIM_CCMR1_IC2PSC_1){
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_1;				/* Set IC prescaler to 4 */
-		}
-	} else if ((freq >= (tim2clk*2)/IC_THRESHOLD) && (freq < (tim2clk*4/IC_THRESHOLD))){
-		if (ccmr2 != TIM_CCMR1_IC2PSC){
-			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC;					/* Set IC prescaler to 8 */
-		}
-	} else if (ccmr2 != 0x00) {
-		TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC; 					/* Set IC prescaler to 1 */
-	}
-}
+///**
+// * @brief  This function is used to select the desired prescaler of IC2 of TIM2 in Counter.
+//						Automatic change due to frequency.
+// * @param  freq: frequency
+// * @retval none
+// * @state  NOT USED, OBSOLETE
+// */
+//void TIM_IC2PSC_Config(double freq)
+//{
+//	uint32_t ccmr2 = (TIM2->CCMR1) & TIM_CCMR1_IC2PSC_Msk;
+//
+//	/* PSC2 configuration */
+//	if ((freq >= (counter.tim2PrphClk/IC_THRESHOLD*2)) && (freq < (counter.tim2PrphClk/IC_THRESHOLD))){
+//		if (ccmr2 != TIM_CCMR1_IC2PSC_0) {
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_0;				/* Set IC prescaler to 2 */
+//		}
+//	} else if ((freq >= (counter.tim2PrphClk)/IC_THRESHOLD) && (freq < (counter.tim2PrphClk*2/IC_THRESHOLD))){
+//		if (ccmr2 != TIM_CCMR1_IC2PSC_1){
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_1;				/* Set IC prescaler to 4 */
+//		}
+//	} else if ((freq >= (counter.tim2PrphClk*2)/IC_THRESHOLD) && (freq < (counter.tim2PrphClk*4/IC_THRESHOLD))){
+//		if (ccmr2 != TIM_CCMR1_IC2PSC){
+//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
+//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC;					/* Set IC prescaler to 8 */
+//		}
+//	} else if (ccmr2 != 0x00) {
+//		TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC; 					/* Set IC prescaler to 1 */
+//	}
+//}
 
 /**
  * @brief  Selects the required prescaler of IC1 of TIM2 in Counter.
@@ -1254,21 +1208,23 @@ void TIM_TI_ReconfigActiveEdges(void)
  */
 void TIM_ARR_PSC_Config(uint16_t arr, uint16_t psc)
 {
-	TIM4->ARR = arr;
-	TIM4->PSC = psc;
+	htim4.Instance->ARR = arr;
+	htim4.Instance->PSC = psc;
 
 	if(counter.state!=COUNTER_IC){
 		xStartTime = xTaskGetTickCount();
-		TIM4->CR1 |= TIM_CR1_CEN;
+		__HAL_TIM_ENABLE(&htim4);
 		counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	}
 
 	/* Generate an update event to reload the Prescaler and the repetition counter immediately */
-	TIM4->EGR |= TIM_EGR_UG;
+	//TIM4->EGR |= TIM_EGR_UG;
+	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 }
 
 void TIM_REF_SecondInputDisable(void){
-	TIM4->CR1 &= ~TIM_CR1_CEN;
+	//TIM4->CR1 &= ~TIM_CR1_CEN;
+	__HAL_TIM_DISABLE(&htim4);
 }
 
 void TIM_REF_Reconfig_cnt(uint32_t sampleCount)
