@@ -1244,6 +1244,28 @@ namespace LEO
                                 logRecieved("CNT Time Interval Data NOT parsed!" + cntMessageDouble.ToString());
                             }
                             break;
+                        /************************* Sync PWM *************************/
+                        case Commands.SYNC_PWM_REAL_FREQ:
+                            while (port.BytesToRead < 8) // 16
+                            {
+                                wait_for_data(watchDog--);
+                            }
+
+                            byte[] inputValSprf = new byte[8];
+                            port.Read(inputValSprf, 0, 8);
+
+                            try
+                            {
+
+                                cntMessageDouble = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValSprf, 0)); //BitConverter.ToSingle(inputValEtr, 0);                                                                                               
+                                Counter_form.add_message(new Message(Message.MsgRequest.SYNC_PWM_REAL_FREQ, "SYNC PWM real freq", cntMessageDouble));
+                                logRecieved("Sync PWM Real freq " + cntMessageDouble.ToString());
+                            }
+                            catch (Exception ex)
+                            {
+                                logRecieved("Counter freq ETR was not parsed  " + cntMessageDouble.ToString());
+                            }
+                            break;
                         /************************* Default *************************/
                         default:
                             if (inputMsg[0] == Commands.ERROR)

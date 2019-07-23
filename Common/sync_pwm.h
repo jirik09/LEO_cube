@@ -36,13 +36,14 @@ typedef enum{
 	 by a new data transfered by DMA. Two dimensional array is needed to define rising edge
 	 and falling edge. */
 typedef struct{		
-  uint16_t dataEdgeChan1[2];
+	uint16_t dataEdgeChan1[2];
 	uint16_t dataEdgeChan2[2];
 	uint16_t dataEdgeChan3[2];
 	uint16_t dataEdgeChan4[2];		
 	
 	uint16_t timAutoReloadReg;
 	uint16_t timPrescReg;
+	double realPwmFreq;
 	
 	syncPwmChannelTypeDef channelToConfig;
 	syncPwmChannelStateTypeDef chan1;
@@ -74,7 +75,7 @@ void syncPwmStop(void);
 void syncPwmChannelNumber(uint8_t chanNum);
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
 void syncPwmChannelConfig(uint32_t ccr1st, uint16_t ccr2nd);
-void syncPwmFreqReconfig(uint32_t arrPsc);
+double syncPwmSetFreq(double freq);
 
 void syncPwmSetDefault(void);
 

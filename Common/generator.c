@@ -255,7 +255,7 @@ void genPwmInit(void)
 
 void genPwmSetFrequency(double freq, uint8_t channel){
 	double realPwmFrq;
-	realPwmFrq = TIM_Reconfig_genPwm(freq, channel);
+	realPwmFrq = TIM_Reconfig_GenPwm(freq, channel);
 
 	uint16_t passMsg;
 	if(channel == 0){

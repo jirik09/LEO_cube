@@ -971,74 +971,6 @@ void TIM_ETRP_Config(double freq)
 	}
 }
 
-///**
-// * @brief  Selects the required prescaler of IC1 of TIM2 in Counter.
-//						Automatic change according to frequency.
-// * @param  freq: frequency
-// * @retval none
-// * @state  NOT USED, OBSOLETE
-// */
-//void TIM_IC1PSC_Config(double freq)
-//{
-//	uint32_t ccmr1 = (TIM2->CCMR1) & TIM_CCMR1_IC1PSC_Msk;
-//
-//	/* PSC1 configuration */
-//	/* For IC_THRESHOLD = max (8), range is 9 MHz - 18 MHz */
-//	if ((freq >= (double)(counter.tim2PrphClk/IC_THRESHOLD*2)) && (freq < (double)(counter.tim2PrphClk/IC_THRESHOLD))){
-//		if (ccmr1 != TIM_CCMR1_IC1PSC_0) {
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_0;				/* Set IC prescaler to 2 */
-//		}
-//		/* 18 MHz - 36 MHz */
-//	} else if ((freq >= (double)(counter.tim2PrphClk/IC_THRESHOLD)) && (freq < (double)(counter.tim2PrphClk*2/IC_THRESHOLD))){
-//		if (ccmr1 != TIM_CCMR1_IC1PSC_1){
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC_1;				/* Set IC prescaler to 4 */
-//		}
-//		/* 36 MHz - 72 MHz */
-//	} else if ((freq >= (double)(counter.tim2PrphClk*2/IC_THRESHOLD)) && (freq < (double)(counter.tim2PrphClk*4/IC_THRESHOLD))){
-//		if (ccmr1 != TIM_CCMR1_IC1PSC){
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC1PSC;					/* Set IC prescaler to 8 */
-//		}
-//		/* 0.0335276126861572265625 Hz - 9 MHz */
-//	} else if (ccmr1 != 0x00) {
-//		TIM2->CCMR1 &= ~TIM_CCMR1_IC1PSC; 					/* Set IC prescaler to 1 */
-//	}
-//}
-
-///**
-// * @brief  This function is used to select the desired prescaler of IC2 of TIM2 in Counter.
-//						Automatic change due to frequency.
-// * @param  freq: frequency
-// * @retval none
-// * @state  NOT USED, OBSOLETE
-// */
-//void TIM_IC2PSC_Config(double freq)
-//{
-//	uint32_t ccmr2 = (TIM2->CCMR1) & TIM_CCMR1_IC2PSC_Msk;
-//
-//	/* PSC2 configuration */
-//	if ((freq >= (counter.tim2PrphClk/IC_THRESHOLD*2)) && (freq < (counter.tim2PrphClk/IC_THRESHOLD))){
-//		if (ccmr2 != TIM_CCMR1_IC2PSC_0) {
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_0;				/* Set IC prescaler to 2 */
-//		}
-//	} else if ((freq >= (counter.tim2PrphClk)/IC_THRESHOLD) && (freq < (counter.tim2PrphClk*2/IC_THRESHOLD))){
-//		if (ccmr2 != TIM_CCMR1_IC2PSC_1){
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC_1;				/* Set IC prescaler to 4 */
-//		}
-//	} else if ((freq >= (counter.tim2PrphClk*2)/IC_THRESHOLD) && (freq < (counter.tim2PrphClk*4/IC_THRESHOLD))){
-//		if (ccmr2 != TIM_CCMR1_IC2PSC){
-//			TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC;
-//			TIM2->CCMR1 |= TIM_CCMR1_IC2PSC;					/* Set IC prescaler to 8 */
-//		}
-//	} else if (ccmr2 != 0x00) {
-//		TIM2->CCMR1 &= ~TIM_CCMR1_IC2PSC; 					/* Set IC prescaler to 1 */
-//	}
-//}
-
 /**
  * @brief  Selects the required prescaler of IC1 of TIM2 in Counter.
 						Direct change of prescaler according to value given to function as parameter.
@@ -1230,7 +1162,8 @@ void TIM_REF_SecondInputDisable(void){
 void TIM_REF_Reconfig_cnt(uint32_t sampleCount)
 {
 	uint32_t dummy;
-	uint32_t periphClock = HAL_RCC_GetPCLK1Freq()*2;  // TIM4 periph clock
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
+			//HAL_RCC_GetPCLK1Freq()*2;  // TIM4 periph clock
 
 	xStartTime = xTaskGetTickCount();
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;

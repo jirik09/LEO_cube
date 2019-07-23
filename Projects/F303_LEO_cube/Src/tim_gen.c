@@ -124,7 +124,7 @@ static void MX_TIM1_GEN_PWM_Init(void)
 	TIM_OC_InitTypeDef sConfigOC;
 	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
-	/* ARR = 1024 (10 bit resolution in default) */
+	/* ARR = 1024 (10 bit resolution in default). F303 -> PA9 -> D8 -> Channel 1 */
 	htim1.Instance = TIM1;
 	htim1.Init.Prescaler = 0;
 	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -181,6 +181,7 @@ static void MX_TIM3_GEN_PWM_Init(void)
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;
 
+	/* F303 -> PB4 -> D5 -> Channel 2  */
 	htim3.Instance = TIM3;
 	htim3.Init.Prescaler = 0;
 	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -333,7 +334,8 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim6_up.Init.Mode = DMA_CIRCULAR;
 	hdma_tim6_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim6_up);
-	TIM6->DIER |= TIM_DIER_UDE;
+	__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
+	//TIM6->DIER |= TIM_DIER_UDE;
 
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim6_up);
 }
@@ -354,7 +356,8 @@ void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim7_up.Init.Mode = DMA_CIRCULAR;
 	hdma_tim7_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim7_up);
-	TIM7->DIER |= TIM_DIER_UDE;
+	__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
+	//TIM7->DIER |= TIM_DIER_UDE;
 
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim7_up);
 }
@@ -406,6 +409,7 @@ void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base)
  * @retval status
  */
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
+	/* RCC_PERIPHCLK_TIM6 and TIM7 defines missing in order to use with HAL_RCCEx_GetPeriphCLKFreq fun */
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq()*2;
 	if(chan==0){
 		return TIM_Reconfig(&htim6,periphClock,samplingFreq,realFreq,true);
@@ -416,14 +420,18 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}
 }
 
-double TIM_Reconfig_genPwm(double reqFreq, uint8_t chan){
+double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	uint32_t periphClock;
 	if(chan==0){
-		periphClock = HAL_RCC_GetPCLK1Freq()*2;
-		return TIM_ReconfigPrecise(&htim3,periphClock,reqFreq);
-	}else if(chan==1){
-		periphClock = HAL_RCC_GetPCLK2Freq();
+		/* Whenever TIM peripheral is over-clocked and running from PLL, GetPeriphClock HAL function
+		 * does not return the correct value.. */
+		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1)*2;
+				//HAL_RCC_GetPCLK2Freq()*2;
 		return TIM_ReconfigPrecise(&htim1,periphClock,reqFreq);
+	}else if(chan==1){
+		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
+				//HAL_RCC_GetHCLKFreq();
+		return TIM_ReconfigPrecise(&htim3,periphClock,reqFreq);
 	}else{
 		return 0;
 	}
@@ -472,15 +480,14 @@ void TIMGenDacDeinit(void){
 	//	HAL_TIM_Base_DeInit(&htim7);
 
 	/* Reset TIM peripherals */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM6RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
+	__HAL_RCC_TIM6_FORCE_RESET();
+	__HAL_RCC_TIM6_RELEASE_RESET();
 
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM7RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM7RST;
+	__HAL_RCC_TIM7_FORCE_RESET();
+	__HAL_RCC_TIM7_RELEASE_RESET();
 
-	/* Reset DAC peripheral */
-	RCC->APB1RSTR |= RCC_APB1RSTR_DAC1RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_DAC1RST;
+	__HAL_RCC_DAC1_FORCE_RESET();
+	__HAL_RCC_DAC1_RELEASE_RESET();
 }
 
 #ifdef USE_GEN_PWM
@@ -511,14 +518,14 @@ void PWMGeneratingEnable(void){
 	if(generator.numOfChannles==1){
 		/* After sole Generator initialization, PWM generator do not enter TIMGenPwmInit()
 		function and thus UDE bits are not configured. Must be set here. */
-		TIM6->DIER |= TIM_DIER_UDE;
+		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
 		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 		HAL_TIM_Base_Start(&htim6);
 	}else if(generator.numOfChannles>1){
-		TIM6->DIER |= TIM_DIER_UDE;
+		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
 		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
 		HAL_TIM_Base_Start(&htim6);
-		TIM7->DIER |= TIM_DIER_UDE;
+		__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
 		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Start(&htim7);
 	}
@@ -563,48 +570,18 @@ void TIMGenPwmInit(void){
  */
 void TIMGenPwmDeinit(void){
 	/* Reset TIM peripherals */
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM6RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM6RST;
+	__HAL_RCC_TIM6_FORCE_RESET();
+	__HAL_RCC_TIM6_RELEASE_RESET();
 
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM7RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM7RST;
+	__HAL_RCC_TIM7_FORCE_RESET();
+	__HAL_RCC_TIM7_RELEASE_RESET();
 
-	RCC->APB2RSTR |= RCC_APB2RSTR_TIM1RST;
-	RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM1RST;
+	__HAL_RCC_TIM1_FORCE_RESET();
+	__HAL_RCC_TIM1_RELEASE_RESET();
 
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM3RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM3RST;
+	__HAL_RCC_TIM3_FORCE_RESET();
+	__HAL_RCC_TIM3_RELEASE_RESET();
 }
-
-///**
-// * @brief  Configuration of Timer Prescaler (PSC).
-// * @note		Calculated for TIM1 & TIM3 by host application.
-// * @param  pscVal: Prescaler value
-// * @param  chan: channel number 1 or 2
-// * @retval None
-// */
-//void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan){
-//	if(chan == 1){
-//		TIM1->PSC = pscVal;
-//	}else{
-//		TIM3->PSC = pscVal;
-//	}
-//}
-
-///**
-// * @brief  Configuration of Timer Auto-Reload register (ARR).
-// * @note		Calculated for TIM1 & TIM3 by host application.
-// * @param  arrVal: Auto-Reload register value
-// * @param  chan: channel number 1 or 2
-// * @retval None
-// */
-//void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan){
-//	if(chan == 1){
-//		TIM1->ARR = arrVal;
-//	}else{
-//		TIM3->ARR = arrVal;
-//	}
-//}
 
 #endif //USE_GEN_PWM
 

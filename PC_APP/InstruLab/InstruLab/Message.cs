@@ -18,7 +18,9 @@ namespace LEO
             COUNTER_REF_WAIT, COUNTER_REF_WARN, COUNTER_TI_TIMEOUT, COUNTER_TI_DATA, COUNTER_IC_DUTY_CYCLE, COUNTER_IC_PULSE_WIDTH,
             /* Logic analyzer */
             LOG_ANLYS_WAIT, LOG_ANLYS_DATA, LOG_ANLYS_DATA_LENGTH, LOG_ANLYS_TRIGGER_POINTER, LOG_ANLYS_USER_TRIGGER,
-            NULL_MESSAGE
+            NULL_MESSAGE,
+            /* Synchronized PWM */
+            SYNC_PWM_REAL_FREQ
         }
         private MsgRequest type;
         private int num;

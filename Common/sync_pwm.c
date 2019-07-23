@@ -124,9 +124,11 @@ void syncPwmChannelConfig(uint32_t ccr1st, uint16_t ccr2nd)
 }
 
 /* Frequency reconfiguring. */
-void syncPwmFreqReconfig(uint32_t arrPsc)
+double syncPwmSetFreq(double freq)
 {
-	TIM_ARR_PSC_Reconfig(arrPsc);
+	syncPwm.realPwmFreq =  TIM_Reconfig_SyncPwm(freq);
+	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state)

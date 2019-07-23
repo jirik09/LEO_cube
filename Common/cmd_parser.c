@@ -30,6 +30,7 @@
  * @{
  */
 xQueueHandle cmdParserMessageQueue;
+
 /**
  * @}
  */
@@ -696,11 +697,13 @@ command parseScopeCmd(void){
  * @brief  Synchronized PWM generator command parse function.
  * @param  None
  * @retval Command ACK or ERR
- */
+ */double fruq;
 command parseSyncPwmCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
 	uint16_t passMsg;
+	uint32_t secondHalfOfDouble;
+	double freq;
 
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
@@ -752,8 +755,10 @@ command parseSyncPwmCmd(void){
 		break;
 	case CMD_SYNC_PWM_FREQ:
 		cmdIn = giveNextCmd();
+		secondHalfOfDouble = commBufferReadUInt32();
+		fruq = freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmFreqReconfig((uint32_t)(cmdIn));
+			syncPwmSetFreq(freq);
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;
@@ -798,7 +803,6 @@ command parseLogAnlysCmd(void){
 	uint16_t passMsg;
 
 	cmdIn = giveNextCmd();
-
 	while(logAnlys.state == LOGA_DATA_SENDING);
 	/* In order to change any parameter, sampling has to be stopped. */
 	if((logAnlys.state == LOGA_SAMPLING) && (cmdIn != CMD_LOG_ANLYS_STOP)){
@@ -929,7 +933,7 @@ command parseLogAnlysCmd(void){
  * @brief  Generator command parse function.
  * @param  None
  * @retval Command ACK or ERR
- */double freq;
+ */
 command parseGeneratorCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
@@ -937,6 +941,8 @@ command parseGeneratorCmd(void){
 	uint8_t length,chan;
 	uint16_t watchDog=5000;
 	uint16_t passMsg;
+	uint32_t secondHalfOfDouble;
+	double freq;
 
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
@@ -1002,8 +1008,8 @@ command parseGeneratorCmd(void){
 
 	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
-		uint32_t secondHalf1 = commBufferReadUInt32();
-		freq = makeDoubleFromTwo32bit(secondHalf1, cmdIn);
+		secondHalfOfDouble = commBufferReadUInt32();
+		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 0);
 		}else{
@@ -1012,8 +1018,8 @@ command parseGeneratorCmd(void){
 		break;
 	case CMD_GEN_PWM_FREQ_CH2:
 		cmdIn = giveNextCmd();
-		uint32_t secondHalf2 = commBufferReadUInt32();
-		freq = makeDoubleFromTwo32bit(secondHalf2, cmdIn);
+		secondHalfOfDouble = commBufferReadUInt32();
+		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 1);
 		}else{

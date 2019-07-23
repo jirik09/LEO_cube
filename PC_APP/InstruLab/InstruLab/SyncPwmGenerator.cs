@@ -19,9 +19,15 @@ namespace LEO
         System.Timers.Timer GUITimer;
         static Semaphore syncPwmSemaphore = new Semaphore(1, 1);
 
-//        private Queue<Message> cnt_q = new Queue<Message>();
-//        Message.MsgRequest req;
-//        Message messg;
+        private Queue<Message> syncPwm_q = new Queue<Message>();
+        Message.MsgRequest req;
+        Message messg;
+
+        double gotRealFreqFromDevice = 0;
+
+        //        private Queue<Message> cnt_q = new Queue<Message>();
+        //        Message.MsgRequest req;
+        //        Message messg;
 
         private double last_sum = 0;
 //        private bool generating = false;
@@ -172,6 +178,26 @@ namespace LEO
             SyncPwmGenerator_Deinit();
         }
 
+
+        private void Update_GUI(object sender, ElapsedEventArgs e)
+        {
+            if (syncPwm_q.Count > 0)
+            {
+                messg = syncPwm_q.Dequeue();
+                if (messg == null)
+                {
+                    return;
+                }
+                switch (req = messg.GetRequest())
+                {                    
+                    case Message.MsgRequest.SYNC_PWM_REAL_FREQ:
+                        gotRealFreqFromDevice = messg.GetFlt();
+                        this.Invalidate();
+                        break;
+                }
+            }
+        }
+
         private void Update_signal(object sender, ElapsedEventArgs e)
         {
             double sum;
@@ -211,7 +237,18 @@ namespace LEO
 
         public void generate_signals_mcu_advanced()
         {
-            sendCommandNumber(Commands.SYNC_PWM_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
+            long freq = syncPwmTimPeriphClock / (long)(syncPwmArr * syncPwmPsc);
+            long val = BitConverter.DoubleToInt64Bits(freq);
+            byte[] valueBytes = BitConverter.GetBytes(val);
+            int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
+            int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+            device.send(Commands.SYNC_PWM_GEN + ":" + Commands.SYNC_PWM_FREQ + " ");
+            device.send_int(valueHigh);
+            device.send_int(valueLow);
+            device.send(";");
+
+            //sendCommandNumber(Commands.SYNC_PWM_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
+
             Thread.Sleep(messageDelay);
             
 
@@ -359,8 +396,18 @@ namespace LEO
 
         public void generate_signals_mcu_basic()
         {
-            sendCommandNumber(Commands.SYNC_PWM_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
-            Thread.Sleep(messageDelay);            
+            //sendCommandNumber(Commands.SYNC_PWM_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
+            long freq = syncPwmTimPeriphClock / (long)(syncPwmArr * syncPwmPsc);
+            long val = BitConverter.DoubleToInt64Bits(freq);
+            byte[] valueBytes = BitConverter.GetBytes(val);
+            int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
+            int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+            device.send(Commands.SYNC_PWM_GEN + ":" + Commands.SYNC_PWM_FREQ + " ");
+            device.send_int(valueHigh);
+            device.send_int(valueLow);
+            device.send(";");
+
+            //Thread.Sleep(messageDelay);            
 
             if(syncPwmDuty == 0)
             {

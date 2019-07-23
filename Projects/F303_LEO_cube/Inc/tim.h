@@ -79,7 +79,7 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
-double TIM_Reconfig_genPwm(double reqFreq, uint8_t chan);
+double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
 
 #endif //USE_GEN || USE_GEN_PWM
 
@@ -210,7 +210,7 @@ void TIM_SYNC_PWM_Stop(void);
 
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
 void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd);
-void TIM_ARR_PSC_Reconfig(uint32_t arrPsc);
+double TIM_Reconfig_SyncPwm(double freq);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);

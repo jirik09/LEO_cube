@@ -77,7 +77,6 @@ void TIM15_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base)
 /** @defgroup Scope_TIM_Functions Scope TIMers Functions.
  * @{
  */
-
 void TIMScopeEnable(){
 	HAL_TIM_Base_Start(&htim_scope);
 }
@@ -87,7 +86,8 @@ void TIMScopeDisable(){
 }
 
 uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq){
-	uint32_t periphClock = HAL_RCC_GetHCLKFreq();
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM15);
+			//HAL_RCC_GetHCLKFreq();
 	return TIM_Reconfig(&htim_scope,periphClock,samplingFreq,realFreq, true);
 }
 

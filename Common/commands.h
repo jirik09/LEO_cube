@@ -32,6 +32,10 @@ typedef uint32_t command;
 #define STR_GEN_PWM_REAL_FREQ_CH2 "GPR2"
 #endif //USE_GEN_PWM
 
+#ifdef USE_SYNC_PWM
+#define STR_SYNC_PWM_REAL_FREQ "SPRF"
+#endif // USE_SYNC_PWM
+
 #ifdef USE_COUNTER
 #define STR_CNT_ETR_DATA "ETRD"		// data from ETR measurement
 #define STR_CNT_ETR_BUFF "ETRB"		// buffer itself

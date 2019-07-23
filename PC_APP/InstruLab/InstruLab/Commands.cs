@@ -155,6 +155,7 @@ namespace LEO
 
         //Syncronized PWM generator general commands
         public const string SYNC_PWM_COMMAND = "SCOM";
+        public const string SYNC_PWM_REAL_FREQ = "SPRF";
 
         public const string SYNC_PWM_INIT = "INIT";
         public const string SYNC_PWM_DEINIT = "DINI";

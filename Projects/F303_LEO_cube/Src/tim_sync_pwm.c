@@ -10,6 +10,7 @@
 #include "tim.h"
 #include "mcu_config.h"
 #include "sync_pwm.h"
+#include "stm32f3xx_ll_tim.h"
 
 #ifdef USE_SYNC_PWM
 
@@ -230,8 +231,6 @@ void TIM_SYNC_PWM_Deinit(void) {
 	HAL_TIM_Base_DeInit(&htim8);
 
 	/* Reset TIM8 preipheral */
-	//RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
-	//RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
 	__HAL_RCC_TIM8_FORCE_RESET();
 	__HAL_RCC_TIM8_RELEASE_RESET();
 }
@@ -264,45 +263,39 @@ void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
  */
 void TIM_SYNC_PWM_Start(void) {
 	if (syncPwm.chan1 == CHAN_ENABLE) {
-		TIM8->CCR1 = syncPwm.dataEdgeChan1[1];
-		//TIM8->DIER |= TIM_DIER_CC1DE;
+		htim8.Instance->CCR1 = syncPwm.dataEdgeChan1[1];
 		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
 		HAL_DMA_Start(&hdma_tim8_ch1, (uint32_t) &syncPwm.dataEdgeChan1[0],
-				(uint32_t) &(TIM8->CCR1), 2);
+				(uint32_t) &(htim8.Instance->CCR1), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
 	}
 
 	if (syncPwm.chan2 == CHAN_ENABLE) {
-		TIM8->CCR2 = syncPwm.dataEdgeChan2[1];
-		//TIM8->DIER |= TIM_DIER_CC2DE;
+		htim8.Instance->CCR2 = syncPwm.dataEdgeChan2[1];
 		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
 		HAL_DMA_Start(&hdma_tim8_ch2, (uint32_t) &syncPwm.dataEdgeChan2[0],
-				(uint32_t) &(TIM8->CCR2), 2);
+				(uint32_t) &(htim8.Instance->CCR2), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 	}
 
 	if (syncPwm.chan3 == CHAN_ENABLE) {
-		TIM8->CCR3 = syncPwm.dataEdgeChan3[1];
-		//TIM8->DIER |= TIM_DIER_CC3DE;
+		htim8.Instance->CCR3 = syncPwm.dataEdgeChan3[1];
 		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
 		HAL_DMA_Start(&hdma_tim8_ch3_up, (uint32_t) &syncPwm.dataEdgeChan3[0],
-				(uint32_t) &(TIM8->CCR3), 2);
+				(uint32_t) &(htim8.Instance->CCR3), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
 	}
 
 	if (syncPwm.chan4 == CHAN_ENABLE) {
-		TIM8->CCR4 = syncPwm.dataEdgeChan4[1];
-		//TIM8->DIER |= TIM_DIER_CC4DE;
+		htim8.Instance->CCR4 = syncPwm.dataEdgeChan4[1];
 		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
 		HAL_DMA_Start(&hdma_tim8_ch4_trig_com,
-				(uint32_t) &syncPwm.dataEdgeChan4[0], (uint32_t) &(TIM8->CCR4),
-				2);
+				(uint32_t) &syncPwm.dataEdgeChan4[0], (uint32_t) &(htim8.Instance->CCR4), 2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_ENABLE);
 	}
 	/* Master Output Enable. */
 	__HAL_TIM_MOE_ENABLE(&htim8);
 	/* Start generating. */
-	//TIM8->CR1 |= TIM_CR1_CEN;
 	HAL_TIM_Base_Start(&htim8);
 }
 
@@ -319,28 +312,24 @@ void TIM_SYNC_PWM_Stop(void) {
 	__HAL_TIM_MOE_DISABLE(&htim8);
 
 	if (syncPwm.chan1 == CHAN_ENABLE) {
-		//TIM8->DIER &= ~TIM_DIER_CC1DE;
 		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC1);
 		HAL_DMA_Abort(&hdma_tim8_ch1);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan2 == CHAN_ENABLE) {
-		//TIM8->DIER &= ~TIM_DIER_CC2DE;
 		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC2);
 		HAL_DMA_Abort(&hdma_tim8_ch2);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan3 == CHAN_ENABLE) {
-		//TIM8->DIER &= ~TIM_DIER_CC3DE;
 		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC3);
 		HAL_DMA_Abort(&hdma_tim8_ch3_up);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_DISABLE);
 	}
 
 	if (syncPwm.chan4 == CHAN_ENABLE) {
-		//TIM8->DIER &= ~TIM_DIER_CC4DE;
 		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC4);
 		HAL_DMA_Abort(&hdma_tim8_ch4_trig_com);
 		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_DISABLE);
@@ -348,12 +337,10 @@ void TIM_SYNC_PWM_Stop(void) {
 
 	/* Save configuration. */
 	syncPwm.timAutoReloadReg = __HAL_TIM_GET_AUTORELOAD(&htim8); //TIM8->ARR;
-	syncPwm.timPrescReg = TIM8->PSC;
+	syncPwm.timPrescReg = htim8.Instance->PSC;
 
 	/* There are DMA pending requests when stopped. Unfortunately
 	 cannot be cleared in another way. */
-	//RCC->APB2RSTR |= RCC_APB2RSTR_TIM8RST;
-	//RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM8RST;
 	__HAL_RCC_TIM8_FORCE_RESET();
 	__HAL_RCC_TIM8_RELEASE_RESET();
 
@@ -411,7 +398,8 @@ void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd) {
  * @retval None
  */
 void TIM_SYNC_PWM_StepMode_Enable(void) {
-	TIM8->CR1 |= TIM_CR1_OPM;
+	//TIM8->CR1 |= TIM_CR1_OPM;
+	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
 	syncPwm.stepMode = CHAN_ENABLE;
 }
 
@@ -422,7 +410,8 @@ void TIM_SYNC_PWM_StepMode_Enable(void) {
  * @retval None
  */
 void TIM_SYNC_PWM_StepMode_Disable(void) {
-	TIM8->CR1 &= ~TIM_CR1_OPM;
+	//TIM8->CR1 &= ~TIM_CR1_OPM;
+	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
 	syncPwm.stepMode = CHAN_DISABLE;
 }
 
@@ -432,10 +421,14 @@ void TIM_SYNC_PWM_StepMode_Disable(void) {
  * @params arrPsc: ARR and PSC register of TIM8
  * @retval None
  */
-void TIM_ARR_PSC_Reconfig(uint32_t arrPsc) {
-	htim8.Init.Prescaler = (uint16_t) (arrPsc >> 16);
-	htim8.Init.Period = (uint16_t) arrPsc;
-	HAL_TIM_Base_Init(&htim8);
+double TIM_Reconfig_SyncPwm(double freq) {
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);
+			// HAL_RCC_GetHCLKFreq();
+	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
+
+//	htim8.Init.Prescaler = (uint16_t) (arrPsc >> 16);
+//	htim8.Init.Period = (uint16_t) arrPsc;
+//	HAL_TIM_Base_Init(&htim8);
 }
 
 /**
