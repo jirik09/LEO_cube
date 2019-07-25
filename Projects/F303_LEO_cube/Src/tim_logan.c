@@ -135,9 +135,7 @@ void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim1_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim1_up);
 	/* Trigger DMA by TIMer to transfer data from GPIO IDR reg. to memory buffer. */
-	//		TIM1->DIER |= TIM_DIER_UDE;
 	__HAL_TIM_ENABLE_DMA(&htim1, TIM_DIER_UDE);
-
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim1_up);
 }
 
@@ -192,7 +190,7 @@ void LOG_ANLYS_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	/* Stop timer trigering the DMA for data transfer */
 	//HAL_TIM_Base_Stop(&htim1);
-	TIM4->CR1 &= ~(TIM_CR1_CEN);
+	__HAL_TIM_DISABLE(&htim4);
 	HAL_DMA_Abort(&hdma_tim1_up);
 
 	GPIO_DisableIRQ();
@@ -238,8 +236,13 @@ void LOG_ANLYS_TriggerEventOccured(void)
  */
 void TIM_LogAnlys_Init(void)
 {
-	htim1.State = HAL_TIM_STATE_RESET;
+	__HAL_RCC_TIM4_FORCE_RESET();
+	__HAL_RCC_TIM4_RELEASE_RESET();
+	__HAL_RCC_TIM1_FORCE_RESET();
+	__HAL_RCC_TIM1_RELEASE_RESET();
+
 	htim4.State = HAL_TIM_STATE_RESET;
+	htim1.State = HAL_TIM_STATE_RESET;
 
 	MX_TIM1_LOG_ANLYS_Init();
 	MX_TIM4_LOG_ANLYS_Init();
@@ -256,13 +259,13 @@ void TIM_LogAnlys_Deinit(void)
 	HAL_TIM_Base_DeInit(&htim4);
 	HAL_TIM_Base_DeInit(&htim1);
 
-	RCC->APB1RSTR |= RCC_APB1RSTR_TIM4RST;
-	RCC->APB1RSTR &= ~RCC_APB1RSTR_TIM4RST;
-	RCC->APB2RSTR |= RCC_APB2RSTR_TIM1RST;
-	RCC->APB2RSTR &= ~RCC_APB2RSTR_TIM1RST;
+	__HAL_RCC_TIM4_FORCE_RESET();
+	__HAL_RCC_TIM4_RELEASE_RESET();
+	__HAL_RCC_TIM1_FORCE_RESET();
+	__HAL_RCC_TIM1_RELEASE_RESET();
 
-	htim1.State = HAL_TIM_STATE_RESET;
 	htim4.State = HAL_TIM_STATE_RESET;
+	htim1.State = HAL_TIM_STATE_RESET;
 }
 
 /**
@@ -292,7 +295,7 @@ void TIM_LogAnlys_Stop(void)
 	GPIO_DisableIRQ();
 
 	HAL_TIM_Base_Stop(&htim4);
-	__HAL_TIM_SET_COUNTER(&htim4, 0x00);
+	__HAL_TIM_SET_COUNTER(&htim4, 0);
 	/* Slave TIM1 is stopped by TIM4 upon Update Event
 	   and TIM4 is initialized in One Pulse Mode. */
 	logAnlys.trigOccur = TRIG_NOT_OCCURRED;
@@ -300,41 +303,28 @@ void TIM_LogAnlys_Stop(void)
 
 /**
  * @brief  Posttrigger time reconfiguration.
- * @note		The time after the trigger is handled by TIM4 and ARR+PSC calculated by host.
- * @params arrPsc: ARR & PSC value
+ * @note		The time after the trigger is handled by TIM4.
+ * @params posttrigInSec: post trigger in seconds
  * @retval None
  */
-void TIM_PostTrigger_ARR_PSC_Reconfig(uint32_t arrPsc)
+void TIM_LogAnlys_PostTrigger_Reconfig(double posttrigInSec)
 {
-	uint16_t arr = (uint16_t)arrPsc;
-	uint16_t psc = (uint16_t)(arrPsc >> 16);
-
-	__HAL_TIM_SET_AUTORELOAD(&htim4, arr);
-	__HAL_TIM_SET_PRESCALER(&htim4, psc);
-
-	//TIM4->EGR |= TIM_EGR_UG;
-	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
-	//TIM4->CR1 &= ~(TIM_CR1_CEN);
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
+	double freq = 1 / posttrigInSec;
+	TIM_ReconfigPrecise(&htim4, periphClock, freq);
 	HAL_TIM_Base_Stop(&htim4);
-
-	//	TIM_LogAnlys_Stop();
 }
 
 /**
  * @brief  Sampling frequency reconfiguration.
- * @note		Reconfigures timer TIM1 for triggering DMA to transfer data from GPIOs to RAM. ARR+PSC calculated by host.
+ * @note 	   Reconfigures timer TIM1 for triggering DMA to transfer data from GPIOs to RAM. ARR+PSC calculated by host.
  * @params arrPsc: ARR & PSC value
  * @retval None
  */
-void TIM_SamplingFreq_ARR_PSC_Reconfig(uint32_t arrPsc)
+void TIM_LogAnlys_SamplingFreq_Reconfig(uint32_t smplFreq)
 {
-	uint16_t arr = (uint16_t)arrPsc;
-	uint16_t psc = (uint16_t)(arrPsc >> 16);
-
-	logAnlys.samplingFreq = LOG_ANLYS_TIMEBASE_PERIPH_CLOCK / ((arr + 1) * (psc + 1));
-
-	__HAL_TIM_SET_AUTORELOAD(&htim1, arr);
-	__HAL_TIM_SET_PRESCALER(&htim1, psc);
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1)*2;
+	logAnlys.samplingFreq = TIM_ReconfigPrecise(&htim1, periphClock, smplFreq);
 }
 
 /**
@@ -346,8 +336,8 @@ void TIM_SamplingFreq_ARR_PSC_Reconfig(uint32_t arrPsc)
 void TIM_PostTrigger_SoftwareStart(void)
 {
 	/* Trigger interrupt after posttriger timer elapses (Update Event). */
-	__HAL_TIM_SET_COUNTER(&htim4, 0x00);
-	TIM4->CR1 |= TIM_CR1_CEN;
+	__HAL_TIM_SET_COUNTER(&htim4, 0);
+	__HAL_TIM_ENABLE(&htim4);
 	//	HAL_TIM_Base_Start(&htim4);
 }
 
@@ -392,6 +382,7 @@ void GPIO_EnableTrigger(void)
 
 	GPIO_InitStructure.Pin = GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13 |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9;
 	EXTI->IMR &= ~(GPIO_PIN_10|GPIO_PIN_11|GPIO_PIN_12|GPIO_PIN_13 |GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9);  //when selecting different line the EXTI settings remain the same
+
 
 	GPIO_InitStructure.Mode = GPIO_MODE_INPUT; //GPIO_MODE_INPUT;
 	GPIO_InitStructure.Pull = GPIO_PULLUP; //GPIO_PULLDOWN;

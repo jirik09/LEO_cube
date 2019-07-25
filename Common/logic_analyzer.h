@@ -144,8 +144,8 @@ void logAnlysStop(void);
 void logAnlysSetSamplingFreq(uint32_t arrPsc);
 void logAnlysSetSamplesNum(uint16_t samplesNum);
 
-void logAnlysSetPosttrigger(uint32_t arrPsc);
-void logAnlysSetPretrigger(uint32_t timeInMilliseconds);
+void logAnlysSetPretrigger(uint32_t pretrigMillisec);
+void logAnlysSetPosttrigger(double posttrigInSec);
 //void logAnlysUserTrigger(uint16_t userTrigger);		// user trigger sent from app to mcu and then back to app with data
 
 void logAnlysSetTriggerChannel(uint32_t chan);

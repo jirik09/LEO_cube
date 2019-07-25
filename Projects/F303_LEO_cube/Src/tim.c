@@ -294,42 +294,103 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
  */
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq) {
 
-	uint32_t arr, psc = 0;
-	uint32_t clkDiv;
+//	uint32_t arr, psc = 0;
+//	uint32_t clkDiv;
+//	double realFreq;
+//
+//	clkDiv = roundNumber((double)periphClock / reqFreq);
+//
+//	if(clkDiv <= 0xFFFF){
+//		arr = clkDiv;
+//		psc = 1;
+//	}else{
+//		for( ; psc==0; clkDiv--){
+//			for(uint32_t pscTmp = 0xFFFF; pscTmp > 1; pscTmp--){
+//				if((clkDiv % pscTmp) == 0){
+//					if((clkDiv / pscTmp) <= 0xFFFF){
+//						psc = pscTmp;
+//						break;
+//					}
+//				}
+//			}
+//			if(psc != 0){
+//				if(clkDiv / psc <= 0xFFFF){
+//					break;
+//				}
+//			}
+//		}
+//		arr = clkDiv / psc;
+//		if(arr < psc){
+//			uint32_t swapVar = arr;
+//			arr = psc;
+//			psc = swapVar;
+//		}
+//	}
+//
+//	realFreq = periphClock / (double)(arr * psc);
+//	htim_base->Instance->ARR = (arr - 1);
+//	htim_base->Instance->PSC = (psc - 1);
+//
+//	return realFreq;
+
+	int32_t clkDiv;
+	uint16_t prescaler;
+	uint16_t autoReloadReg;
+	uint32_t errMinRatio = 0;
 	double realFreq;
+	uint8_t result = UNKNOW_ERROR;
 
-	clkDiv = roundNumber((double)periphClock / reqFreq);
+	clkDiv = ((2 * periphClock / reqFreq) + 1) / 2; //to minimize rounding error
 
-	if(clkDiv <= 0xFFFF){
-		arr = clkDiv;
-		psc = 1;
-	}else{
-		for( ; psc==0; clkDiv--){
-			for(uint32_t pscTmp = 0xFFFF; pscTmp > 1; pscTmp--){
-				if((clkDiv % pscTmp) == 0){
-					if((clkDiv / pscTmp) <= 0xFFFF){
-						psc = pscTmp;
-						break;
-					}
-				}
+	if (clkDiv == 0) { //error
+		result = GEN_FREQ_MISMATCH;
+	} else if (clkDiv <= 0x0FFFF) { //Sampling frequency is high enough so no prescaler needed
+		prescaler = 0;
+		autoReloadReg = clkDiv - 1;
+		result = 0;
+	} else {	// finding prescaler and autoReload value
+		uint32_t errVal = 0xFFFFFFFF;
+		uint32_t errMin = 0xFFFFFFFF;
+		uint16_t ratio = clkDiv >> 16;
+		uint16_t div;
+
+		while (errVal != 0) {
+			ratio++;
+			div = clkDiv / ratio;
+			errVal = clkDiv - (div * ratio);
+
+			if (errVal < errMin) {
+				errMin = errVal;
+				errMinRatio = ratio;
 			}
-			if(psc != 0){
-				if(clkDiv / psc <= 0xFFFF){
-					break;
-				}
+
+			if (ratio == 0xFFFF) { //exact combination wasnt found. we use best found
+				div = clkDiv / errMinRatio;
+				ratio = errMinRatio;
+				break;
 			}
 		}
-		arr = clkDiv / psc;
-		if(arr < psc){
-			uint32_t swapVar = arr;
-			arr = psc;
-			psc = swapVar;
+
+		if (ratio > div) {
+			prescaler = div - 1;
+			autoReloadReg = ratio - 1;
+		} else {
+			prescaler = ratio - 1;
+			autoReloadReg = div - 1;
+		}
+
+		if (errVal) {
+			result = GEN_FREQ_IS_INACCURATE;
+		} else {
+			result = 0;
 		}
 	}
 
-	realFreq = periphClock / (double)(arr * psc);
-	htim_base->Instance->ARR = (arr - 1);
-	htim_base->Instance->PSC = (psc - 1);
+	realFreq = periphClock / (double)((prescaler + 1) * (autoReloadReg + 1));
+
+	htim_base->Instance->ARR = autoReloadReg;
+	htim_base->Instance->PSC = prescaler;
+	LL_TIM_GenerateEvent_UPDATE(htim_base->Instance);
 
 	return realFreq;
 }

@@ -243,8 +243,10 @@ void TIM_LogAnlys_Deinit(void);
 void TIM_LogAnlys_Start(void);
 void TIM_LogAnlys_Stop(void);
 
-void TIM_PostTrigger_ARR_PSC_Reconfig(uint32_t arrPsc);
-void TIM_SamplingFreq_ARR_PSC_Reconfig(uint32_t arrPsc);
+//void TIM_PostTrigger_ARR_PSC_Reconfig(uint32_t arrPsc);
+//void TIM_SamplingFreq_ARR_PSC_Reconfig(uint32_t arrPsc);
+void TIM_LogAnlys_SamplingFreq_Reconfig(uint32_t smplFreq);
+void TIM_LogAnlys_PostTrigger_Reconfig(double posttrigInSec);
 
 void GPIO_EnableTrigger(void);
 void GPIO_DisableIRQ(void);

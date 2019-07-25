@@ -132,9 +132,7 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch1.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch1.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch1);
-	//TIM8->DIER |= TIM_DIER_CC1DE;
 	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
-
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC1], hdma_tim8_ch1);
 
 	/* TIM8_CH2 Init */
@@ -147,9 +145,7 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch2.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch2.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch2);
-	//TIM8->DIER |= TIM_DIER_CC2DE;
 	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
-
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC2], hdma_tim8_ch2);
 
 	/* TIM8_CH3_UP Init */
@@ -162,11 +158,8 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch3_up.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch3_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch3_up);
-	//TIM8->DIER |= TIM_DIER_CC3DE;
 	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
-
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC3], hdma_tim8_ch3_up);
-	//__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim8_ch3_up);
 
 	/* TIM8_CH4_TRIG_COM Init */
 	hdma_tim8_ch4_trig_com.Instance = DMA2_Channel2;
@@ -178,9 +171,7 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
 	hdma_tim8_ch4_trig_com.Init.Mode = DMA_CIRCULAR;
 	hdma_tim8_ch4_trig_com.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim8_ch4_trig_com);
-	//TIM8->DIER |= TIM_DIER_CC4DE;
 	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
-
 	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC4], hdma_tim8_ch4_trig_com);
 }
 
@@ -336,7 +327,7 @@ void TIM_SYNC_PWM_Stop(void) {
 	}
 
 	/* Save configuration. */
-	syncPwm.timAutoReloadReg = __HAL_TIM_GET_AUTORELOAD(&htim8); //TIM8->ARR;
+	syncPwm.timAutoReloadReg = htim8.Instance->ARR; //TIM8->ARR;
 	syncPwm.timPrescReg = htim8.Instance->PSC;
 
 	/* There are DMA pending requests when stopped. Unfortunately
@@ -354,9 +345,9 @@ void TIM_SYNC_PWM_Stop(void) {
 	}
 
 	/* Load previous configuration. */
-	htim8.Init.Prescaler = syncPwm.timPrescReg;
-	htim8.Init.Period = syncPwm.timAutoReloadReg;
-	HAL_TIM_Base_Init(&htim8);
+	htim8.Instance->PSC = syncPwm.timPrescReg;
+	htim8.Instance->ARR = syncPwm.timAutoReloadReg;
+	LL_TIM_GenerateEvent_UPDATE(htim8.Instance);
 }
 
 /**
@@ -398,7 +389,6 @@ void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd) {
  * @retval None
  */
 void TIM_SYNC_PWM_StepMode_Enable(void) {
-	//TIM8->CR1 |= TIM_CR1_OPM;
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
 	syncPwm.stepMode = CHAN_ENABLE;
 }
@@ -410,7 +400,6 @@ void TIM_SYNC_PWM_StepMode_Enable(void) {
  * @retval None
  */
 void TIM_SYNC_PWM_StepMode_Disable(void) {
-	//TIM8->CR1 &= ~TIM_CR1_OPM;
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
 	syncPwm.stepMode = CHAN_DISABLE;
 }
@@ -422,13 +411,8 @@ void TIM_SYNC_PWM_StepMode_Disable(void) {
  * @retval None
  */
 double TIM_Reconfig_SyncPwm(double freq) {
-	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);
-			// HAL_RCC_GetHCLKFreq();
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);  // HAL_RCC_GetHCLKFreq();
 	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
-
-//	htim8.Init.Prescaler = (uint16_t) (arrPsc >> 16);
-//	htim8.Init.Period = (uint16_t) arrPsc;
-//	HAL_TIM_Base_Init(&htim8);
 }
 
 /**

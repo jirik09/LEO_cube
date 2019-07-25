@@ -468,11 +468,11 @@ namespace LEO
             sendCommandNumber(Commands.LOG_ANLYS_SAMPLES_NUM, dataLength);
             /* Calculate and send sampling frequency */
             realSamplingFreq = processFrequency(samplingFreq, timeBasePeriphClock);
-            sendCommandNumber(Commands.LOG_ANLYS_SAMPLING_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
+            sendCommandNumber(Commands.LOG_ANLYS_SAMPLING_FREQ, samplingFreq /*make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1))*/);
             /* Set pretrigger and posttrigger */
             calculateAndSend_PretrigPosttrig();
         }
-
+        double timePostTrig;
         void calculateAndSend_PretrigPosttrig()
         {
             double hausNumero = 1.05;
@@ -510,8 +510,21 @@ namespace LEO
 
             /* Send pretrigger */
             sendCommandNumber(Commands.LOG_ANLYS_PRETRIG, pretriggerTime + 10);
+
             /* Send posttrigger */
-            sendCommandNumber(Commands.LOG_ANLYS_POSTTRIG, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
+            double posttrigTime = timePostTrig = 1 / posttriggerFreq;
+            long val = BitConverter.DoubleToInt64Bits(posttrigTime);
+            byte[] valueBytes = BitConverter.GetBytes(val);
+            int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
+            int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+
+            device.takeCommsSemaphore(semaphoreTimeout + 110);
+            device.send(Commands.LOG_ANLYS + ":" + Commands.LOG_ANLYS_POSTTRIG + " ");
+            device.send_int(valueHigh);
+            device.send_int(valueLow);
+            device.send(";");
+            device.giveCommsSemaphore();
+            //sendCommandNumber(Commands.LOG_ANLYS_POSTT, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
         }
 
         public void sendCommand(string generalComm)

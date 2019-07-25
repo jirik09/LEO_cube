@@ -378,25 +378,6 @@ command parseCounterCmd(void)
 			error = COUNTER_INVALID_FEATURE_PARAM;
 		}
 		break;
-//	case CMD_CNT_MULT_PSC:
-//		cmdIn = giveNextCmd();
-//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-//			//	counterSetRefPsc((uint16_t)cmdIn);
-//		}else{
-//			cmdIn = CMD_ERR;
-//			error = COUNTER_INVALID_FEATURE_PARAM;
-//		}
-//		break;
-//	case CMD_CNT_MULT_ARR:
-//		cmdIn = giveNextCmd();
-//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-//			//	counterSetRefArr((uint16_t)cmdIn);
-//
-//		}else{
-//			cmdIn = CMD_ERR;
-//			error = COUNTER_INVALID_FEATURE_PARAM;
-//		}
-//		break;
 	case CMD_CNT_REF_SAMPLE_COUNT:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
@@ -697,7 +678,7 @@ command parseScopeCmd(void){
  * @brief  Synchronized PWM generator command parse function.
  * @param  None
  * @retval Command ACK or ERR
- */double fruq;
+ */
 command parseSyncPwmCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
@@ -756,7 +737,7 @@ command parseSyncPwmCmd(void){
 	case CMD_SYNC_PWM_FREQ:
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
-		fruq = freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			syncPwmSetFreq(freq);
 		}else{
@@ -834,8 +815,10 @@ command parseLogAnlysCmd(void){
 		break;
 	case CMD_LOG_ANLYS_POSTTRIG:
 		cmdIn = giveNextCmd();
+		uint32_t secondHalfOfDouble = commBufferReadUInt32();
+		double postTrigTime = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			logAnlysSetPosttrigger((uint32_t)cmdIn);
+			logAnlysSetPosttrigger(postTrigTime);
 		}else{
 			cmdIn = CMD_ERR;
 			error = LOG_ANLYS_INVALID_FEATURE;
@@ -988,24 +971,6 @@ command parseGeneratorCmd(void){
 		break;	
 
 #ifdef USE_GEN_PWM
-//	case CMD_GEN_PWM_FREQ_PSC:
-//		cmdIn = giveNextCmd();
-//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-//			genSetPwmFrequencyPSC(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
-//		}else{
-//			cmdIn = CMD_ERR;
-//		}
-//		break;
-//
-//	case CMD_GEN_PWM_FREQ_ARR:
-//		cmdIn = giveNextCmd();
-//		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-//			genSetPwmFrequencyARR(((cmdIn)&0x00ffff00)>>8,(uint8_t)(cmdIn));
-//		}else{
-//			cmdIn = CMD_ERR;
-//		}
-//		break;
-
 	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();

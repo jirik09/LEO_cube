@@ -2887,6 +2887,8 @@ namespace LEO
             }
 
             device.giveCommsSemaphore();
+
+            Thread.Sleep(70);
         }
 
         /* Test for prime number */

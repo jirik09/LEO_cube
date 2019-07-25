@@ -81,7 +81,7 @@ namespace LEO
             GUITimer.Elapsed += new ElapsedEventHandler(Update_signal);
             GUITimer.Start();
 
-            SyncPwmGenerator_Init();
+            SyncPwmGenerator_Init();           
             BasicModeComponent_Init();
         }
 
@@ -242,15 +242,17 @@ namespace LEO
             byte[] valueBytes = BitConverter.GetBytes(val);
             int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
             int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+
+            device.takeCommsSemaphore(semaphoreTimeout + 110);
             device.send(Commands.SYNC_PWM_GEN + ":" + Commands.SYNC_PWM_FREQ + " ");
             device.send_int(valueHigh);
             device.send_int(valueLow);
             device.send(";");
+            device.giveCommsSemaphore();
 
             //sendCommandNumber(Commands.SYNC_PWM_FREQ, make32BitFromArrPsc((ushort)(syncPwmArr - 1), (ushort)(syncPwmPsc - 1)));
 
             Thread.Sleep(messageDelay);
-            
 
             uint temp;
             /* syncPwmTimPeriphClock / 4 = DMA2 max freq.    ->    4 channels    -> syncPwmTimPeriphClock / (4 * 4) = 72 MHz / 16 = 4,5MHz */
@@ -402,14 +404,17 @@ namespace LEO
             byte[] valueBytes = BitConverter.GetBytes(val);
             int valueHigh = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 4 : 0);
             int valueLow = BitConverter.ToInt32(valueBytes, BitConverter.IsLittleEndian ? 0 : 4);
+
+            device.takeCommsSemaphore(semaphoreTimeout + 110);
             device.send(Commands.SYNC_PWM_GEN + ":" + Commands.SYNC_PWM_FREQ + " ");
             device.send_int(valueHigh);
             device.send_int(valueLow);
             device.send(";");
+            device.giveCommsSemaphore();
 
-            //Thread.Sleep(messageDelay);            
+            Thread.Sleep(messageDelay);            
 
-            if(syncPwmDuty == 0)
+            if (syncPwmDuty == 0)
             {
                 ushort channelState = (Commands.SYNC_PWM_CHANNEL1 << 8) | Commands.SYNC_PWM_CHANNEL_DISABLE;
                 sendCommandNumber(Commands.SYNC_PWM_CHANNEL_STATE, channelState);

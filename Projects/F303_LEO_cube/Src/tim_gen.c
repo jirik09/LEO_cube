@@ -335,8 +335,6 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim6_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim6_up);
 	__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
-	//TIM6->DIER |= TIM_DIER_UDE;
-
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim6_up);
 }
 
@@ -357,8 +355,6 @@ void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim7_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim7_up);
 	__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
-	//TIM7->DIER |= TIM_DIER_UDE;
-
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim7_up);
 }
 
@@ -501,10 +497,10 @@ void TIMGenDacDeinit(void){
 void TIM_DMA_Reconfig(uint8_t chan){
 	if(chan==0){
 		HAL_DMA_Abort(&hdma_tim6_up);
-		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&htim1.Instance->CCR2/*(TIM1->CCR2)*/, generator.oneChanSamples[0]);
+		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(htim1.Instance->CCR2)/*(TIM1->CCR2)*/, generator.oneChanSamples[0]);
 	}else if(chan==1){
 		HAL_DMA_Abort(&hdma_tim7_up);
-		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[1], (uint32_t)&htim3.Instance->CCR1/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
+		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(htim3.Instance->CCR1)/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
 	}
 }
 
