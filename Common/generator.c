@@ -106,6 +106,7 @@ void GeneratorTask(void const *argument){
 			}else if(generator.modeState==GENERATOR_PWM){
 #ifdef USE_GEN_PWM
 				TIMGenPwmDeinit();
+
 #endif //USE_GEN_PWM
 			}
 			break;

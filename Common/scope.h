@@ -49,14 +49,24 @@ typedef enum{
 	SCOPE_ERR
 }scopeState;
 
+typedef enum{
+	SCOPE_NORMAL_MODE = 0,
+	SCOPE_INTERLEAVE_MODE,
+	SCOPE_MULTI_MODE
+}scopeMode;
+
 typedef struct{
-	uint32_t samplingFrequency; 
-	uint32_t realSamplingFreq;
+	uint32_t samplingFrequency;         //requested from PCapp
+	uint32_t ADCSamplingFreq; 			// ADC sampling frequency
+	uint32_t realSamplingFreq;          // real frequency
 	uint32_t samplesToSend;
 	scopeTriggerEdge triggerEdge;	
 	scopeTriggerMode triggerMode;	
 	uint16_t triggerLevel;					//65535 is 100%
 	uint16_t pretrigger;						//65535 is 100%
+	uint8_t interleaved;          //number of ADC in interleave mode (fast mode)
+	uint8_t ADCmux;            // number of channels muxed by one ADC (multichannel) TODO
+	uint8_t AdvMode;
 	uint16_t adcRes;
 	uint16_t adcLevels;
 }scopeSettings;
@@ -120,6 +130,7 @@ uint8_t scopeSetTrigChannel(uint8_t chan);
 uint8_t scopeSetADCInputChannel(uint8_t adc, uint8_t chann);
 uint8_t scopeSetADCInputChannelDefault(void);
 uint8_t scopeSetADCInputChannelVref(void);
+uint8_t scopeInitADCMode(scopeMode mode);
 
 const int16_t* scopeGetRanges(uint8_t * len);
 void scopeRestart(void);

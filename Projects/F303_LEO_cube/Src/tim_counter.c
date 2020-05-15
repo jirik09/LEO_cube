@@ -203,7 +203,7 @@ void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM2_CLK_ENABLE();
+	__HAL_RCC_TIM2_CLK_ENABLE();
 
 	/**TIM2 GPIO Configuration
 	PA0     ------> TIM2_ETR
@@ -298,7 +298,7 @@ void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM4_CLK_ENABLE();
+	__HAL_RCC_TIM4_CLK_ENABLE();
 
 	if(counter.state==COUNTER_REF){
 
@@ -321,7 +321,7 @@ void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM2_CLK_DISABLE();
+	__HAL_RCC_TIM2_CLK_DISABLE();
 
 	if(counter.state==COUNTER_ETR||counter.state==COUNTER_REF){
 
@@ -343,7 +343,7 @@ void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base)
 
 void TIM4_CNT_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM4_CLK_DISABLE();
+	__HAL_RCC_TIM4_CLK_DISABLE();
 
 	if(counter.state==COUNTER_REF){
 		HAL_GPIO_DeInit(GPIOA, GPIO_PIN_8);

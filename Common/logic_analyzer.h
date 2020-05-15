@@ -14,7 +14,6 @@
 
 /* Includes */
 #include <stdint.h>
-#include "stm32f3xx_hal.h"
 
 // Constant definitions =======================================================
 //#define LOG_ANLYS_DEFAULT_SAMPLING_FREQ 	1000

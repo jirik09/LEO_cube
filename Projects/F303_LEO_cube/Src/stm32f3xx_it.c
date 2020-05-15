@@ -253,12 +253,15 @@ void LOG_ANLYS_handle_interrupt(uint32_t pr){
 void TIM4_IRQHandler(void)
 {
 //  HAL_TIM_IRQHandler(&htim4);
-	
+#ifdef USE_LOG_ANLYS
 	if(logAnlys.enable == LOGA_ENABLED){
 		LOG_ANLYS_PeriodElapsedCallback(&htim4);		
 	}else{
+#endif //USE_LOG_ANLYS
 		COUNTER_PeriodElapsedCallback(&htim4);
+#ifdef USE_LOG_ANLYS
 	}
+#endif //USE_LOG_ANLYS
 }
 #endif // USE_COUNTER || USE_LOG_ANLYS
 

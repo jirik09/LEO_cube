@@ -39,8 +39,9 @@ static uint8_t commBuffMem[COMM_BUFFER_SIZE];
 //static uint8_t commTXBuffMem[COMM_TX_BUFFER_SIZE];
 static commBuffer comm;
 //commBuffer commTX;
-uint8_t volatile testArray[100];	
+//uint8_t volatile testArray[100];
 unsigned int intAlias[sizeof(double)/sizeof(unsigned int)];
+uint32_t lastCNTdataTick = 0;
 
 /**
  * @}
@@ -106,7 +107,7 @@ void CommTask(void const *argument){
 
 
 	uint16_t message = 0xFFFF;
-	messageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	messageQueue = xQueueCreate(32, sizeof(message)/sizeof(uint8_t));
 	commsMutex = xSemaphoreCreateRecursiveMutex();
 
 	xSemaphoreTakeRecursive(commsMutex, portMAX_DELAY);
@@ -135,6 +136,7 @@ void CommTask(void const *argument){
 	uint8_t i;
 	uint32_t j;
 #endif //USE_GEN || USE_SCOPE
+
 	while(1){	
 		xQueueReceive (messageQueue, &message, portMAX_DELAY);
 		///commsSendString("COMMS_Run\r\n");
@@ -248,6 +250,7 @@ void CommTask(void const *argument){
 				commsSendBuff(header_gen,12);
 			}
 			break;
+#ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
 			commsSendDouble(generator.realPwmFreqCh1);
@@ -256,13 +259,13 @@ void CommTask(void const *argument){
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
 			commsSendDouble(generator.realPwmFreqCh2);
 			break;
+#endif //USE_GEN_PWM
 #endif //USE_GEN || USE_GEN_PWM
 			/* ---------------------------------------------------- */
 			/********************* COUNTER DATA *********************/
 			/* ---------------------------------------------------- */
 #ifdef USE_COUNTER
 		case MSG_CNT_SEND_DATA:
-
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
@@ -416,12 +419,14 @@ void CommTask(void const *argument){
 		case MSG_ACK:
 			commsSendString(STR_ACK);
 			break;
+#ifdef USE_SCOPE
 		case MSG_SCOPE_TRIGGER:
 			commsSendString(STR_SCOPE_TRIG);
 			break;
 		case MSG_SCOPE_SMPL_STARTED:
 			commsSendString(STR_SCOPE_SMPL);
 			break;
+#endif
 		default:
 			/* Not known message send */
 			commsSendString(STR_UNKNOWN_MSG);
@@ -441,7 +446,7 @@ void commsInit(void){
 #ifdef USE_USB
 	MX_USB_DEVICE_Init();
 #endif //USE_USB
-	MX_USART2_UART_Init();
+	MX_UART_Init();
 	comm.memory = commBuffMem;
 	comm.bufferSize = COMM_BUFFER_SIZE;
 	comm.writePointer = 0;

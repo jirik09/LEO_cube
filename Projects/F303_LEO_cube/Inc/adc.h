@@ -59,8 +59,12 @@ void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 void MX_ADC4_Init(void);
 
+void MX_ADC12_Interleaved_Init(void);
+void MX_ADC34_Interleaved_Init(void);
+
 uint16_t DMA_GetCurrDataCounter(uint8_t channel);
 void ADC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len);
+void ADC_DMA_Reconfig_Interleave(uint8_t chan, uint32_t *buff, uint32_t len);
 void ADC_DMA_Stop(void);
 void ADC_set_sampling_time(uint32_t realfreq);
 void samplingEnable(void);
@@ -69,6 +73,9 @@ void adcSetInputChannel(uint8_t adc, uint8_t chann);
 void adcSetDefaultInputs(void);
 void adcSetResolution (uint8_t res);
 void CalibrateADC (void);
+void ADCInitNormalMode(void);
+void ADCInitInterleavedMode(void);
+void ADCInitMultiMode(void);
 
 
 #ifdef __cplusplus

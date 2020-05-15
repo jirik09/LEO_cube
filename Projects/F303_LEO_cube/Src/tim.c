@@ -44,13 +44,11 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 #ifdef USE_GEN
 	/* DAC generator mode TIM decision */
-	if (generator.modeState == GENERATOR_DAC) {
-		if (htim_base->Instance == TIM6) {
-			TIM6_GEN_DAC_MspInit(htim_base);
-		}
-		if (htim_base->Instance == TIM7) {
-			TIM7_GEN_DAC_MspInit(htim_base);
-		}
+	if (htim_base->Instance == TIM6) {
+		TIM6_GEN_DAC_MspInit(htim_base);
+	}
+	if (htim_base->Instance == TIM7) {
+		TIM7_GEN_DAC_MspInit(htim_base);
 	}
 #endif //USE_GEN
 
@@ -105,9 +103,13 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 		}
 	}
 	if (htim_base->Instance == TIM4) {
+#ifdef USE_LOG_ANLYS
 		if (logAnlys.enable == LOGA_DISABLED) {
+#endif //USE_LOG_ANLYS
 			TIM4_REForICorTI_MspInit(htim_base);
+#ifdef USE_LOG_ANLYS
 		}
+#endif //USE_LOG_ANLYS
 	}
 #endif //USE_COUNTER
 }

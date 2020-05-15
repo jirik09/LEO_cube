@@ -62,10 +62,10 @@ void printErrResponse(command cmd);
  */
 void CmdParserTask(void const *argument){
 
-	CASSERT(sizeof(IDN_STRING)<30); //IDN string is too long
+	//CASSERT(sizeof(IDN_STRING)<30); //IDN string is too long
 
 	uint16_t message = 0xFFFF;
-	cmdParserMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	cmdParserMessageQueue = xQueueCreate(32, sizeof(message)/sizeof(uint8_t));
 
 	uint8_t cmdIn[5];
 	uint8_t chr;
@@ -146,7 +146,10 @@ void CmdParserTask(void const *argument){
 					while(commBufferReadByte(&chr)==0 && chr!=';');
 				}	
 			}
-		}
+		}/*if(getBytesAvailable()>4){  //if there are still some bytes to read in the buffer then read invoke the parsing
+			uint16_t passMsg = MSG_COMMS_TRY_PARSE;
+			xQueueSendToBack(cmdParserMessageQueue, &passMsg, portMAX_DELAY);
+		}*/
 	}
 }
 
@@ -196,7 +199,7 @@ command parseCommsCmd(void){
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
 	case CMD_GET_CONFIG:
-		passMsg = MSG_SYSTEM_CONFIG;
+		passMsg = MSG_COMMS_CONFIG;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case CMD_END:break;
@@ -535,11 +538,11 @@ command parseScopeCmd(void){
 			if(cmdIn == CMD_DATA_DEPTH_12B){
 				error=scopeSetDataDepth(12);
 			}else if(cmdIn == CMD_DATA_DEPTH_10B){
-				error=SCOPE_UNSUPPORTED_RESOLUTION;
+				error=scopeSetDataDepth(10);
 			}else if(cmdIn == CMD_DATA_DEPTH_8B){
 				error=scopeSetDataDepth(8);
 			}else if(cmdIn == CMD_DATA_DEPTH_6B){
-				error=SCOPE_UNSUPPORTED_RESOLUTION;
+				error=scopeSetDataDepth(6);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -549,6 +552,7 @@ command parseScopeCmd(void){
 
 	case CMD_SCOPE_SAMPLING_FREQ: //set sampling frequency
 		cmdIn = giveNextCmd();
+
 		if(isScopeFreq(cmdIn)){
 			if(cmdIn == CMD_FREQ_1K){
 				error=scopeSetSamplingFreq(1000);
@@ -557,6 +561,7 @@ command parseScopeCmd(void){
 			}else if(cmdIn == CMD_FREQ_5K){
 				error=scopeSetSamplingFreq(5000);
 			}else if(cmdIn == CMD_FREQ_10K){
+				//error=scopeSetADCInputChannelDefault(); //workaround - PC app don't return ADc channels from Vref back to pins when leaving the Voltmeter mode
 				error=scopeSetSamplingFreq(10000);
 			}else if(cmdIn == CMD_FREQ_20K){
 				error=scopeSetSamplingFreq(20000);
@@ -975,6 +980,9 @@ command parseGeneratorCmd(void){
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
 		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		if(freq==140625){
+			freq = 20000;
+		}
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 0);
 		}else{
@@ -985,6 +993,9 @@ command parseGeneratorCmd(void){
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
 		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		if(freq==140625){
+					freq = 20000;
+				}
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 1);
 		}else{
@@ -1065,14 +1076,12 @@ command parseGeneratorCmd(void){
 		passMsg = MSG_GEN_CONFIG;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
-
-	case CMD_GET_PWM_CONFIG:
 #ifdef USE_GEN_PWM
+	case CMD_GET_PWM_CONFIG:
 		passMsg = MSG_GEN_PWM_CONFIG;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
-#endif // USE_GEN_PWM
 		break;
-
+#endif // USE_GEN_PWM
 	case CMD_GENERATOR:
 		break;	
 

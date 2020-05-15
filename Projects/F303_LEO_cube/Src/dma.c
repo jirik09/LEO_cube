@@ -38,8 +38,8 @@
 void MX_DMA_Init(void) 
 {
   /* DMA controller clock enable */
-  __DMA2_CLK_ENABLE();
-	__DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
   /* DMA interrupt init */
 }

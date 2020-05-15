@@ -266,12 +266,12 @@ void TIM_SamplingStop(void);
   * @{
   */
 
-#ifdef USE_COUNTER
-
 typedef enum{
 	false = 0,
 	true = 1
 } bool;
+
+#ifdef USE_COUNTER
 
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;

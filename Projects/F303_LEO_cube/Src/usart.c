@@ -62,7 +62,7 @@ uint16_t GetDMAIndex(void){
 }
 
 /* USART2 init function */
-void MX_USART2_UART_Init(void)
+void MX_UART_Init(void)
 {
 	
 	  /* DMA interrupt init */
@@ -95,7 +95,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspInit 0 */
     /* Peripheral clock enable */
-    __USART2_CLK_ENABLE();
+	  __HAL_RCC_USART2_CLK_ENABLE();
   
     /**USART2 GPIO Configuration    
     PA2     ------> USART2_TX
@@ -104,7 +104,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     GPIO_InitStruct.Pin = USART_TX|USART_RX;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;   // GPIO_PULLUP
-    GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
     HAL_GPIO_Init(USART_GPIO, &GPIO_InitStruct);
 		
@@ -165,7 +165,7 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
 
   /* USER CODE END USART2_MspDeInit 0 */
     /* Peripheral clock disable */
-    __USART2_CLK_DISABLE();
+	  __HAL_RCC_USART2_CLK_DISABLE();
   
     /**USART2 GPIO Configuration    
     PA2     ------> USART2_TX

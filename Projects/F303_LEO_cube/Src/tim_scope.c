@@ -58,12 +58,12 @@ void MX_TIM15_Init(void)
 
 void TIM15_SCOPE_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM15_CLK_ENABLE();
+	__HAL_RCC_TIM15_CLK_ENABLE();
 }
 
 void TIM15_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM15_CLK_DISABLE();
+	__HAL_RCC_TIM15_CLK_DISABLE();
 }
 
 /**
@@ -95,6 +95,15 @@ uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes){
 		return MAX_SAMPLING_FREQ_12B;
 	}else if(ADCRes==8){
 		return MAX_SAMPLING_FREQ_8B;
+	}
+	return HAL_RCC_GetPCLK2Freq()/(ADCRes+2);
+}
+
+uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes){
+	if(ADCRes==12){
+		return MAX_INTERLEAVE_FREQ_12B;
+	}else if(ADCRes==8){
+		return MAX_INTERLEAVE_FREQ_8B;
 	}
 	return HAL_RCC_GetPCLK2Freq()/(ADCRes+2);
 }

@@ -26,13 +26,14 @@
   * @{
   */
 typedef enum{
-	GEN_PWM = 0,
-	GEN_DAC
+	GEN_DAC = 0,
+	GEN_PWM
+
 }generatorMode;
 
 typedef enum{
-	GENERATOR_PWM = 0,
-	GENERATOR_DAC
+	GENERATOR_DAC = 0,
+	GENERATOR_PWM
 }generatorModeState;
 
 typedef enum{

@@ -14,7 +14,6 @@
 
 /* Includes */
 #include <stdint.h>
-#include "stm32f3xx_hal.h"
 
 /* Enums */
 typedef enum{

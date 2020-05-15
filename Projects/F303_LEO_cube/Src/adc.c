@@ -60,8 +60,9 @@ static int ADC12_CLK_ENABLED=0;
 static int ADC34_CLK_ENABLED=0;
 
 //uint16_t Data[3][32];
-uint32_t ADCResolution=ADC_RESOLUTION12b;
+uint32_t ADCResolution=ADC_RESOLUTION_12B;
 uint32_t ADCSamplingTime=ADC_SAMPLETIME_1CYCLE_5;
+uint8_t ADCInterleaved = 0;
 uint8_t ADCChannel[MAX_ADC_CHANNELS]={0};
 
 /* ADC1 init function */
@@ -83,9 +84,9 @@ void MX_ADC1_Init(void)
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = ENABLE;
-  hadc1.Init.EOCSelection = EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
-  hadc1.Init.Overrun = OVR_DATA_OVERWRITTEN;
+  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   HAL_ADC_Init(&hadc1);
 
     /**Configure Regular Channel 
@@ -97,6 +98,7 @@ void MX_ADC1_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 
 }
 /* ADC2 init function */
@@ -118,9 +120,9 @@ void MX_ADC2_Init(void)
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.NbrOfConversion = 1;
   hadc2.Init.DMAContinuousRequests = ENABLE;
-  hadc2.Init.EOCSelection = EOC_SINGLE_CONV;
+  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc2.Init.LowPowerAutoWait = DISABLE;
-  hadc2.Init.Overrun = OVR_DATA_OVERWRITTEN;
+  hadc2.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   HAL_ADC_Init(&hadc2);
 	
 	
@@ -134,6 +136,7 @@ void MX_ADC2_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   HAL_ADC_ConfigChannel(&hadc2, &sConfig);
+  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
 
 }
 
@@ -156,9 +159,9 @@ void MX_ADC3_Init(void)
   hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc3.Init.NbrOfConversion = 1;
   hadc3.Init.DMAContinuousRequests = ENABLE;
-  hadc3.Init.EOCSelection = EOC_SINGLE_CONV;
+  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc3.Init.LowPowerAutoWait = DISABLE;
-  hadc3.Init.Overrun = OVR_DATA_OVERWRITTEN;
+  hadc3.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   HAL_ADC_Init(&hadc3);
 
     /**Configure Regular Channel 
@@ -170,6 +173,7 @@ void MX_ADC3_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   HAL_ADC_ConfigChannel(&hadc3, &sConfig);
+  HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
 
 }
 
@@ -192,9 +196,9 @@ void MX_ADC4_Init(void)
   hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc4.Init.NbrOfConversion = 1;
   hadc4.Init.DMAContinuousRequests = ENABLE;
-  hadc4.Init.EOCSelection = EOC_SINGLE_CONV;
+  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc4.Init.LowPowerAutoWait = DISABLE;
-  hadc4.Init.Overrun = OVR_DATA_OVERWRITTEN;
+  hadc4.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   HAL_ADC_Init(&hadc4);
 
     /**Configure Regular Channel 
@@ -206,8 +210,144 @@ void MX_ADC4_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   HAL_ADC_ConfigChannel(&hadc4, &sConfig);
+  HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
 
 }
+
+
+void MX_ADC12_Interleaved_Init(){
+
+	  ADC_ChannelConfTypeDef sConfig;
+	  ADC_MultiModeTypeDef   mode;
+
+	  hadc2.Instance = ADC2;
+	  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+	  hadc2.Init.Resolution = ADCResolution;
+	  hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
+	  hadc2.Init.ContinuousConvMode = DISABLE;
+	  hadc2.Init.DiscontinuousConvMode = DISABLE;
+	  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+	  hadc2.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T15_TRGO;
+	  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	  hadc2.Init.NbrOfConversion =1;
+	  hadc2.Init.DMAContinuousRequests = ENABLE;
+	  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	  hadc2.Init.LowPowerAutoWait = DISABLE;
+	  hadc2.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+	  HAL_ADC_Init(&hadc2);
+
+	    /**Configure Regular Channel
+	    */
+	  sConfig.Channel = ANALOG_CHANNEL_ADC1[ADCChannel[0]];
+	  sConfig.Rank = 1;
+	  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+	  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+	  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+	  sConfig.Offset = 0;
+	  HAL_ADC_ConfigChannel(&hadc2, &sConfig);
+
+	    /**Common config
+	    */
+	  hadc1.Instance = ADC1;
+	  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+	  hadc1.Init.Resolution = ADCResolution;
+	  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+	  hadc1.Init.ContinuousConvMode = DISABLE;
+	  hadc1.Init.DiscontinuousConvMode = DISABLE;
+	  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+	  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T15_TRGO;
+	  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	  hadc1.Init.NbrOfConversion = 1;
+	  hadc1.Init.DMAContinuousRequests = ENABLE;
+	  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	  hadc1.Init.LowPowerAutoWait = DISABLE;
+	  hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+	  HAL_ADC_Init(&hadc1);
+
+	  HAL_ADC_ConfigChannel(&hadc1, &sConfig);
+
+	  mode.Mode = ADC_DUALMODE_INTERL;
+	  if(ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+		  mode.DMAAccessMode = ADC_DMAACCESSMODE_8_6_BITS;
+		  mode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_4CYCLES;
+	  }else{
+		  mode.DMAAccessMode = ADC_DMAACCESSMODE_12_10_BITS;
+		  mode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_6CYCLES;
+	  }
+	  HAL_ADCEx_MultiModeConfigChannel(&hadc1, &mode);
+
+	  HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+	  HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+
+}
+void MX_ADC34_Interleaved_Init(){
+
+	  ADC_ChannelConfTypeDef sConfig;
+	  ADC_MultiModeTypeDef   mode;
+
+	  hadc4.Instance = ADC4;
+	  hadc4.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+	  hadc4.Init.Resolution = ADCResolution;
+	  hadc4.Init.ScanConvMode = ADC_SCAN_ENABLE;
+	  hadc4.Init.ContinuousConvMode = DISABLE;
+	  hadc4.Init.DiscontinuousConvMode = DISABLE;
+	  hadc4.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+	  hadc4.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T15_TRGO;
+	  hadc4.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	  hadc4.Init.NbrOfConversion =1;
+	  hadc4.Init.DMAContinuousRequests = ENABLE;
+	  hadc4.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	  hadc4.Init.LowPowerAutoWait = DISABLE;
+	  hadc4.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+	  HAL_ADC_Init(&hadc4);
+
+	    /**Configure Regular Channel
+	    */
+	  sConfig.Channel = ANALOG_CHANNEL_ADC3[ADCChannel[2]];
+	  sConfig.Rank = 1;
+	  sConfig.SingleDiff = ADC_SINGLE_ENDED;
+	  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+	  sConfig.OffsetNumber = ADC_OFFSET_NONE;
+	  sConfig.Offset = 0;
+	  HAL_ADC_ConfigChannel(&hadc4, &sConfig);
+
+	    /**Common config
+	    */
+	  hadc3.Instance = ADC3;
+	  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV1;
+	  hadc3.Init.Resolution = ADCResolution;
+	  hadc3.Init.ScanConvMode = ADC_SCAN_DISABLE;
+	  hadc3.Init.ContinuousConvMode = DISABLE;
+	  hadc3.Init.DiscontinuousConvMode = DISABLE;
+	  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+	  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T15_TRGO;
+	  hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	  hadc3.Init.NbrOfConversion = 1;
+	  hadc3.Init.DMAContinuousRequests = ENABLE;
+	  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	  hadc3.Init.LowPowerAutoWait = DISABLE;
+	  hadc3.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
+	  HAL_ADC_Init(&hadc3);
+
+	  HAL_ADC_ConfigChannel(&hadc3, &sConfig);
+
+	  mode.Mode = ADC_DUALMODE_INTERL;
+	  if(ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+		  mode.DMAAccessMode = ADC_DMAACCESSMODE_8_6_BITS;
+		  mode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_4CYCLES;
+	  }else{
+		  mode.DMAAccessMode = ADC_DMAACCESSMODE_12_10_BITS;
+		  mode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_6CYCLES;
+	  }
+	  HAL_ADCEx_MultiModeConfigChannel(&hadc3, &mode);
+
+	  HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
+	  HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
+
+}
+
+
+
 void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
 {
 
@@ -220,17 +360,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /* Peripheral clock enable */
     ADC12_CLK_ENABLED++;
     if(ADC12_CLK_ENABLED==1){
-      __ADC12_CLK_ENABLE();
+    	__HAL_RCC_ADC12_CLK_ENABLE();
 			__HAL_RCC_ADC12_CONFIG(RCC_ADC12PLLCLK_DIV1);
     }
   
     /**ADC1 GPIO Configuration    
     PC0     ------> ADC1_IN6 
     */
-    GPIO_InitStruct.Pin = ANALOG_PIN_ADC1[ADCChannel[0]];
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(ANALOG_GPIO_ADC1[ADCChannel[0]], &GPIO_InitStruct);
+    if(ANALOG_PIN_ADC1[ADCChannel[0]]!=0){  //skip pin setting when pin is not set (when measuring Vref or Temp) --> otherwise full assert triggerd
+    	GPIO_InitStruct.Pin = ANALOG_PIN_ADC1[ADCChannel[0]];
+    	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    	GPIO_InitStruct.Pull = GPIO_NOPULL;
+    	HAL_GPIO_Init(ANALOG_GPIO_ADC1[ADCChannel[0]], &GPIO_InitStruct);
+    }
 
     /* Peripheral DMA init*/
   
@@ -238,15 +380,25 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
-		if (ADCResolution==ADC_RESOLUTION8b || ADCResolution==ADC_RESOLUTION6b){
-			hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	
+	if(ADCInterleaved){
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+			hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+			hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+		}else{
+			hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+			hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+		}
+	}else{
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+			hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
 			hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 		}else{
 			hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
 			hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
 		}
+	}
     hdma_adc1.Init.Mode = DMA_CIRCULAR;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_HIGH;
+    hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
     HAL_DMA_Init(&hdma_adc1);
 
     __HAL_LINKDMA(hadc,DMA_Handle,hdma_adc1);
@@ -263,25 +415,26 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /* Peripheral clock enable */
     ADC12_CLK_ENABLED++;
     if(ADC12_CLK_ENABLED==1){
-      __ADC12_CLK_ENABLE();
+    	__HAL_RCC_ADC12_CLK_ENABLE();
 			__HAL_RCC_ADC12_CONFIG(RCC_ADC12PLLCLK_DIV1);
     }
   
     /**ADC2 GPIO Configuration    
     PC1     ------> ADC2_IN7 
     */
-    GPIO_InitStruct.Pin = ANALOG_PIN_ADC2[ADCChannel[1]];
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(ANALOG_GPIO_ADC2[ADCChannel[1]], &GPIO_InitStruct);
-
+    if(ANALOG_PIN_ADC2[ADCChannel[1]]!=0){  //skip pin setting when pin is not set (when measuring Vref or Temp) --> otherwise full assert triggerd
+    	GPIO_InitStruct.Pin = ANALOG_PIN_ADC2[ADCChannel[1]];
+    	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    	GPIO_InitStruct.Pull = GPIO_NOPULL;
+    	HAL_GPIO_Init(ANALOG_GPIO_ADC2[ADCChannel[1]], &GPIO_InitStruct);
+    }
     /* Peripheral DMA init*/
   
     hdma_adc2.Instance = DMA2_Channel1;
     hdma_adc2.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_adc2.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_adc2.Init.MemInc = DMA_MINC_ENABLE;
-		if (ADCResolution==ADC_RESOLUTION8b || ADCResolution==ADC_RESOLUTION6b){
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
 			hdma_adc2.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	
 			hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 		}else{
@@ -306,31 +459,42 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /* Peripheral clock enable */
     ADC34_CLK_ENABLED++;
     if(ADC34_CLK_ENABLED==1){
-      __ADC34_CLK_ENABLE();
+    	__HAL_RCC_ADC34_CLK_ENABLE();
 			__HAL_RCC_ADC34_CONFIG(RCC_ADC34PLLCLK_DIV1);
     }
   
     /**ADC3 GPIO Configuration    
     PB0     ------> ADC3_IN12 
     */
-    GPIO_InitStruct.Pin = ANALOG_PIN_ADC3[ADCChannel[2]];
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(ANALOG_GPIO_ADC3[ADCChannel[2]], &GPIO_InitStruct);
-
+    if(ANALOG_PIN_ADC3[ADCChannel[2]]!=0){  //skip pin setting when pin is not set (when measuring Vref or Temp) --> otherwise full assert triggerd
+    	GPIO_InitStruct.Pin = ANALOG_PIN_ADC3[ADCChannel[2]];
+    	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    	GPIO_InitStruct.Pull = GPIO_NOPULL;
+    	HAL_GPIO_Init(ANALOG_GPIO_ADC3[ADCChannel[2]], &GPIO_InitStruct);
+    }
     /* Peripheral DMA init*/
   
     hdma_adc3.Instance = DMA2_Channel5;
     hdma_adc3.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_adc3.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_adc3.Init.MemInc = DMA_MINC_ENABLE;
-		if (ADCResolution==ADC_RESOLUTION8b || ADCResolution==ADC_RESOLUTION6b){
-			hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	
+	if(ADCInterleaved){
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+			hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+			hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+		}else{
+			hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
+			hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+		}
+	}else{
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
+			hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
 			hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 		}else{
 			hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
 			hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
 		}
+	}
     hdma_adc3.Init.Mode = DMA_CIRCULAR;
     hdma_adc3.Init.Priority = DMA_PRIORITY_HIGH;
     HAL_DMA_Init(&hdma_adc3);
@@ -349,25 +513,26 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /* Peripheral clock enable */
     ADC34_CLK_ENABLED++;
     if(ADC34_CLK_ENABLED==1){
-      __ADC34_CLK_ENABLE();
+    	__HAL_RCC_ADC34_CLK_ENABLE();
 			__HAL_RCC_ADC34_CONFIG(RCC_ADC34PLLCLK_DIV1);
     }
   
     /**ADC4 GPIO Configuration    
     PB14     ------> ADC4_IN4 
     */
-    GPIO_InitStruct.Pin = ANALOG_PIN_ADC4[ADCChannel[3]];
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(ANALOG_GPIO_ADC4[ADCChannel[3]], &GPIO_InitStruct);
-
+    if(ANALOG_PIN_ADC4[ADCChannel[3]]!=0){  //skip pin setting when pin is not set (when measuring Vref or Temp) --> otherwise full assert triggerd
+    	GPIO_InitStruct.Pin = ANALOG_PIN_ADC4[ADCChannel[3]];
+    	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    	GPIO_InitStruct.Pull = GPIO_NOPULL;
+    	HAL_GPIO_Init(ANALOG_GPIO_ADC4[ADCChannel[3]], &GPIO_InitStruct);
+    }
     /* Peripheral DMA init*/
   
     hdma_adc4.Instance = DMA2_Channel2;
     hdma_adc4.Init.Direction = DMA_PERIPH_TO_MEMORY;
     hdma_adc4.Init.PeriphInc = DMA_PINC_DISABLE;
     hdma_adc4.Init.MemInc = DMA_MINC_ENABLE;
-		if (ADCResolution==ADC_RESOLUTION8b || ADCResolution==ADC_RESOLUTION6b){
+		if (ADCResolution==ADC_RESOLUTION_8B || ADCResolution==ADC_RESOLUTION_6B){
 			hdma_adc4.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;	
 			hdma_adc4.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
 		}else{
@@ -504,13 +669,34 @@ void ADC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len){
 	}
 }
 
+void ADC_DMA_Reconfig_Interleave(uint8_t chan, uint32_t *buff, uint32_t len){
+	ADC_HandleTypeDef adcHandlerMaster;
+	ADC_HandleTypeDef adcHandlerSlave;
+	switch(chan){
+		case 0:
+			adcHandlerMaster=hadc1;
+			adcHandlerSlave=hadc2;
+		break;
+		case 1:
+			adcHandlerMaster=hadc3;
+			adcHandlerSlave=hadc4;
+		break;
+	}
+
+	if(buff!=NULL && len!=0){
+		HAL_ADC_Start(&adcHandlerSlave);
+		HAL_ADCEx_MultiModeStart_DMA(&adcHandlerMaster, buff,len);
+	}
+
+}
+
 void ADC_DMA_Stop(void){
 	HAL_ADC_Stop_DMA(&hadc1);
 	HAL_ADC_Stop_DMA(&hadc2);
 	HAL_ADC_Stop_DMA(&hadc3);
 	HAL_ADC_Stop_DMA(&hadc4);
 	
-	CalibrateADC();
+	//CalibrateADC();
 }
 
 /**
@@ -536,7 +722,14 @@ uint16_t DMA_GetCurrDataCounter(uint8_t channel){
 			adcHandler=hadc4;
 		break;
 	}
-  return adcHandler.DMA_Handle->Instance->CNDTR;
+
+	if(ADCInterleaved==1){
+		return (adcHandler.DMA_Handle->Instance->CNDTR)*2;
+	}else{
+		return adcHandler.DMA_Handle->Instance->CNDTR;
+	}
+
+
 }
 
 /**
@@ -548,16 +741,16 @@ void ADC_set_sampling_time(uint32_t realfreq){
 	uint8_t ADCRes;
 	uint32_t cyclesForConversion;
 	switch(ADCResolution){
-		case ADC_RESOLUTION12b:
+		case ADC_RESOLUTION_12B:
 			ADCRes=12;
 			break;
-		case ADC_RESOLUTION10b:
+		case ADC_RESOLUTION_10B:
 			ADCRes=10;
 			break;
-		case ADC_RESOLUTION8b:
+		case ADC_RESOLUTION_8B:
 			ADCRes=8;
 			break;
-		case ADC_RESOLUTION6b:
+		case ADC_RESOLUTION_6B:
 			ADCRes=6;
 			break;
 	}
@@ -580,15 +773,6 @@ void ADC_set_sampling_time(uint32_t realfreq){
 	}else {
 		ADCSamplingTime=ADC_SAMPLETIME_1CYCLE_5;
 	}	
-	
-	HAL_ADC_Stop_DMA(&hadc1);
-	
-	MX_ADC1_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
-	MX_ADC4_Init();
-	
-	
 }
 
 /**
@@ -626,11 +810,6 @@ void adcSetInputChannel(uint8_t adc, uint8_t chann){
 	HAL_DMA_DeInit(&hdma_adc2);
 	HAL_DMA_DeInit(&hdma_adc3);
 	HAL_DMA_DeInit(&hdma_adc4);
-	
-	MX_ADC1_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
-	MX_ADC4_Init();
 }
 
 void adcSetDefaultInputs(void){
@@ -647,14 +826,24 @@ void adcSetResolution (uint8_t res){
 	HAL_ADC_Stop_DMA(&hadc2);
 	HAL_ADC_Stop_DMA(&hadc3);
 	HAL_ADC_Stop_DMA(&hadc4);
-	if(res==8){
-		ADCResolution	= ADC_RESOLUTION8b;
-	}else if(res==12){
-		ADCResolution	= ADC_RESOLUTION12b;
-	}else{
+
+	switch(res){
+	case 6:
+		ADCResolution = ADC_RESOLUTION_6B;
+		break;
+	case 8:
+		ADCResolution = ADC_RESOLUTION_8B;
+		break;
+	case 10:
+		ADCResolution = ADC_RESOLUTION_10B;
+		break;
+	case 12:
+		ADCResolution = ADC_RESOLUTION_12B;
+		break;
+	default:
 		return;
 	}
-	
+
 	HAL_ADC_DeInit(&hadc1);
 	HAL_ADC_DeInit(&hadc2);
 	HAL_ADC_DeInit(&hadc3);
@@ -665,10 +854,7 @@ void adcSetResolution (uint8_t res){
 	HAL_DMA_DeInit(&hdma_adc3);
 	HAL_DMA_DeInit(&hdma_adc4);
 	
-	MX_ADC1_Init();
-  MX_ADC2_Init();
-  MX_ADC3_Init();
-	MX_ADC4_Init();
+
 }
 
 
@@ -677,6 +863,35 @@ void CalibrateADC (void){
 	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
 	HAL_ADCEx_Calibration_Start(&hadc4, ADC_SINGLE_ENDED);
+}
+
+void ADCInitNormalMode(void){
+	HAL_ADC_DeInit(&hadc1);
+	HAL_ADC_DeInit(&hadc2);
+	HAL_ADC_DeInit(&hadc3);
+	HAL_ADC_DeInit(&hadc4);
+
+	ADCInterleaved=0;
+	MX_ADC1_Init();
+	MX_ADC2_Init();
+	MX_ADC3_Init();
+	MX_ADC4_Init();
+}
+
+void ADCInitInterleavedMode(void){
+	HAL_ADC_DeInit(&hadc1);
+	HAL_ADC_DeInit(&hadc2);
+	HAL_ADC_DeInit(&hadc3);
+	HAL_ADC_DeInit(&hadc4);
+
+	ADCInterleaved=1;
+	MX_ADC12_Interleaved_Init();
+	MX_ADC34_Interleaved_Init();
+
+}
+
+void ADCInitMultiMode(void){
+//todo
 }
 
 

@@ -8,6 +8,7 @@
  */
 
 #include "tim.h"
+#include "dac.h"
 #include "mcu_config.h"
 #include "generator.h"
 
@@ -28,12 +29,10 @@
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
-#ifdef USE_GEN_PWM
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 DMA_HandleTypeDef hdma_tim6_up;
 DMA_HandleTypeDef hdma_tim7_up;
-#endif //USE_GEN_PWM
 
 /**
  * @}
@@ -230,6 +229,9 @@ static void MX_TIM6_GEN_PWM_Init(void)
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
+
+	TIM6_GEN_PWM_MspInit(&htim6);
+
 }
 
 /**
@@ -254,6 +256,8 @@ static void MX_TIM7_GEN_PWM_Init(void)
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
+
+	TIM7_GEN_PWM_MspInit(&htim7);
 }
 
 #endif //USE_GEN_PWM
@@ -262,22 +266,22 @@ static void MX_TIM7_GEN_PWM_Init(void)
 
 void TIM6_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM6_CLK_ENABLE();
+	__HAL_RCC_TIM6_CLK_ENABLE();
 }
 
 void TIM7_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM7_CLK_ENABLE();
+	__HAL_RCC_TIM7_CLK_ENABLE();
 }
 
 void TIM6_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM6_CLK_DISABLE();
+	__HAL_RCC_TIM6_CLK_DISABLE();
 }
 
 void TIM7_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM7_CLK_DISABLE();
+	__HAL_RCC_TIM7_CLK_DISABLE();
 }
 
 #endif //USE_GEN
@@ -288,7 +292,7 @@ void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM1_CLK_ENABLE();
+	__HAL_RCC_TIM1_CLK_ENABLE();
 
 	/**TIM1 GPIO Configuration
 		PA9     ------> TIM1_CH2
@@ -296,7 +300,7 @@ void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	GPIO_InitStruct.Pin = GPIO_PIN_9;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	GPIO_InitStruct.Alternate = GPIO_AF6_TIM1;
 	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
@@ -305,7 +309,7 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM3_CLK_ENABLE();
+	__HAL_RCC_TIM3_CLK_ENABLE();
 
 	/**TIM3 GPIO Configuration
 		PB4     ------> TIM3_CH1
@@ -313,7 +317,7 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 	GPIO_InitStruct.Pin = GPIO_PIN_4;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
 	GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
@@ -322,7 +326,7 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM6_CLK_ENABLE();
+	__HAL_RCC_TIM6_CLK_ENABLE();
 
 	/* Peripheral DMA init*/
 	hdma_tim6_up.Instance = DMA1_Channel3;
@@ -342,7 +346,7 @@ void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	__TIM7_CLK_ENABLE();
+	__HAL_RCC_TIM7_CLK_ENABLE();
 
 	/* Peripheral DMA init*/
 	hdma_tim7_up.Instance = DMA1_Channel4;   // DMA2_Channel4
@@ -360,24 +364,24 @@ void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM1_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM1_CLK_DISABLE();
+	__HAL_RCC_TIM1_CLK_DISABLE();
 }
 
 void TIM3_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM3_CLK_DISABLE();
+	__HAL_RCC_TIM3_CLK_DISABLE();
 }
 
 void TIM6_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM6_CLK_DISABLE();
+	__HAL_RCC_TIM6_CLK_DISABLE();
 	/* Peripheral DMA DeInit*/
 	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_UPDATE]);
 }
 
 void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__TIM7_CLK_DISABLE();
+	__HAL_RCC_TIM7_CLK_DISABLE();
 	/* Peripheral DMA DeInit*/
 	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_UPDATE]);
 }
@@ -416,6 +420,8 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}
 }
 
+#ifdef USE_GEN_PWM
+
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	uint32_t periphClock;
 	if(chan==0){
@@ -432,6 +438,8 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 		return 0;
 	}
 }
+
+#endif //USE_GEN_PWM
 
 /**
  * @brief  Enable TIM6 & TIM7 that trigger DMA - generating DAC.
