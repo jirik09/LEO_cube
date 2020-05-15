@@ -980,9 +980,6 @@ command parseGeneratorCmd(void){
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
 		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
-		if(freq==140625){
-			freq = 20000;
-		}
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 0);
 		}else{
@@ -993,9 +990,6 @@ command parseGeneratorCmd(void){
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
 		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
-		if(freq==140625){
-					freq = 20000;
-				}
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 1);
 		}else{
@@ -1124,16 +1118,13 @@ command giveNextCmd(void){
  * @retval None
  */
 void printErrResponse(command cmd){
-	uint8_t err[5];
+	uint8_t err[2];
 	if(cmd == CMD_END){
 		uint16_t passMsg = MSG_ACK;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 	}else{
 		err[0]=ERROR_PREFIX;
-		err[1]=(cmd/100)%10+48;
-		err[2]=(cmd/10)%10+48;
-		err[3]=cmd%10+48;
-		err[4]=0;
+		err[1]=cmd;
 		xQueueSendToBack(messageQueue, err, portMAX_DELAY);
 	}
 }

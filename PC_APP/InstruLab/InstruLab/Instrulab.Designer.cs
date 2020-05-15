@@ -1082,6 +1082,7 @@
             this.groupBox_syncPwmGenerator.Controls.Add(this.label28);
             this.groupBox_syncPwmGenerator.Controls.Add(this.button_syncPwmGenerator);
             this.groupBox_syncPwmGenerator.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.groupBox_syncPwmGenerator.Enabled = false;
             this.groupBox_syncPwmGenerator.Location = new System.Drawing.Point(0, 0);
             this.groupBox_syncPwmGenerator.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox_syncPwmGenerator.Name = "groupBox_syncPwmGenerator";

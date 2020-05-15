@@ -7,6 +7,6 @@ namespace LEO
 {
     class FW_version
     {
-        public const string ACTUAL_FW = "2.27";
+        public const string ACTUAL_FW = "2.30";
     }
 }

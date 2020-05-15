@@ -751,30 +751,25 @@ void counterGateConfig(uint16_t gateTime)
 {				
 	switch(gateTime){
 	case 100:													/* min.	gate time 00.10 second */
-		counter.counterEtr.psc = 7199;
-		counter.counterEtr.arr = 999;
+		TIM_ARR_PSC_Config(0.1);
 		break;
 	case 500: 													/* ----	gate time 00.50 second */
-		counter.counterEtr.psc = 5999;
-		counter.counterEtr.arr = 5999;
+		TIM_ARR_PSC_Config(0.5);
 		break;
 	case 1000: 													/* ----	gate time 01.00 second */
-		counter.counterEtr.psc = 7199;
-		counter.counterEtr.arr = 9999;
+		TIM_ARR_PSC_Config(1);
 		break;
 	case 5000: 													/* ----	gate time 05.00 second */
-		counter.counterEtr.psc = 59999;
-		counter.counterEtr.arr = 5999;
+		TIM_ARR_PSC_Config(5);
 		break;
 	case 10000: 												/* max. gate time 10.00 second */
-		counter.counterEtr.psc = 35999;
-		counter.counterEtr.arr = 19999;
+		TIM_ARR_PSC_Config(10);
 		break;
 	default:
 		break;
 	}
 
-	TIM_ARR_PSC_Config(counter.counterEtr.arr, counter.counterEtr.psc);
+
 }
 
 /**

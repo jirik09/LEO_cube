@@ -1236,6 +1236,7 @@ namespace LEO
             this.zedGraphControl_syncPwm.ScrollMinY2 = 0D;
             this.zedGraphControl_syncPwm.Size = new System.Drawing.Size(383, 261);
             this.zedGraphControl_syncPwm.TabIndex = 6;
+            this.zedGraphControl_syncPwm.UseExtendedPrintDialog = true;
             // 
             // tableLayoutPanel_channelsActive
             // 

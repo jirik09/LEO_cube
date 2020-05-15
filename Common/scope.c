@@ -155,7 +155,7 @@ void ScopeTriggerTask(void const *argument) {
 				updateTrigger();
 				samplesTaken += samplesPassed(writingIndex,lastWritingIndex);	
 				//start finding right level before trigger (cannot start to find it earlier because pretrigger was not taken yet)
-				if (samplesTaken > samplesToStart)    
+				if (samplesTaken > samplesToStart){
 					if((scope.settings.triggerEdge == EDGE_RISING && data + NOISE_REDUCTION < triggerLevel) 
 							|| (scope.settings.triggerEdge == EDGE_FALLING && data - NOISE_REDUCTION > triggerLevel) ){ //skip waiting for trigger in case of TRIG_AUTO
 						autoTrigged=0;
@@ -169,7 +169,7 @@ void ScopeTriggerTask(void const *argument) {
 						passMsg = MSG_SCOPE_SMPL_STARTED;
 						xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 					}
-
+				}
 				//looking for trigger
 			}else if(scope.state == SCOPE_SAMPLING_TRIGGER_WAIT){
 				samplesTaken += samplesPassed(writingIndex,lastWritingIndex);	

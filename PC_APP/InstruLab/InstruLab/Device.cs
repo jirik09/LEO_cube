@@ -102,6 +102,8 @@ namespace LEO
             public bool isPwmGen;
             public int pwmFrequency;
             public int pwmResolution;
+            public int pwmTimPeriphClockCH1;
+            public int pwmTimPeriphClockCH2;
             public int numChannels;
             public string[] pins;
         }
@@ -152,7 +154,7 @@ namespace LEO
         public CounterConfig_def cntCfg;
         private StreamWriter logWriter;
         private List<String> logger = new List<String>();
-        private const bool writeLog = false;
+        private const bool writeLog = true;
         Scope Scope_form;
         Generator Gen_form;
         Voltmeter Volt_form;
@@ -617,10 +619,12 @@ namespace LEO
                     {
                         pwmGenCfg.isPwmGen = true;
                         pwmGenCfg.numChannels = BitConverter.ToInt32(msg_byte, 4);
+                        pwmGenCfg.pwmTimPeriphClockCH1 = BitConverter.ToInt32(msg_byte, 8);
+                        pwmGenCfg.pwmTimPeriphClockCH2 = BitConverter.ToInt32(msg_byte, 12);
                         pwmGenCfg.pins = new string[pwmGenCfg.numChannels];
                         for (int i = 0; i < this.genCfg.numChannels; i++)
                         {
-                            pwmGenCfg.pins[i] = new string(msg_char, 8 + 4 * i, 4);
+                            pwmGenCfg.pins[i] = new string(msg_char, 16 + 4 * i, 4);
                         }
                     }
                     else
@@ -735,7 +739,7 @@ namespace LEO
             char[] inputMsg = new char[4];
             byte[] inputData = new byte[4];
             int watchDog = 2500;
-            logTextNL("Příjem dat: " + port.BytesToRead.ToString());
+            //logTextNL("Příjem dat: " + port.BytesToRead.ToString());
 
             while (port.IsOpen && port.BytesToRead > 0)
             {
@@ -959,7 +963,7 @@ namespace LEO
                             try
                             {
                                 message = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValRealFreq, 0));
-                                Counter_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH1, "GEN_REAL_FREQ", message));
+                                Gen_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH1, "GEN_REAL_FREQ", message));
                                 logRecieved("Gen PWM Real Freq " + message.ToString());
                             }
                             catch (Exception ex)
@@ -980,7 +984,7 @@ namespace LEO
                             try
                             {
                                 message2 = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValRealFreq2, 0));
-                                Counter_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH2, "GEN_REAL_FREQ", message2));
+                                Gen_form.add_message(new Message(Message.MsgRequest.GEN_PWM_REAL_FREQ_CH2, "GEN_REAL_FREQ", message2));
                                 logRecieved("Gen PWM Real Freq " + message2.ToString());
                             }
                             catch (Exception ex)
@@ -1258,12 +1262,15 @@ namespace LEO
                             {
 
                                 cntMessageDouble = BitConverter.Int64BitsToDouble(BitConverter.ToInt64(inputValSprf, 0)); //BitConverter.ToSingle(inputValEtr, 0);                                                                                               
-                                Counter_form.add_message(new Message(Message.MsgRequest.SYNC_PWM_REAL_FREQ, "SYNC PWM real freq", cntMessageDouble));
-                                logRecieved("Sync PWM Real freq " + cntMessageDouble.ToString());
-                            }
+                                if (Counter_form != null)
+                                {
+                                    Counter_form.add_message(new Message(Message.MsgRequest.SYNC_PWM_REAL_FREQ, "SYNC PWM real freq", cntMessageDouble));
+                                    logRecieved("Sync PWM Real freq " + cntMessageDouble.ToString());
+                                }                    
+}
                             catch (Exception ex)
                             {
-                                logRecieved("Counter freq ETR was not parsed  " + cntMessageDouble.ToString());
+                                logRecieved("Sync PWM real freq was not parsed  " + cntMessageDouble.ToString());
                             }
                             break;
                         /************************* Default *************************/
@@ -1272,14 +1279,14 @@ namespace LEO
                             {
                                 try
                                 {
-                                    int err = int.Parse(new string(inputMsg, 1, 3));
+                                    int err = inputMsg[1];
 
-                                    logRecieved("ERROR " + err);
-                                    if (err == 107)
+                                    logRecieved("ERROR " + err.ToString());
+                                    if (err == 107 || err == 108)
                                     {
                                         break;
                                     }
-                                    if (err == 999 && LastCommand.Equals(Commands.SCOPE + ":" + Commands.SCOPE_NEXT + ";"))
+                                    if (err == 9 && LastCommand.Equals(Commands.SCOPE + ":" + Commands.SCOPE_NEXT + ";"))
                                     {
                                         LastCommand = "";
                                         this.send(Commands.SCOPE + ":" + Commands.SCOPE_NEXT + ";");
@@ -1287,7 +1294,7 @@ namespace LEO
                                     }
                                     if (lastError != err)
                                     {
-                                        MessageBox.Show("Error recieved \r\n" + new string(inputMsg, 0, 4) + "\r\n" + getErrReason(err), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                        MessageBox.Show("Error recieved \r\n" + "E" + err.ToString() + "\r\n" + getErrReason(err), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                         //scopeCfg.mode = Scope.mode_def.IDLE;
                                         lastError = err;
                                     }
@@ -1477,6 +1484,7 @@ namespace LEO
                 GenOpened = GenModeOpened.PWM;
                 Gen_form = new Generator(this);
                 Gen_form.Show();
+                Gen_form.setTimPerphFreq(pwmGenCfg.pwmTimPeriphClockCH1, pwmGenCfg.pwmTimPeriphClockCH2);
                 DACFormOpened = FormOpened.GENERATOR;
             }
             else
@@ -1743,7 +1751,6 @@ namespace LEO
             {
                 LastCommand = s;
                 port.Write(s);
-
                 logSend(s);
             }
             catch (Exception ex)
@@ -1892,6 +1899,7 @@ namespace LEO
                     logSemaphore.WaitOne(1000);
                     logWriter.Write("Send (" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + "): " + s + "\r\n");
                     logSemaphore.Release();
+                    Console.WriteLine("send:"+s.ToString());
                 }
                 addLoggerString("Send (" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + "): " + s + "\r\n");
 
@@ -1909,6 +1917,7 @@ namespace LEO
                 logSemaphore.WaitOne(1000);
                 logWriter.Write("Recieved (" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + "): " + s + "\r\n");
                 logSemaphore.Release();
+                Console.WriteLine("recieved:" + s.ToString());
             }
             addLoggerString("Recieved (" + DateTime.Now.Minute + ":" + DateTime.Now.Second + "." + DateTime.Now.Millisecond + "): " + s + "\r\n");
         }
@@ -1920,6 +1929,7 @@ namespace LEO
                 logSemaphore.WaitOne(1000);
                 logWriter.Write(s + "\r\n");
                 logSemaphore.Release();
+                Console.WriteLine(s.ToString());
             }
             addLoggerString(s + "\r\n");
         }
@@ -1931,6 +1941,7 @@ namespace LEO
                 logSemaphore.WaitOne(1000);
                 logWriter.Write(s + ", ");
                 logSemaphore.Release();
+                Console.WriteLine(s.ToString());
             }
             addLoggerString(s + ", ");
         }

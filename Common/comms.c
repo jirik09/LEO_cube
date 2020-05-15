@@ -142,9 +142,9 @@ void CommTask(void const *argument){
 		///commsSendString("COMMS_Run\r\n");
 		xSemaphoreTakeRecursive(commsMutex, portMAX_DELAY);
 
-		/* send IDN string */
+
 		switch(message){
-		case MSG_DEVICE_IDN:
+		case MSG_DEVICE_IDN:		/* send IDN string */
 			commsSendString(STR_ACK);
 			commsSendString(IDN_STRING);
 #ifdef USE_SHIELD
@@ -429,7 +429,8 @@ void CommTask(void const *argument){
 #endif
 		default:
 			/* Not known message send */
-			commsSendString(STR_UNKNOWN_MSG);
+			commsSendUint32(message);
+			//commsSendString(STR_UNKNOWN_MSG);
 		}
 		//flushBuff(200);
 		xSemaphoreGiveRecursive(commsMutex);
@@ -798,6 +799,8 @@ void sendGenPwmConf(void){
 	uint8_t i;
 	commsSendString("GENP");		
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
+	commsSendUint32(GEN_PWM_CH1_TIM_PERIPH_CLOCK);
+	commsSendUint32(GEN_PWM_CH2_TIM_PERIPH_CLOCK);
 	for (i=0;i<MAX_DAC_CHANNELS;i++){
 		switch(i){
 		case 0:

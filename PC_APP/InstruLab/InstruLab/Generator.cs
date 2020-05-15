@@ -94,10 +94,11 @@ namespace LEO
         double realFreq_ch2 = 0;
 
         /*********** PWM generator variables START ***********/
-        const UInt32 pwmTimPeriphClock = 144000000;
-        const double defaultFreq = 140625;
-        const ushort defaultArr_ch1 = 1024;
-        const ushort defaultArr_ch2 = 511;
+        int pwmTimPeriphClockCH1 = 0;
+        int pwmTimPeriphClockCH2 = 0;
+        const double defaultFreq = 100000;
+        const ushort defaultArr_ch1 = 100;
+        const ushort defaultArr_ch2 = 100;
 
         double realPwmFreq_ch1 = defaultFreq;
         double realPwmFreq_ch2 = defaultFreq;
@@ -130,6 +131,10 @@ namespace LEO
         public Generator(Device dev)
         {
             InitializeComponent();
+
+            trackBar_pwmFreq_ch1.Value = (int)setExponencialTrackBarValue(defaultFreq);
+            trackBar_pwmFreq_ch2.Value = (int)setExponencialTrackBarValue(defaultFreq);
+            
 
             /* Check which generator mode is set and hide or show components */
             if (Device.GenMode == Device.GenModeOpened.DAC)
@@ -752,7 +757,7 @@ namespace LEO
 
                 double updateRatioLock = (odrFreq < realPwmFreq_ch1) ? realPwmFreq_ch1 / odrFreq : odrFreq / realPwmFreq_ch1;
                 double updateRatio = 0;
-                double absResol = pwmTimPeriphClock / realPwmFreq_ch1;
+                double absResol = pwmTimPeriphClockCH1 / realPwmFreq_ch1;
                 UInt32 odrIndex = 0;
                 double nextPwmPulse = 0;
                 double paintVal = signal_ch1[0];                
@@ -874,7 +879,7 @@ namespace LEO
 
                 double updateRatioLock = (odrFreq < realPwmFreq_ch2) ? realPwmFreq_ch2 / odrFreq : odrFreq / realPwmFreq_ch2;
                 double updateRatio = 0;
-                double absResol = (pwmTimPeriphClock / 2) / realPwmFreq_ch2;
+                double absResol = (pwmTimPeriphClockCH2) / realPwmFreq_ch2;
                 UInt32 odrIndex = 0;
                 double nextPwmPulse = 0;
                 double paintVal = signal_ch2[0];
@@ -1248,6 +1253,15 @@ namespace LEO
             base.OnPaint(e);
         }
 
+        internal void setTimPerphFreq(int pwmTimPeriphClockCH1, int pwmTimPeriphClockCH2)
+        {
+            this.pwmTimPeriphClockCH1 = pwmTimPeriphClockCH1;
+            this.pwmTimPeriphClockCH2 = pwmTimPeriphClockCH2;
+
+            genPwm1Arr = (ushort)(pwmTimPeriphClockCH1 / defaultFreq);
+            genPwm2Arr = (ushort)(pwmTimPeriphClockCH2 / defaultFreq);
+        }
+
         /****************************************************************************************/
         /******************************* PWM generator print labels *****************************/
         /****************************************************************************************/
@@ -1258,7 +1272,7 @@ namespace LEO
             this.label_real_pwmFreq_ch1.Text = /*realPwmFreq_ch1.ToString("F4")*/ String.Format("{0:n4}", realPwmFreq_ch1) + " Hz";
 
             /***** Print PWM channel 1 resolution in GUI START *****/
-            double absResol = pwmTimPeriphClock / realPwmFreq_ch1;
+            double absResol = pwmTimPeriphClockCH1 / realPwmFreq_ch1;
             double bitResol;
             if (absResol <= 65536)
             {
@@ -1281,7 +1295,7 @@ namespace LEO
                     this.label_real_pwmFreq_ch2.Text = /*realPwmFreq_ch2.ToString("F4")*/ String.Format("{0:n4}", realPwmFreq_ch2) + " Hz";
 
                     /***** Print PWM channel 2 resolution in GUI START *****/
-                    absResol = (pwmTimPeriphClock / 2) / realPwmFreq_ch2;
+                    absResol = (pwmTimPeriphClockCH2) / realPwmFreq_ch2;
                     if (absResol <= 65536)
                     {
                         bitResol = Math.Log(absResol, 2);
@@ -1424,6 +1438,9 @@ namespace LEO
                 {
                     /* MCU digital output will always give 3.3V - constantly 3300 */
                     tmpData = (int)Math.Round(data[sent + i] / 3300 * 1000 * genPwmArr);
+
+                    tmpData = tmpData < 0 ? 0 : tmpData;
+
                     if (!device.send_short_2byte(tmpData))
                     {
                         break;
@@ -2777,11 +2794,11 @@ namespace LEO
             /* Application needs to ask the device for both values - do it later. */
             if (chan == 1)
             {
-                arrMultipliedByPsc = (uint)Math.Round(pwmTimPeriphClock / freq);
+                arrMultipliedByPsc = (uint)Math.Round(pwmTimPeriphClockCH1 / freq);
             }
             else
             {
-                arrMultipliedByPsc = (uint)Math.Round((pwmTimPeriphClock / 2) / freq);
+                arrMultipliedByPsc = (uint)Math.Round((pwmTimPeriphClockCH2) / freq);
             }            
 
             if (arrMultipliedByPsc <= 65536)
@@ -2839,11 +2856,11 @@ namespace LEO
             double realPwmFreq = 0;
             if (chan == 1)
             {
-                realPwmFreq = pwmTimPeriphClock / (double)(arr * psc);
+                realPwmFreq = pwmTimPeriphClockCH1 / (double)(arr * psc);
             }
             else
             {
-                realPwmFreq = (pwmTimPeriphClock / 2) / (double)(arr * psc);
+                realPwmFreq = (pwmTimPeriphClockCH2) / (double)(arr * psc);
             }
             
             return realPwmFreq;

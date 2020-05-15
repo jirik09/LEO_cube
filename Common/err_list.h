@@ -39,7 +39,8 @@
 #define SYSTEM_INVALID_FEATURE 1
 #define COMMS_INVALID_FEATURE 2
 
-#define UNSUPORTED_FUNCTION_ERR_STR "E999" // Unsupported function
+#define UNSUPORTED_FUNCTION_ERR_STR "E9" // Unsupported function
+#define UNSUPORTED_FUNCTION_ERR 9
 #define UNKNOW_ERROR 255
 
 
