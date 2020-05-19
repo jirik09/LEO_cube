@@ -22,7 +22,7 @@
 #define MCU "STM32F303RE"
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 384
+#define COMM_BUFFER_SIZE 1500
 //#define COMM_TX_BUFFER_SIZE 256
 #define COMMS_BULK_SIZE 200
 //#define UART_SPEED 115200

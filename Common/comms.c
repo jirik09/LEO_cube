@@ -107,7 +107,7 @@ void CommTask(void const *argument){
 
 
 	uint16_t message = 0xFFFF;
-	messageQueue = xQueueCreate(32, sizeof(message)/sizeof(uint8_t));
+	messageQueue = xQueueCreate(50, sizeof(message)/sizeof(uint8_t));
 	commsMutex = xSemaphoreCreateRecursiveMutex();
 
 	xSemaphoreTakeRecursive(commsMutex, portMAX_DELAY);
@@ -145,7 +145,7 @@ void CommTask(void const *argument){
 
 		switch(message){
 		case MSG_DEVICE_IDN:		/* send IDN string */
-			commsSendString(STR_ACK);
+			commsSendString(STR_SYSTEM);
 			commsSendString(IDN_STRING);
 #ifdef USE_SHIELD
 			if(isScopeShieldConnected()==1){
@@ -159,6 +159,7 @@ void CommTask(void const *argument){
 #ifdef USE_SCOPE
 		case MSG_SCOPE_DATA_READY:
 			if(getScopeState() == SCOPE_DATA_SENDING){
+				commsSendString(STR_SCOPE);
 				oneChanMemSize=getOneChanMemSize();
 				dataLength = getSamples();
 				adcRes = getADCRes();
@@ -240,22 +241,24 @@ void CommTask(void const *argument){
 #endif //USE_SCOPE
 			//send generating frequency
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
-		case MSG_GEN_SEND_FREQ:
-			for(i = 0;i<MAX_DAC_CHANNELS;i++){
-				header_gen[4]=i+1+48;
-				j=genGetRealSmplFreq(i+1);
-				header_gen[9]=(uint8_t)(j>>16);
-				header_gen[10]=(uint8_t)(j>>8);
-				header_gen[11]=(uint8_t)(j);
-				commsSendBuff(header_gen,12);
-			}
+		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1:
+			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1);
+			commsSendUint32(genGetRealSmplFreq(1));
+			break;
+		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2:
+			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2);
+			commsSendUint32(genGetRealSmplFreq(2));
 			break;
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
+			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
 			commsSendDouble(generator.realPwmFreqCh1);
 			break;
 		case MSG_GEN_PWM_REAL_FREQ_CH2:
+			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
 			commsSendDouble(generator.realPwmFreqCh2);
 			break;
@@ -266,6 +269,7 @@ void CommTask(void const *argument){
 			/* ---------------------------------------------------- */
 #ifdef USE_COUNTER
 		case MSG_CNT_SEND_DATA:
+			commsSendString(STR_COUNTER);
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
@@ -322,6 +326,7 @@ void CommTask(void const *argument){
 			/* ---------------------------------------------------- */
 #ifdef USE_SYNC_PWM
 		case MSG_SYNCPWM_REAL_FREQ:
+			commsSendString(STR_SYNC_PWM);
 			commsSendString(STR_SYNC_PWM_REAL_FREQ);
 			commsSendDouble(syncPwm.realPwmFreq);
 			break;
@@ -329,6 +334,7 @@ void CommTask(void const *argument){
 		/* Send LOGIC ANALYZER data */
 #ifdef USE_LOG_ANLYS
 		case MSG_LOGAN_SEND_DATA:
+			commsSendString(STR_LOGIC_ANLYS);
 			logAnlys.state = LOGA_DATA_SENDING;
 			if(logAnlys.trigOccur == TRIG_OCCURRED){
 				commsSendString(STR_LOG_ANLYS_TRIGGER_POINTER);	
@@ -358,80 +364,96 @@ void CommTask(void const *argument){
 			break;
 #endif //USE_LOG_ANLYS
 		case MSG_SYSTEM_CONFIG:
+			commsSendString(STR_SYSTEM);
 			sendSystConf();
 			break;
 		case MSG_COMMS_CONFIG:
+			commsSendString(STR_SYSTEM);
 			sendCommsConf();
 			break;
 #ifdef USE_SCOPE
 		case MSG_SCOPE_CONFIG:
+			commsSendString(STR_SCOPE);
 			sendScopeConf();
 			break;
 		case MSG_SCOPE_INPUTS:
+			commsSendString(STR_SCOPE);
 			sendScopeInputs();
 			break;
 #endif //USE_SCOPE
 #ifdef USE_COUNTER
 		case MSG_CNT_CONFIG:
+			commsSendString(STR_COUNTER);
 			sendCounterConf();
 			break;
 #endif //USE_COUNTER
 #ifdef USE_SHIELD
 		case MSG_SHIELD_AVAIL:	/* shield present? */
+			commsSendString(STR_SYSTEM);
 			sendShieldPresence();
 			break;
 #endif //USE_SHIELD
 #ifdef USE_GEN
 		case MSG_GEN_CONFIG:
+			commsSendString(STR_GENERATOR);
 			sendGenConf();
 			break;
 #endif //USE_GEN
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_CONFIG:
+			commsSendString(STR_GENERATOR);
 			sendGenPwmConf();
 			break;
 #endif //USE_GEN_PWM
 #ifdef USE_SYNC_PWM
 		case MSG_SYNCPWM_CONFIG:
+			commsSendString(STR_SYNC_PWM);
 			sendSyncPwmConf();
 			break;
 #endif //USE_GEN_PWM
 #ifdef USE_LOG_ANLYS
 		case MSG_LOGAN_CONFIG:
+			commsSendString(STR_LOGIC_ANLYS);
 			sendLogAnlysConf();
 			break;
 #endif //USE_LOG_ANLYS
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 		case MSG_GEN_NEXT:	/* Gen send next data block */
+			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_NEXT);
 			break;
 #endif //USE_GEN || USE_GEN_PWM
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 		case MSG_GEN_OK:	/* Gen send OK status */
+			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_OK);
 			break;
 #endif //USE_GEN || USE_GEN_PWM
 		case MSG_SYSTEM_VERSION:
+			commsSendString(STR_SYSTEM);
 			sendSystemVersion();
 			break;
-		case MSG_COMMS_FLUSH:
-			break;
 		case MSG_ACK:
+			commsSendString(STR_SYSTEM);
 			commsSendString(STR_ACK);
 			break;
 #ifdef USE_SCOPE
 		case MSG_SCOPE_TRIGGER:
+			commsSendString(STR_SCOPE);
 			commsSendString(STR_SCOPE_TRIG);
 			break;
 		case MSG_SCOPE_SMPL_STARTED:
+			commsSendString(STR_SCOPE);
 			commsSendString(STR_SCOPE_SMPL);
 			break;
 #endif
 		default:
 			/* Not known message send */
+			commsSendString(STR_SYSTEM);
 			commsSendUint32(message);
 			//commsSendString(STR_UNKNOWN_MSG);
 		}
+		commsSendUint32(STR_DELIMITER);
 		//flushBuff(200);
 		xSemaphoreGiveRecursive(commsMutex);
 	}

@@ -33,7 +33,7 @@ namespace LEO
 
         double[] meanAvgSum = new double[4] { 0, 0, 0, 0 };
         double[] meanAvg = new double[4] { 0, 0, 0, 0 };
-        double[] vdda = new double[4] { 0, 0, 0, 0 };
+        double vdda = 0;
 
         bool sampleVDDA = true;
         bool samplingFinished = false;
@@ -72,7 +72,7 @@ namespace LEO
 
 
 
-            SetVDDASampling();
+            
 
             device.takeCommsSemaphore(semaphoreTimeout + 109);
             //device.send(Commands.SCOPE + ":" + Commands.START + ";");
@@ -98,12 +98,18 @@ namespace LEO
                     device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_4 + ";");
                     break;
             }
+            
+            
+            
 
 
             Thread.Sleep(100);
             device.send(Commands.SCOPE + ":" + Commands.START + ";");
 
             device.giveCommsSemaphore();
+            
+            SetVDDASampling();
+            //sampleVDDA = true;
         }
 
 
@@ -147,12 +153,10 @@ namespace LEO
 
                             channels = device.scopeCfg.actualChannels;
 
-                            vdda[0] = device.scopeCfg.VRefInt / (meas.getMean(0) * 1000) * device.scopeCfg.VRef / 1000;
-                            vdda[1] = device.scopeCfg.VRefInt / (meas.getMean(1) * 1000) * device.scopeCfg.VRef / 1000;
-                            vdda[2] = device.scopeCfg.VRefInt / (meas.getMean(2) * 1000) * device.scopeCfg.VRef / 1000;
-                            vdda[3] = device.scopeCfg.VRefInt / (meas.getMean(3) * 1000) * device.scopeCfg.VRef / 1000;
+                            vdda = device.scopeCfg.VRefInt / (meas.getMean(0) * 1000) * device.scopeCfg.VRef / 1000;
 
-                            device.systemCfg.VDDA_actual = (int)(vdda[0] * 1000);
+
+                            device.systemCfg.VDDA_actual = (int)(vdda * 1000);
                         }
                         else {
                             calcSignal_th = new Thread(() => meas.calculateMeasurements(device.scopeCfg.samples, rangeMax, rangeMin, device.scopeCfg.actualChannels, device.scopeCfg.realSmplFreq, device.scopeCfg.timeBase.Length, device.scopeCfg.actualRes));
@@ -168,10 +172,10 @@ namespace LEO
                             channels = device.scopeCfg.actualChannels;
 
                             avgPointer++;
-                            meanAvgSum[0] += meas.getMean(0) * vdda[0] / ((double)device.scopeCfg.VRef / 1000);
-                            meanAvgSum[1] += meas.getMean(1) * vdda[1] / ((double)device.scopeCfg.VRef / 1000);
-                            meanAvgSum[2] += meas.getMean(2) * vdda[2] / ((double)device.scopeCfg.VRef / 1000);
-                            meanAvgSum[3] += meas.getMean(3) * vdda[3] / ((double)device.scopeCfg.VRef / 1000);
+                            meanAvgSum[0] += meas.getMean(0) * vdda / ((double)device.scopeCfg.VRef / 1000);
+                            meanAvgSum[1] += meas.getMean(1) * vdda / ((double)device.scopeCfg.VRef / 1000);
+                            meanAvgSum[2] += meas.getMean(2) * vdda / ((double)device.scopeCfg.VRef / 1000);
+                            meanAvgSum[3] += meas.getMean(3) * vdda / ((double)device.scopeCfg.VRef / 1000);
 
                             if (avgPointer >= averages)
                             {
@@ -245,7 +249,7 @@ namespace LEO
                         this.label_freq_3.Text = channels >= 3 ? meas.getMeas(2 * 3) : "";
                         this.label_freq_4.Text = channels >= 4 ? meas.getMeas(3 * 3) : "";
 
-                        this.label_vdda.Text = Math.Round(vdda[0] * 1000, 2) + " mV";
+                        this.label_vdda.Text = Math.Round(vdda * 1000, 2) + " mV";
                     }
                     this.label_sampling.Text = "Sampling " + (int)(avgPointer + 1) + "/" + averages;
                 }
@@ -370,14 +374,34 @@ namespace LEO
 
         private void SetVDDASampling(){
             device.takeCommsSemaphore(semaphoreTimeout + 113);
+            device.send(Commands.SCOPE + ":" + Commands.STOP + ";");
+            device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_1 + ";");
             device.send(Commands.SCOPE + ":" + Commands.SCOPE_ADC_CHANNEL_VREF + ";");
+            device.send(Commands.SCOPE + ":" + Commands.START + ";");
             device.giveCommsSemaphore();
         }
 
         private void SetNormalSampling()
         {
             device.takeCommsSemaphore(semaphoreTimeout + 112);
+            device.send(Commands.SCOPE + ":" + Commands.STOP + ";");
             device.send(Commands.SCOPE + ":" + Commands.SCOPE_ADC_CHANNEL_DEAFULT + ";");
+            switch (device.scopeCfg.maxNumChannels)
+            {
+                case 1:
+                    device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_1 + ";");
+                    break;
+                case 2:
+                    device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_2 + ";");
+                    break;
+                case 3:
+                    device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_3 + ";");
+                    break;
+                case 4:
+                    device.send(Commands.SCOPE + ":" + Commands.CHANNELS + " " + Commands.CHANNELS_4 + ";");
+                    break;
+            }
+            device.send(Commands.SCOPE + ":" + Commands.START + ";");
             device.giveCommsSemaphore();
         }
 

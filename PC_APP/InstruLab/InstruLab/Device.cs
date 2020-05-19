@@ -343,8 +343,10 @@ namespace LEO
                     port.Write(Commands.SYSTEM + ":" + Commands.CONFIGRequest + ";");
                     char[] msg_char = new char[256];
                     byte[] msg_byte = new byte[256];
+                    int toRead;
                     Thread.Sleep(wait);
-                    int toRead = port.BytesToRead;
+                    port.Read(msg_byte, 0, 4);
+                    toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
 
@@ -355,9 +357,11 @@ namespace LEO
                         this.systemCfg.MCU = new string(msg_char, 12, toRead - 16);
                         this.mcu = this.systemCfg.MCU;
                     }
+                    port.DiscardInBuffer();
 
                     port.Write(Commands.VersionRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -373,6 +377,7 @@ namespace LEO
                         this.systemCfg.FREE_RTOS_Version = new string(msg_char, 32, 6);
                         this.systemCfg.HAL_Version = new string(msg_char, 44, 6);
                     }
+                    port.DiscardInBuffer();
 
 
                     /* ------------------------------------------------------------------------------ */
@@ -380,6 +385,7 @@ namespace LEO
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.IS_SHIELD_CONNECTED + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -391,12 +397,14 @@ namespace LEO
                     else {
                         this.systemCfg.isShield = false;
                     }
+                    port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
                     /* ---------------------------- COMM CONFIG REQUEST ----------------------------- */
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.COMMS + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -418,12 +426,14 @@ namespace LEO
                             this.commsCfg.useUsb = false;
                         }
                     }
+                    port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
                     /* ---------------------------- SCOPE CONFIG REQUEST ---------------------------- */
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.SCOPE + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -456,12 +466,14 @@ namespace LEO
                     {
                         scopeCfg.isScope = false;
                     }
+                    port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
                     /* ------------------------- SCOPE GPIO INPUTS REQUEST -------------------------- */
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.SCOPE + ":" + Commands.GET_SCOPE_INPUTS + ";");
                     Thread.Sleep(2 * wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -571,12 +583,14 @@ namespace LEO
                         scopeCfg.inputs[0] = new string[1];
                         scopeCfg.inputs[0][0] = "-";
                     }
+                    port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
                     /* ------------------------- GENERATOR CONFIG REQUEST --------------------------- */
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.GENERATOR + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -603,7 +617,6 @@ namespace LEO
                     {
                         genCfg.isGen = false;
                     }
-
                     port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
@@ -611,6 +624,7 @@ namespace LEO
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.GENERATOR + ":" + Commands.GEN_PWM_CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -631,7 +645,6 @@ namespace LEO
                     {
                         pwmGenCfg.isPwmGen = false;
                     }
-
                     port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
@@ -639,6 +652,7 @@ namespace LEO
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.SYNC_PWM_GEN + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -659,7 +673,6 @@ namespace LEO
                     {
                         pwmGenCfg.isPwmGen = false;
                     }
-
                     port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
@@ -667,6 +680,7 @@ namespace LEO
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.LOG_ANLYS + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -689,7 +703,6 @@ namespace LEO
                     {
                         logAnlysCfg.isLogAnlys = false;
                     }
-
                     port.DiscardInBuffer();
 
                     /* ------------------------------------------------------------------------------ */
@@ -697,6 +710,7 @@ namespace LEO
                     /* ------------------------------------------------------------------------------ */
                     port.Write(Commands.COUNTER + ":" + Commands.CONFIGRequest + ";");
                     Thread.Sleep(wait);
+                    port.Read(msg_byte, 0, 4);
                     toRead = port.BytesToRead;
                     port.Read(msg_byte, 0, toRead);
                     msg_char = System.Text.Encoding.ASCII.GetString(msg_byte).ToCharArray();
@@ -717,6 +731,7 @@ namespace LEO
                     {
                         cntCfg.isCnt = false;
                     }
+                    port.DiscardInBuffer();
                 }
             }
             catch (Exception ex)
@@ -751,7 +766,7 @@ namespace LEO
 
                 try
                 {
-                    while (port.BytesToRead < 4)
+                    while (port.BytesToRead < 12)
                     {
                         wait_for_data(watchDog--);
                         if (watchDog < 0)
@@ -760,126 +775,141 @@ namespace LEO
                         }
                     }
                     port.Read(inputMsg, 0, 4);
+                    port.Read(inputMsg, 0, 4);
                     switch (new string(inputMsg, 0, 4))
                     {
                         case Commands.SCOPE_INCOME:
-                            int res;
-                            int leng;
-                            int currChan;
-                            int numChan;
-                            int i = 0;
-                            int partsLen = 4096;
-                            while (port.BytesToRead < 12)
+                            while (new string(inputMsg, 0, 4).Equals(Commands.SCOPE_INCOME))
                             {
-                                wait_for_data(watchDog--);
-                            }
-                            port.Read(inputData, 0, 4);
-                            scopeCfg.realSmplFreq = inputData[0] * 256 * 256 * 256 + inputData[1] * 256 * 256 + inputData[2] * 256 + inputData[3];
-                            res = port.ReadByte();
-                            leng = port.ReadByte() * 65536 + port.ReadByte() * 256 + port.ReadByte();
-                            port.Read(inputData, 0, 2);
-                            currChan = port.ReadByte();
-                            numChan = port.ReadByte();
-                            scopeCfg.buffer = new Byte[leng];
-                            int wasRead = 0;
-                            int toRead = (leng - wasRead) > partsLen ? partsLen : (leng - wasRead);
-
-                            while (toRead > 0 && port.IsOpen)
-                            {
-                                ///// if (port.BytesToRead <= leng + wasRead)
-                                /// {
-                                wasRead += port.Read(scopeCfg.buffer, wasRead, Math.Min(port.BytesToRead, toRead));
-                                ///}
-                                ///else {
-                                ///   wasRead += port.Read(scopeCfg.buffer, wasRead, toRead);
-                                /// }
-
-                                toRead = (leng - wasRead) > partsLen ? partsLen : (leng - wasRead);
-                            }
-
-                            if (!port.IsOpen)
-                            {
-                                break;
-                            }
-
-
-                            if (res > 8) //resolution >8 bits
-                            {
-                                if (currChan == 1)
+                                
+                                int res;
+                                int leng;
+                                int currChan;
+                                int numChan;
+                                int i = 0;
+                                int partsLen = 4096;
+                                Thread.Sleep(30);
+                                while (port.BytesToRead < 12)
                                 {
-                                    scopeCfg.samples = new UInt16[numChan, leng / 2];
+                                    wait_for_data(watchDog--);
                                 }
-                                if (systemCfg.isShield)
+                                port.Read(inputData, 0, 4);
+                                scopeCfg.realSmplFreq = inputData[0] * 256 * 256 * 256 + inputData[1] * 256 * 256 + inputData[2] * 256 + inputData[3];
+                                res = port.ReadByte();
+                                leng = port.ReadByte() * 65536 + port.ReadByte() * 256 + port.ReadByte();
+                                port.Read(inputData, 0, 2);
+                                currChan = port.ReadByte();
+                                numChan = port.ReadByte();
+
+
+
+                                Console.WriteLine("NEW scope data " + currChan.ToString() + "/" + numChan.ToString());
+                                if (currChan > 4)
                                 {
-                                    ushort depth = (ushort)Math.Pow(2, res);
-                                    for (i = 0; i < leng / 2; i++)
+                                    Console.WriteLine("kurva");
+                                }
+                                scopeCfg.buffer = new Byte[leng];
+                                int wasRead = 0;
+                                int toRead = (leng - wasRead) > partsLen ? partsLen : (leng - wasRead);
+
+                                while (toRead > 0 && port.IsOpen)
+                                {
+                                    ///// if (port.BytesToRead <= leng + wasRead)
+                                    /// {
+                                    wasRead += port.Read(scopeCfg.buffer, wasRead, Math.Min(port.BytesToRead, toRead));
+                                    ///}
+                                    ///else {
+                                    ///   wasRead += port.Read(scopeCfg.buffer, wasRead, toRead);
+                                    /// }
+
+                                    toRead = (leng - wasRead) > partsLen ? partsLen : (leng - wasRead);
+                                }
+
+                                if (!port.IsOpen)
+                                {
+                                    break;
+                                }
+
+
+                                if (res > 8) //resolution >8 bits
+                                {
+                                    if (currChan == 1)
                                     {
-                                        scopeCfg.samples[currChan - 1, i] = (ushort)(depth - BitConverter.ToUInt16(scopeCfg.buffer, i * 2));
+                                        scopeCfg.samples = new UInt16[numChan, leng / 2];
+                                    }
+                                    if (systemCfg.isShield)
+                                    {
+                                        ushort depth = (ushort)Math.Pow(2, res);
+                                        for (i = 0; i < leng / 2; i++)
+                                        {
+                                            scopeCfg.samples[currChan - 1, i] = (ushort)(depth - BitConverter.ToUInt16(scopeCfg.buffer, i * 2));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for (i = 0; i < leng / 2; i++)
+                                        {
+                                            scopeCfg.samples[currChan - 1, i] = BitConverter.ToUInt16(scopeCfg.buffer, i * 2);
+                                        }
                                     }
                                 }
-                                else
+                                else  //resolution <=8 bits
                                 {
-                                    for (i = 0; i < leng / 2; i++)
+                                    if (currChan == 1)
                                     {
-                                        scopeCfg.samples[currChan - 1, i] = BitConverter.ToUInt16(scopeCfg.buffer, i * 2);
+                                        scopeCfg.samples = new UInt16[numChan, leng];
+                                    }
+
+                                    if (systemCfg.isShield)
+                                    {
+                                        ushort depth = (ushort)Math.Pow(2, res);
+                                        for (i = 0; i < leng; i++)
+                                        {
+                                            scopeCfg.samples[currChan - 1, i] = (ushort)(depth - scopeCfg.buffer[i]);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for (i = 0; i < leng; i++)
+                                        {
+                                            scopeCfg.samples[currChan - 1, i] = scopeCfg.buffer[i];
+                                        }
                                     }
                                 }
-                            }
-                            else  //resolution <=8 bits
-                            {
-                                if (currChan == 1)
-                                {
-                                    scopeCfg.samples = new UInt16[numChan, leng];
-                                }
 
-                                if (systemCfg.isShield)
+
+
+
+                                if (currChan == numChan)
                                 {
-                                    ushort depth = (ushort)Math.Pow(2, res);
-                                    for (i = 0; i < leng; i++)
+                                    if (res > 8)
                                     {
-                                        scopeCfg.samples[currChan - 1, i] = (ushort)(depth - scopeCfg.buffer[i]);
+                                        scopeCfg.timeBase = new double[leng / 2];
+                                        generate_time_base(scopeCfg.realSmplFreq, leng / 2);
+                                    }
+                                    else
+                                    {
+                                        scopeCfg.timeBase = new double[leng];
+                                        generate_time_base(scopeCfg.realSmplFreq, leng);
+                                    }
+                                    scopeCfg.actualChannels = numChan;
+                                    scopeCfg.actualRes = res;
+                                    logRecieved("SCOPE DATA RECIEVED: Leng " + leng + ", Res " + res + ", Chan " + currChan + " of " + numChan);
+                                    Thread.Sleep(10);
+                                    switch (ADCFormOpened)
+                                    {
+                                        case FormOpened.SCOPE:
+                                            Scope_form.add_message(new Message(Message.MsgRequest.SCOPE_NEW_DATA));
+                                            break;
+                                        case FormOpened.VOLTMETER:
+                                            Volt_form.add_message(new Message(Message.MsgRequest.VOLT_NEW_DATA));
+                                            break;
+                                        case FormOpened.FREQ_ANALYSIS:
+                                            FreqAnalysis_form.add_message(new Message(Message.MsgRequest.BODE_NEW_DATA));
+                                            break;
                                     }
                                 }
-                                else
-                                {
-                                    for (i = 0; i < leng; i++)
-                                    {
-                                        scopeCfg.samples[currChan - 1, i] = scopeCfg.buffer[i];
-                                    }
-                                }
-                            }
-
-
-
-
-                            if (currChan == numChan)
-                            {
-                                if (res > 8)
-                                {
-                                    scopeCfg.timeBase = new double[leng / 2];
-                                    generate_time_base(scopeCfg.realSmplFreq, leng / 2);
-                                }
-                                else
-                                {
-                                    scopeCfg.timeBase = new double[leng];
-                                    generate_time_base(scopeCfg.realSmplFreq, leng);
-                                }
-                                scopeCfg.actualChannels = numChan;
-                                scopeCfg.actualRes = res;
-                                logRecieved("SCOPE DATA RECIEVED: Leng " + leng + ", Res " + res + ", Chan " + currChan + " of " + numChan);
-                                Thread.Sleep(10);
-                                switch (ADCFormOpened)
-                                {
-                                    case FormOpened.SCOPE:
-                                        Scope_form.add_message(new Message(Message.MsgRequest.SCOPE_NEW_DATA));
-                                        break;
-                                    case FormOpened.VOLTMETER:
-                                        Volt_form.add_message(new Message(Message.MsgRequest.VOLT_NEW_DATA));
-                                        break;
-                                    case FormOpened.FREQ_ANALYSIS:
-                                        FreqAnalysis_form.add_message(new Message(Message.MsgRequest.BODE_NEW_DATA));
-                                        break;
-                                }
+                                port.Read(inputMsg, 0, 4);
                             }
                             //Console.WriteLine("SCOPE DATA RECIEVED: Leng "+leng+", Res "+res+", Chan "+currChan+" of "+numChan);
                             break;
@@ -932,20 +962,38 @@ namespace LEO
                                 FreqAnalysis_form.genMessage(new Message(Message.MsgRequest.GEN_NEXT));
                             }
                             break;
-                        case Commands.GENERATOR:
-                            while (port.BytesToRead < 8)
+                        case Commands.GEN_PWM_SIGNAL_SAMPLING_FREQ_CH1:
+                            while (port.BytesToRead < 4)
                             {
                                 wait_for_data(watchDog--);
                             }
-                            port.Read(inputMsg, 0, 4);
                             port.Read(inputData, 0, 4);
+                            int tmpData1 = BitConverter.ToInt32(inputData, 0);
                             if (DACFormOpened == FormOpened.GENERATOR)
                             {
-                                Gen_form.add_message(new Message(Message.MsgRequest.GEN_FRQ, new string(inputMsg, 0, 4), inputData[1] * 256 * 256 + inputData[2] * 256 + inputData[3]));
+                                Gen_form.add_message(new Message(Message.MsgRequest.GEN_FRQ_CH1,tmpData1));
                             }
                             else if (DACFormOpened == FormOpened.FREQ_ANALYSIS)
                             {
-                                FreqAnalysis_form.genMessage(new Message(Message.MsgRequest.GEN_FRQ, new string(inputMsg, 0, 4), inputData[1] * 256 * 256 + inputData[2] * 256 + inputData[3]));
+                                FreqAnalysis_form.genMessage(new Message(Message.MsgRequest.GEN_FRQ_CH1, tmpData1));
+                            }
+                            //Console.WriteLine(Commands.TRIGGERED);
+                            logRecieved("GEN_FRQ?" + new string(inputMsg, 1, 3) + " CH" + inputData[3].ToString());
+                            break;
+                        case Commands.GEN_PWM_SIGNAL_SAMPLING_FREQ_CH2:
+                            while (port.BytesToRead < 4)
+                            {
+                                wait_for_data(watchDog--);
+                            }
+                            port.Read(inputData, 0, 4);
+                            int tmpData2 = BitConverter.ToInt32(inputData, 0);
+                            if (DACFormOpened == FormOpened.GENERATOR)
+                            {
+                                Gen_form.add_message(new Message(Message.MsgRequest.GEN_FRQ_CH2, tmpData2));
+                            }
+                            else if (DACFormOpened == FormOpened.FREQ_ANALYSIS)
+                            {
+                                FreqAnalysis_form.genMessage(new Message(Message.MsgRequest.GEN_FRQ_CH2, tmpData2));
                             }
                             //Console.WriteLine(Commands.TRIGGERED);
                             logRecieved("GEN_FRQ?" + new string(inputMsg, 1, 3) + " CH" + inputData[3].ToString());
@@ -1330,7 +1378,9 @@ namespace LEO
                                 }
                             }
                             break;
+                            
                     }
+                    port.Read(inputMsg, 0, 4);
                     if (!port.IsOpen)
                     {
                         break;

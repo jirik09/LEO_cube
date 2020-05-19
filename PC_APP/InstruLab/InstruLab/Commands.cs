@@ -132,6 +132,9 @@ namespace LEO
         public const string GEN_PWM_REAL_FREQ_CH2 = "GPR2";
         public const string GEN_PWM_DEINIT = "GPDI";
 
+        public const string GEN_PWM_SIGNAL_SAMPLING_FREQ_CH1 = "GSR1";
+        public const string GEN_PWM_SIGNAL_SAMPLING_FREQ_CH2 = "GSR2";
+
         public const string GEN_OK = "G_OK";
         public const string GEN_NEXT = "G_NX";
 

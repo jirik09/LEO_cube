@@ -410,15 +410,12 @@ namespace LEO
                             sending = false;
                             this.Invalidate();
                             break;
-                        case Message.MsgRequest.GEN_FRQ:
-                            if (messg.GetMessage().Equals(Commands.CHANNELS_1))
-                            {
-                                this.realFreq_ch1 = (double)messg.GetNum() / signal_leng_ch1;
-                            }
-                            else if (messg.GetMessage().Equals(Commands.CHANNELS_2))
-                            {
-                                this.realFreq_ch2 = (double)messg.GetNum() / signal_leng_ch2;
-                            }
+                        case Message.MsgRequest.GEN_FRQ_CH1:
+                            this.realFreq_ch1 = (double)messg.GetNum() / signal_leng_ch1;
+                            this.Invalidate();
+                            break;
+                        case Message.MsgRequest.GEN_FRQ_CH2:
+                            this.realFreq_ch2 = (double)messg.GetNum() / signal_leng_ch2;
                             this.Invalidate();
                             break;
                         case Message.MsgRequest.GEN_ERR:

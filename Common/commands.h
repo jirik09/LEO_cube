@@ -13,6 +13,15 @@
 typedef uint32_t command;
 
 
+#define STR_SYSTEM "SYST"
+#define STR_SCOPE "OSCP"
+#define STR_COUNTER "CNT_"
+#define STR_GENERATOR "GEN_"
+#define STR_LOGIC_ANLYS "LAN_"
+#define STR_SYNC_PWM "SPWM"
+#define STR_DELIMITER 0xCAFEFADE
+
+
 #define STR_ACK "ACK_"
 #define STR_NACK "NACK"
 #define STR_ERR "ERR_"
@@ -30,6 +39,8 @@ typedef uint32_t command;
 #ifdef USE_GEN_PWM
 #define STR_GEN_PWM_REAL_FREQ_CH1 "GPR1"
 #define STR_GEN_PWM_REAL_FREQ_CH2 "GPR2"
+#define STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1 "GSR1"
+#define STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2 "GSR2"
 #endif //USE_GEN_PWM
 
 #ifdef USE_SYNC_PWM

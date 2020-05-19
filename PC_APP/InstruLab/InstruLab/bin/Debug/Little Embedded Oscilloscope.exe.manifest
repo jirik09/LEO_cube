@@ -43,14 +43,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Little Embedded Oscilloscope.exe" size="2631680">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="Little Embedded Oscilloscope.exe" size="2634240">
       <assemblyIdentity name="Little Embedded Oscilloscope" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1" />
-        <dsig:DigestValue>LJ/dJmyekL3D2xbRCAhU/cS1cVo=</dsig:DigestValue>
+        <dsig:DigestValue>Rvr6/unOf+/7dM2B/4b4JutOCVM=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

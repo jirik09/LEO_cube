@@ -86,7 +86,7 @@ void ScopeTask(void const *argument){
 	CASSERT(sizeof(SCOPE_CH4_PIN_STR)==5);
 
 	uint16_t message = 0xFFFF;
-	scopeMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	scopeMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
 
 	scopeMutex = xSemaphoreCreateRecursiveMutex();
 	scopeSetDefault();

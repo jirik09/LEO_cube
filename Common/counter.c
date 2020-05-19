@@ -47,7 +47,7 @@ volatile counterTypeDef counter;
 void CounterTask(void const *argument)
 {
 	uint16_t message = 0xFFFF;
-	counterMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	counterMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
 	counterMutex = xSemaphoreCreateRecursiveMutex();
 
 	if(counterMessageQueue == 0){

@@ -104,10 +104,10 @@ namespace LEO
 
                         serialPort.Read(msg, 0, toRead);
                         string msgInput = new string(msg, 0, 4);
-                        string deviceName = new string(msg, 4, toRead - 4);
+                        string deviceName = new string(msg, 4, toRead - 8);
 
                         Thread.Yield();
-                        if (msgInput.Equals(Commands.ACKNOWLEDGE) && deviceName.Length>8)
+                        if (msgInput.Equals(Commands.SYSTEM) && deviceName.Length>8)
                         {
                             bool inList=false;
                             Device newDevice = new Device(serialPort.PortName, deviceName, serialPort.BaudRate);

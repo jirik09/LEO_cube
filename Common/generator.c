@@ -53,7 +53,7 @@ void GeneratorTask(void const *argument){
 	CASSERT(sizeof(GEN_CH2_PIN_STR)==5);
 
 	uint16_t message = 0xFFFF;
-	generatorMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	generatorMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
 	generatorSetDefault();
 
 	while(1){
@@ -325,7 +325,9 @@ uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
  * @retval None
  */
 void genSendRealSamplingFreq(void){
-	uint16_t passMsg = MSG_GEN_SEND_FREQ;
+	uint16_t passMsg = MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+	passMsg = MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2;
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
