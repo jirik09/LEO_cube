@@ -21,6 +21,8 @@ typedef uint32_t command;
 #define STR_SYNC_PWM "SPWM"
 #define STR_DELIMITER 0xCAFEFADE
 
+#define STR_CONFIG "CFG_"
+
 
 #define STR_ACK "ACK_"
 #define STR_NACK "NACK"

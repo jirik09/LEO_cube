@@ -364,7 +364,6 @@ void CommTask(void const *argument){
 			break;
 #endif //USE_LOG_ANLYS
 		case MSG_SYSTEM_CONFIG:
-			commsSendString(STR_SYSTEM);
 			sendSystConf();
 			break;
 		case MSG_COMMS_CONFIG:
@@ -454,6 +453,7 @@ void CommTask(void const *argument){
 			//commsSendString(STR_UNKNOWN_MSG);
 		}
 		commsSendUint32(STR_DELIMITER);
+		//commsSendBuff((uint8_t *)(STR_DELIMITER), 4);
 		//flushBuff(200);
 		xSemaphoreGiveRecursive(commsMutex);
 	}
@@ -611,10 +611,57 @@ uint16_t getBytesAvailable(){
  * @retval None
  */
 void sendSystConf(){
-	commsSendString("SYST");
-	commsSendUint32(HAL_RCC_GetHCLKFreq());  //CCLK
-	commsSendUint32(HAL_RCC_GetPCLK2Freq()); //PCLK
+	commsSendString(STR_SYSTEM);
+	commsSendString(STR_CONFIG);
+	commsSendString(IDN_STRING);
+	commsSendString(":");
+#ifdef USE_SHIELD
+	if(isScopeShieldConnected()==1){
+		commsSendString(SHIELD_STRING);
+	}else if(isScopeShieldConnected()==2){
+		commsSendString(SHIELD_STRING_2);
+	}
+#else
+	commsSendString(STR_NACK);
+#endif
+	commsSendString(":");
 	commsSendString(MCU);
+	commsSendString(":");
+	commsSendUint32(HAL_RCC_GetHCLKFreq());  //CCLK
+	commsSendString(":");
+	commsSendBuff(MCU_UID,12);
+	commsSendString(":");
+	commsSendString("LEO FW:"); 	//12
+	commsSendString(FW_VERSION); 			//4
+	commsSendString(":");						//4
+	commsSendString("FreeRTOS:");//8
+	commsSendString(tskKERNEL_VERSION_NUMBER);//6
+	commsSendString(":");
+	commsSendString("ST HAL:");				//6
+	commsSend('V');
+	commsSend((HAL_GetHalVersion()>>24)+48);
+	commsSend('.');
+	commsSend((HAL_GetHalVersion()>>16)+48);
+	commsSend('.');
+	commsSend((HAL_GetHalVersion()>>8)+48); //6
+	commsSendString(":");
+	commsSendString("COMM:");
+	commsSendUint32(COMM_BUFFER_SIZE);
+	commsSendString(":");
+	commsSendUint32(UART_SPEED);
+	commsSendString(":");
+	commsSendString(USART_TX_PIN_STR);
+	commsSendString(":");
+	commsSendString(USART_RX_PIN_STR);
+	commsSendString(":");
+#ifdef USE_USB
+	commsSendString("USB_:");
+	commsSendString(USB_DP_PIN_STR);
+	commsSendString(":");
+	commsSendString(USB_DM_PIN_STR);
+	commsSendString(":");
+#endif
+
 }
 
 /**
@@ -642,7 +689,7 @@ void sendCommsConf(){
  */
 void sendSystemVersion(){
 	commsSendString("VER_");
-	commsSendString("Instrulab FW"); 	//12
+	commsSendString("LEO FW"); 	//12
 	commsSendString(FW_VERSION); 			//4
 	commsSendString(BUILD);						//4
 	commsSendString("FreeRTOS");			//8	
