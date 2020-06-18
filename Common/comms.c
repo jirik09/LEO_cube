@@ -179,9 +179,10 @@ void CommTask(void const *argument){
 				} 
 
 				header[8]=(uint8_t)adcRes;	
-				header[9]=(uint8_t)(dataLength >> 16);
-				header[10]=(uint8_t)(dataLength >> 8);
-				header[11]=(uint8_t)dataLength;
+				header[9]=(uint8_t)(dataLength >> 24);
+				header[10]=(uint8_t)(dataLength >> 16);
+				header[11]=(uint8_t)(dataLength >> 8);
+				header[12]=(uint8_t)dataLength;
 				header[15]=channels;
 
 				if(j+dataLength>oneChanMemSize){
@@ -712,7 +713,7 @@ void sendSystemVersion(){
  */
 void sendScopeConf(){
 	uint8_t i;
-	commsSendString("OSCP");
+	commsSendString(STR_CONFIG);
 	commsSendUint32(MAX_SAMPLING_FREQ_12B);
 	commsSendUint32(MAX_SCOPE_BUFF_SIZE);
 	commsSendUint32(MAX_ADC_CHANNELS);
