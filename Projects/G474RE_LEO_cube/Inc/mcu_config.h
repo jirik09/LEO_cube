@@ -21,6 +21,8 @@
 #define SHIELD_STRING_2 " + Shield LEO V0.2"
 #define MCU "STM32G474RE"
 
+#define MCU_UID (uint8_t)*((uint8_t *) 0x1FFF7590)
+
 // Communication constatnts ===================================================
 #define COMM_BUFFER_SIZE 512
 //#define COMM_TX_BUFFER_SIZE 256
