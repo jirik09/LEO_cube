@@ -561,7 +561,6 @@ command parseScopeCmd(void){
 			}else if(cmdIn == CMD_FREQ_5K){
 				error=scopeSetSamplingFreq(5000);
 			}else if(cmdIn == CMD_FREQ_10K){
-				//error=scopeSetADCInputChannelDefault(); //workaround - PC app don't return ADc channels from Vref back to pins when leaving the Voltmeter mode
 				error=scopeSetSamplingFreq(10000);
 			}else if(cmdIn == CMD_FREQ_20K){
 				error=scopeSetSamplingFreq(20000);
@@ -583,6 +582,8 @@ command parseScopeCmd(void){
 				error=scopeSetSamplingFreq(10000000);
 			}else if(cmdIn == CMD_FREQ_MAX){
 				error=scopeSetSamplingFreq(UINT32_MAX);
+			}else if(cmdIn < 0x07FFFFFF){
+				error=scopeSetSamplingFreq(cmdIn);
 			}
 
 		}else{

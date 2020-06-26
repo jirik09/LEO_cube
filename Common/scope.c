@@ -510,18 +510,20 @@ uint8_t scopeSetSamplingFreq(uint32_t freq){
 	uint8_t result=SCOPE_INVALID_SAMPLING_FREQ;
 	xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
 
-	if (freq<UINT32_MAX){
+	if (freq <= getMaxScopeSamplingFreq(scope.settings.adcRes)){
 		scope.settings.samplingFrequency = freq;
 		scope.settings.AdvMode = SCOPE_NORMAL_MODE;
+		result=0;
 	}else{
 		if(scope.numOfChannles==1){
 			scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
 			scope.settings.AdvMode = SCOPE_INTERLEAVE_MODE;
 		}else{
 			scope.settings.samplingFrequency=getMaxScopeSamplingFreq(scope.settings.adcRes);
+			scope.settings.AdvMode = SCOPE_NORMAL_MODE;
 		}
 	}
-	result=0;
+
 	xSemaphoreGiveRecursive(scopeMutex);
 	uint16_t passMsg = MSG_INVALIDATE;
 	xQueueSendToBack(scopeMessageQueue, &passMsg, portMAX_DELAY);

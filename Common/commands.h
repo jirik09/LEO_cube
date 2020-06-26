@@ -408,6 +408,7 @@ typedef uint32_t command;
 		((CMD) == CMD_FREQ_2M) || \
 		((CMD) == CMD_FREQ_5M) || \
 		((CMD) == CMD_FREQ_10M) || \
+		((CMD) <  0x07FFFFFF) || \
 		((CMD) == CMD_FREQ_MAX))
 
 //Scope data lengths
