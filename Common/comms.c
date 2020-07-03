@@ -611,7 +611,7 @@ uint16_t getBytesAvailable(){
  * @param  None
  * @retval None
  */
-void sendSystConf(){
+void sendSystConf(){ //this is where you want to look - CFG parameters are send with ":" separator
 	commsSendString(STR_SYSTEM);
 	commsSendString(STR_CONFIG);
 	commsSendString(IDN_STRING);
