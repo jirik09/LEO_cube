@@ -16,7 +16,7 @@
 #include "math.h"
 #include "err_list.h"
 
-#define IDN_STRING "STM32G474-Nucleo" //max 30 chars
+#define IDN_STRING "Nucleo-G474RE" //max 30 chars
 #define SHIELD_STRING " + Shield LEO V0.1"
 #define SHIELD_STRING_2 " + Shield LEO V0.2"
 #define MCU "STM32G474RE"
