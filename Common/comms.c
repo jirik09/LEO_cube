@@ -747,22 +747,18 @@ void sendScopeConf(){
  * @retval None
  */
 void sendCounterConf(){
-	commsSendString("CNT_");
-	commsSendUint32(CNT_COUNTER_PERIPH_CLOCK);
-	commsSendUint32(CNT_GATE_PERIPH_CLOCK);
+	commsSendString(STR_CONFIG);
+	//commsSendUint32(CNT_COUNTER_PERIPH_CLOCK);
+	//commsSendUint32(CNT_GATE_PERIPH_CLOCK);
 	commsSendString(COUNTER_MODES);
 	commsSendString(CNT_ETR_PIN);
 	commsSendString(CNT_IC_CH1_PIN);
 	commsSendString(CNT_IC_CH2_PIN);
 	commsSendString(CNT_REF1_PIN);
 	commsSendString(CNT_REF2_PIN);
-	/* Timer Interval pins (Events) */
-	commsSendString(CNT_IC_CH1_PIN);
-	commsSendString(CNT_IC_CH2_PIN);
-
-	/* Scope Get Config is the last configuration demand - reconfig usart baud */
-	//	huart2.Init.BaudRate = 2000000;
-	//  HAL_UART_Init(&huart2);
+	/* Timer Interval pins */
+	commsSendString(CNT_TI_CH1_PIN);
+	commsSendString(CNT_TI_CH2_PIN);
 }
 #endif //USE_COUNTER
 

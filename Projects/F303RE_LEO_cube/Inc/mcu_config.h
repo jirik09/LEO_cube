@@ -1,11 +1,11 @@
 /*
-  *****************************************************************************
-  * @file    mcu_config.h
-  * @author  Y3288231
-  * @date    jan 15, 2014
-  * @brief   Hardware abstraction for communication
-  ***************************************************************************** 
-*/ 
+ *****************************************************************************
+ * @file    mcu_config.h
+ * @author  Y3288231
+ * @date    jan 15, 2014
+ * @brief   Hardware abstraction for communication
+ *****************************************************************************
+ */
 #ifndef STM32F4_CONFIG_H_
 #define STM32F4_CONFIG_H_
 
@@ -81,18 +81,18 @@
 #define RANGE_4_HI 0
 
 #ifdef USE_SHIELD
-	#define HIGH_RANGE 16666 //without calibration 16666  16820
-	#define MID_RANGE  3300  //without calibration 3300  3258
-	#define LOW_RANGE  330   //without calibration 166
+#define HIGH_RANGE 16666 //without calibration 16666  16820
+#define MID_RANGE  3300  //without calibration 3300  3258
+#define LOW_RANGE  330   //without calibration 166
 
-	#define SHIELD_RANGE_1_LOW 0
-	#define SHIELD_RANGE_1_HI 2*MID_RANGE
-	#define SHIELD_RANGE_2_LOW -MID_RANGE
-	#define SHIELD_RANGE_2_HI MID_RANGE
-	#define SHIELD_RANGE_3_LOW -HIGH_RANGE//+150
-	#define SHIELD_RANGE_3_HI HIGH_RANGE
-	#define SHIELD_RANGE_4_LOW -LOW_RANGE//-9
-	#define SHIELD_RANGE_4_HI LOW_RANGE
+#define SHIELD_RANGE_1_LOW 0
+#define SHIELD_RANGE_1_HI 2*MID_RANGE
+#define SHIELD_RANGE_2_LOW -MID_RANGE
+#define SHIELD_RANGE_2_HI MID_RANGE
+#define SHIELD_RANGE_3_LOW -HIGH_RANGE//+150
+#define SHIELD_RANGE_3_HI HIGH_RANGE
+#define SHIELD_RANGE_4_LOW -LOW_RANGE//-9
+#define SHIELD_RANGE_4_HI LOW_RANGE
 #endif
 
 
@@ -139,8 +139,8 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define GEN_VREF_INT 1210
 
 #ifdef USE_SHIELD
-	#define SHIELD_GEN_HIGH   5000 //without calibration 5000  4898-5
-	#define SHIELD_GEN_LOW   -5000 //without calibration -5000  -4898-5
+#define SHIELD_GEN_HIGH   5000 //without calibration 5000  4898-5
+#define SHIELD_GEN_LOW   -5000 //without calibration -5000  -4898-5
 #endif
 
 #define GEN_CH1_PIN_STR "A2__" //must be 4 chars
@@ -148,68 +148,70 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 
 // Counter constatnts =======================================================
 #ifdef USE_COUNTER
-	/* TIM4 -> ARR & PSC set to gate 100 ms */
-	#define TIM4_ARR										999			
-	#define TIM4_PSC										7199
-	#define IC_THRESHOLD								20	
-	
-	/* Instead send for. ex. "HF      " or "LF RF   " */
-	#define COUNTER_MODES								"HF LF FR EV"
-	
-	/* When porting && less pins -> send "-- " */
-	#define CNT_ETR_PIN									"A0 "
-	#define CNT_IC_CH1_PIN							"A0 "	// PA0
-	#define CNT_IC_CH2_PIN							"A1 "	// PA1
-	#define CNT_REF1_PIN								"D7 "	// PA8
-	#define CNT_REF2_PIN								"A0 "	
-	
-	/* Define frequencies to send to PC application to process correct calculations. */
-	#define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
-	#define CNT_GATE_PERIPH_CLOCK			  (uint32_t) 72000000
+/* TIM4 -> ARR & PSC set to gate 100 ms */
+#define TIM4_ARR										999
+#define TIM4_PSC										7199
+#define IC_THRESHOLD								20
+
+/* Instead send for. ex. "HF      " or "LF RF   " */
+#define COUNTER_MODES								"HF LF FR EV"
+
+/* When porting && less pins -> send "-- " */
+#define CNT_ETR_PIN								"A0 "
+#define CNT_IC_CH1_PIN							"A0 "	// PA0
+#define CNT_IC_CH2_PIN							"A1 "	// PA1
+#define CNT_REF1_PIN							"D7 "	// PA8
+#define CNT_REF2_PIN							"A0 "
+#define CNT_TI_CH1_PIN							"A0 "	// PA0
+#define CNT_TI_CH2_PIN							"A1 "	// PA1
+
+/* Define frequencies to send to PC application to process correct calculations. */
+#define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
+#define CNT_GATE_PERIPH_CLOCK			  (uint32_t) 72000000
 #endif //USE_COUNTER
 
 // PWM generator constants =================================================
 #ifdef USE_GEN_PWM
-	#define GEN_PWM_CH1_PIN							"D8__" // PA9		
-	#define GEN_PWM_CH2_PIN							"D5__" // PB4
-	
-	#define MAX_GEN_PWM_CHANNELS 	2	
-	
-	#define GEN_PWM_CH1_TIM_PERIPH_CLOCK	  (uint32_t) 144000000
-	#define GEN_PWM_CH2_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
+#define GEN_PWM_CH1_PIN							"D8__" // PA9
+#define GEN_PWM_CH2_PIN							"D5__" // PB4
+
+#define MAX_GEN_PWM_CHANNELS 	2
+
+#define GEN_PWM_CH1_TIM_PERIPH_CLOCK	  (uint32_t) 144000000
+#define GEN_PWM_CH2_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #endif //USE_GEN_PWM
 
 // Synchronized PWM generator constants ====================================
 #ifdef USE_SYNC_PWM
-	#define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
-	#define MAX_SYNC_PWM_FREQ						(uint32_t) 100000	
-	#define MAX_SYNC_PWM_CHANNELS				(uint32_t) 4	
-	
-	#define SYNC_PWM_CH1_PIN						"PC6_"
-	#define SYNC_PWM_CH2_PIN						"PC7_"
-	#define SYNC_PWM_CH3_PIN						"PC8_"
-	#define SYNC_PWM_CH4_PIN						"PC9_"
+#define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
+#define MAX_SYNC_PWM_FREQ						(uint32_t) 100000
+#define MAX_SYNC_PWM_CHANNELS				(uint32_t) 4
+
+#define SYNC_PWM_CH1_PIN						"PC6_"
+#define SYNC_PWM_CH2_PIN						"PC7_"
+#define SYNC_PWM_CH3_PIN						"PC8_"
+#define SYNC_PWM_CH4_PIN						"PC9_"
 #endif //USE_SYNC_PWM
 
 // Logic Analyzer constants ====================================
 #ifdef USE_LOG_ANLYS
-	/* Nucleo F303RE - TIM4 (posttrigger), TIM1 (timebase) */
-	#define LOG_ANLYS_POSTTRIG_PERIPH_CLOCK	   (uint32_t) 72000000
-	#define LOG_ANLYS_TIMEBASE_PERIPH_CLOCK		 (uint32_t) 144000000	
-	/* Sampling frequency depends on DMA transfer possibilities. Half of APB clock freq. */
-	#define LOG_ANLYS_SAMPLING_FREQ						 (uint32_t) (72000000 / 2)	
-	#define LOG_ANLYS_BUFFER_LENGTH						 20000 //(uint32_t) (MAX_SCOPE_BUFF_SIZE / 2);
-	#define LOG_ANLYS_CHANNELS_NUM							8
-	
-	#define LOG_ANLYS_PIN_CH1						"PB6_"
-	#define LOG_ANLYS_PIN_CH2						"PB7_"
-	#define LOG_ANLYS_PIN_CH3						"PB8_"
-	#define LOG_ANLYS_PIN_CH4						"PB9_"
-	#define LOG_ANLYS_PIN_CH5						"PB10"
-	#define LOG_ANLYS_PIN_CH6						"PB11"
-	#define LOG_ANLYS_PIN_CH7						"PB12"
-	#define LOG_ANLYS_PIN_CH8						"PB13"
-	
+/* Nucleo F303RE - TIM4 (posttrigger), TIM1 (timebase) */
+#define LOG_ANLYS_POSTTRIG_PERIPH_CLOCK	   (uint32_t) 72000000
+#define LOG_ANLYS_TIMEBASE_PERIPH_CLOCK		 (uint32_t) 144000000
+/* Sampling frequency depends on DMA transfer possibilities. Half of APB clock freq. */
+#define LOG_ANLYS_SAMPLING_FREQ						 (uint32_t) (72000000 / 2)
+#define LOG_ANLYS_BUFFER_LENGTH						 20000 //(uint32_t) (MAX_SCOPE_BUFF_SIZE / 2);
+#define LOG_ANLYS_CHANNELS_NUM							8
+
+#define LOG_ANLYS_PIN_CH1						"PB6_"
+#define LOG_ANLYS_PIN_CH2						"PB7_"
+#define LOG_ANLYS_PIN_CH3						"PB8_"
+#define LOG_ANLYS_PIN_CH4						"PB9_"
+#define LOG_ANLYS_PIN_CH5						"PB10"
+#define LOG_ANLYS_PIN_CH6						"PB11"
+#define LOG_ANLYS_PIN_CH7						"PB12"
+#define LOG_ANLYS_PIN_CH8						"PB13"
+
 #endif //USE_LOG_ANLYS
 
 //Definition of assert to check length of strings
