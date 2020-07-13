@@ -54,6 +54,8 @@ void CounterTask(void const *argument)
 		while(1); // Queue was not created and must not be used.
 	}
 
+	counterInitETR();
+
 	while(1){
 
 		xQueueReceive(counterMessageQueue, &message, portMAX_DELAY);
@@ -748,7 +750,7 @@ void counterIcDutyCycleProcess(void)
  * @retval none
  */
 void counterGateConfig(uint16_t gateTime)
-{				
+{
 	switch(gateTime){
 	case 100:													/* min.	gate time 00.10 second */
 		TIM_ARR_PSC_Config(0.1);
@@ -768,8 +770,6 @@ void counterGateConfig(uint16_t gateTime)
 	default:
 		break;
 	}
-
-
 }
 
 /**

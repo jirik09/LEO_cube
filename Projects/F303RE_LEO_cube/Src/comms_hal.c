@@ -91,8 +91,8 @@ void commsSendString(char *chr){
 
 void commsSendDouble(double value){
 	memcpy(intAlias, &value, sizeof(value));
-	commsSendUint32(intAlias[0]);
 	commsSendUint32(intAlias[1]);
+	commsSendUint32(intAlias[0]);
 }
 
 //void commsSendDMA(uint8_t chr){

@@ -153,17 +153,20 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define TIM4_PSC										7199
 #define IC_THRESHOLD								20
 
-/* Instead send for. ex. "HF      " or "LF RF   " */
-#define COUNTER_MODES								"HF LF FR EV"
+/* Counter Modes supported */
+#define COUNTER_MODE_HF								"HF__"
+#define COUNTER_MODE_LF								"LF__"
+#define COUNTER_MODE_FR								"FR__"
+#define COUNTER_MODE_TI								"TI__"
 
 /* When porting && less pins -> send "-- " */
-#define CNT_ETR_PIN								"A0 "
-#define CNT_IC_CH1_PIN							"A0 "	// PA0
-#define CNT_IC_CH2_PIN							"A1 "	// PA1
-#define CNT_REF1_PIN							"D7 "	// PA8
-#define CNT_REF2_PIN							"A0 "
-#define CNT_TI_CH1_PIN							"A0 "	// PA0
-#define CNT_TI_CH2_PIN							"A1 "	// PA1
+#define CNT_ETR_PIN								"A0__"
+#define CNT_IC_CH1_PIN							"A0__"	// PA0
+#define CNT_IC_CH2_PIN							"A1__"	// PA1
+#define CNT_REF1_PIN							"D7__"	// PA8
+#define CNT_REF2_PIN							"A0__"
+#define CNT_TI_CH1_PIN							"A0__"	// PA0
+#define CNT_TI_CH2_PIN							"A1__"	// PA1
 
 /* Define frequencies to send to PC application to process correct calculations. */
 #define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
