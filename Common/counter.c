@@ -105,6 +105,7 @@ void CounterTask(void const *argument)
  * @retval None
  */
 void counterSetMode(uint8_t mode){
+	counterSendStop();
 	uint16_t passMsg;
 	switch(mode){
 	case ETR:
@@ -124,6 +125,7 @@ void counterSetMode(uint8_t mode){
 		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 		break;
 	}
+	counterSendStart();
 }
 
 /**
