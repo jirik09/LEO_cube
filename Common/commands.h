@@ -12,7 +12,6 @@
 // Types definitions ==========================================================
 typedef uint32_t command;
 
-
 #define STR_SYSTEM "SYST"
 #define STR_SCOPE "OSCP"
 #define STR_COUNTER "CNT_"
@@ -22,7 +21,6 @@ typedef uint32_t command;
 #define STR_DELIMITER 0xCAFEFADE
 
 #define STR_CONFIG "CFG_"
-
 
 #define STR_ACK "ACK_"
 #define STR_NACK "NACK"
@@ -52,6 +50,8 @@ typedef uint32_t command;
 #ifdef USE_COUNTER
 #define STR_CNT_ETR_DATA "ETRD"		// data from ETR measurement
 #define STR_CNT_ETR_BUFF "ETRB"		// buffer itself
+#define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
+#define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
 
 #define STR_CNT_REF_DATA "REFD"		// data from REF measurement
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
@@ -73,7 +73,6 @@ typedef uint32_t command;
 #define STR_LOG_ANLYS_DATA "LADT"
 #endif //USE_LOG_ANLYS
 
-
 // Macro definitions ==========================================================
 #define STRINGIFY(str) #str
 #define GETCHAR(s) (int)(s)
@@ -86,7 +85,6 @@ typedef uint32_t command;
 #define SWAP_UINT32(x) ( (x&0xff000000)>>24 | (x&0x00ff0000)>>8 | (x&0x0000ff00)<<8 | (x&0x000000ff)<<24 )
 
 #define REGISTER_CMD(name,value) CMD_##name=(int)BUILD_CMD(STRINGIFY(value))
-
 
 //Command definitions
 //Common commands
@@ -176,6 +174,9 @@ typedef uint32_t command;
 //#define CMD_CNT_MULT_PSC 						SWAP_UINT32(0x5053435f)			//	PSC_
 //#define CMD_CNT_MULT_ARR 						SWAP_UINT32(0x4152525f)			//	ARR_
 #define CMD_CNT_REF_SAMPLE_COUNT 				SWAP_UINT32(0x5253435f)					//	RSC_
+#define CMD_CNT_QUANTITY						SWAP_UINT32(0x5155414e)			// QUAN
+#define CMD_CNT_QUANTITY_FREQUENCY				SWAP_UINT32(0x51465245)			//	QFRE
+#define CMD_CNT_QUANTITY_PERIOD					SWAP_UINT32(0x51504552)			//	QPER
 #define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_
 #define CMD_MODE_IC 						SWAP_UINT32(0x49435f5f)			//	IC__
 #define CMD_MODE_REF 						SWAP_UINT32(0x5245465f)			//	REF_
@@ -261,19 +262,19 @@ typedef uint32_t command;
 #define CMD_CHANNELS_3 						SWAP_UINT32(0x3343485f)			//	3CH_
 #define CMD_CHANNELS_4 						SWAP_UINT32(0x3443485f)			//	4CH_
 
-
-
 //Counter modes
-
-
 
 #define isCounterMode(CMD) (((CMD) == CMD_MODE_ETR) || \
 		((CMD) == CMD_MODE_IC) || \
 		((CMD) == CMD_MODE_REF) || \
 		((CMD) == CMD_MODE_TI))
 
-//Counter ETR sampling times
+//Counter ETR quantity
 
+#define isCounterQuantity(CMD) (((CMD) == CMD_CNT_QUANTITY_FREQUENCY) || \
+		((CMD) == CMD_CNT_QUANTITY_PERIOD))
+
+//Counter ETR sampling times
 
 #define isCounterEtrGate(CMD) (((CMD) == CMD_GATE_100m) || \
 		((CMD) == CMD_GATE_500m) || \
@@ -283,9 +284,6 @@ typedef uint32_t command;
 
 //Counter IC prescaler 1
 
-
-
-
 #define isCounterIcPresc1(CMD) (((CMD) == CMD_PRESC1_1x) || \
 		((CMD) == CMD_PRESC1_2x) || \
 		((CMD) == CMD_PRESC1_4x) || \
@@ -293,17 +291,12 @@ typedef uint32_t command;
 
 //Counter IC prescaler 2
 
-
-
 #define isCounterIcPresc2(CMD) (((CMD) == CMD_PRESC2_1x) || \
 		((CMD) == CMD_PRESC2_2x) || \
 		((CMD) == CMD_PRESC2_4x) || \
 		((CMD) == CMD_PRESC2_8x))
 
 //Counter IC pulse mode change configuration + TI (time interval)
-
-
-
 
 #define isCounterIcTiEvent(CMD) (((CMD) == CMD_EVENT_RF1) || \
 		((CMD) == CMD_EVENT_RF2) || \
@@ -316,8 +309,6 @@ typedef uint32_t command;
 
 //Counter IC duty cycle init/deinit
 
-
-
 #define isCounterIcDutyCycle(CMD) (((CMD) == CMD_DUTY_CYCLE_INIT_CH1) || \
 		((CMD) == CMD_DUTY_CYCLE_INIT_CH2) || \
 		((CMD) == CMD_DUTY_CYCLE_DEINIT_CH1) || \
@@ -327,24 +318,15 @@ typedef uint32_t command;
 
 //Counter TI mode
 
-
-
-
 #define isCounterTiMode(CMD) (((CMD) == CMD_MODE_EVENT_SEQUENCE_DEP) || \
 		((CMD) == CMD_MODE_EVENT_SEQUENCE_INDEP))
 
-
 //Generator modes (NORMAL - DAC BUILD_CMD(STRINGIFY( ABNORMAL - PWM)
-
-
-
 
 #define isGeneratorMode(CMD) (((CMD) == CMD_MODE_PWM) || \
 		((CMD) == CMD_MODE_DAC))
 
 //Sync PWM general commands
-
-
 
 #define isSyncPwm(CMD) (((CMD) == CMD_SYNC_PWM_INIT) || \
 		((CMD) == CMD_SYNC_PWM_DEINIT) || \
@@ -353,14 +335,10 @@ typedef uint32_t command;
 
 //Sync PWM general commands
 
-
 #define isSyncPwmStepMode(CMD) (((CMD) == CMD_SYNC_PWM_STEP_ENABLE) || \
 		((CMD) == CMD_SYNC_PWM_STEP_DISABLE))
 
 //Logic analyzer trigger event.
-
-
-
 
 #define isLogAnlysTriggerMode(CMD) (((CMD) == CMD_TRIG_MODE_AUTO) || \
 		((CMD) == CMD_TRIG_MODE_NORMAL) || \
@@ -368,15 +346,10 @@ typedef uint32_t command;
 
 //Logic analyzer trigger event.
 
-
-
 #define isLogAnlysTriggerEvent(CMD) (((CMD) == CMD_TRIG_EDGE_RISING) || \
 		((CMD) == CMD_TRIG_EDGE_FALLING))
 
-
 //Scope tigger modes
-
-
 
 #define isScopeTrigMode(CMD) (((CMD) == CMD_MODE_NORMAL) || \
 		((CMD) == CMD_MODE_AUTO) || \
@@ -385,15 +358,10 @@ typedef uint32_t command;
 
 //Scope trigger edges
 
-
-
-
 #define isScopeTrigEdge(CMD) (((CMD) == CMD_EDGE_RISING) || \
 		((CMD) == CMD_EDGE_FALLING))
 
 //Scope sampling frequencies
-
-
 
 #define isScopeFreq(CMD) (((CMD) == CMD_FREQ_1K) || \
 		((CMD) == CMD_FREQ_2K) || \
@@ -413,7 +381,6 @@ typedef uint32_t command;
 
 //Scope data lengths
 
-
 #define isScopeNumOfSamples(CMD) (((CMD) == CMD_SAMPLES_100) || \
 		((CMD) == CMD_SAMPLES_200) || \
 		((CMD) == CMD_SAMPLES_500) || \
@@ -425,9 +392,7 @@ typedef uint32_t command;
 		((CMD) == CMD_SAMPLES_50K) || \
 		((CMD) == CMD_SAMPLES_100K))
 
-
 //Scope Data depths
-
 
 #define isScopeDataDepth(CMD) (((CMD) == CMD_DATA_DEPTH_12B) || \
 		((CMD) == CMD_DATA_DEPTH_10B) || \
@@ -436,8 +401,6 @@ typedef uint32_t command;
 
 //Number of channels
 
-
-
 #define isChannel(CMD) (((CMD) == CMD_CHANNELS_1) || \
 		((CMD) == CMD_CHANNELS_2) || \
 		((CMD) == CMD_CHANNELS_3) || \
@@ -445,7 +408,5 @@ typedef uint32_t command;
 
 // Exported variables =========================================================
 // Exported functions =========================================================
-
-
 
 #endif /* COMMANDS_H_ */

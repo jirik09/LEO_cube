@@ -275,6 +275,10 @@ void CommTask(void const *argument){
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
 				commsSendDouble(counter.counterEtr.freq);
+				commsSendString(STR_CNT_ETR_QUANT_ERR);
+				commsSendDouble(counter.counterEtr.qError);
+				commsSendString(STR_CNT_ETR_TIMEBASE_ERR);
+				commsSendDouble(counter.counterEtr.tbError);
 				/* REF mode configured */
 			}else if(counter.state==COUNTER_REF){
 				if(counter.refWarning == COUNTER_REF_SEND_DATA){

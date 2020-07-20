@@ -53,6 +53,14 @@ typedef enum{
 	COUNTER_REF		
 }counterState;
 
+/**
+* @brief  Counter ETR mode Quantity selection.
+*/
+typedef enum{
+	QUANTITY_FREQUENCY = 0,
+	QUANTITY_PERIOD
+}counterQuantity;
+
 	/**
   * @brief  Reciprocal mode ISR pass through flag. 
   */
@@ -138,10 +146,13 @@ typedef struct{
 	uint16_t pscTemp;
 
 	uint8_t etrp;		// TIM2 ETRP
+	uint8_t quantity;	// Frequency/Period
 	uint32_t buffer;
 	uint32_t refBuffer;
 	uint16_t gateTime;	
 	double freq;
+	double qError;		// quantization error
+	double tbError;		// time base  error
 }counterEtrTypeDef;
 
 	/**
@@ -174,6 +185,7 @@ typedef struct{
 	counterEtrTypeDef counterEtr;	
 //  counterRefTypeDef counterRef;	-> ETR structure used for REF	counter
 	counterState state;
+	counterQuantity quantity;
 	uint32_t tim4PrphClk;
 	uint32_t tim2PrphClk;
 	
@@ -212,10 +224,15 @@ void counterDeinit(void);
 void counterEtrRefSetDefault(void);
 void counterIcTiSetDefault(void);
 void counterSetMode(uint8_t mode);
+void counterSetQuantity(uint8_t quant);
 
 /* ETR mode functions */
 void counterSetEtrGate(uint16_t gateTime);
 void counterGateConfig(uint16_t gateTime);
+
+/* ETR error calculations */
+double counterEtrCalculateQuantError(float gateFreq);
+double counterEtrCalculateTimeBaseError(void);
 
 /* IC mode functions */
 void counterSetIc1SampleCount(uint16_t buffer);

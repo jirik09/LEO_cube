@@ -23,6 +23,9 @@
 
 #define MCU_UID (uint8_t)*((uint8_t *)0x1FFFF7AC)
 
+#define NUCLEO_CRYSTAL_ERROR_PPM  20
+#define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
+
 // Communication constatnts ===================================================
 #define COMM_BUFFER_SIZE 1500
 //#define COMM_TX_BUFFER_SIZE 256

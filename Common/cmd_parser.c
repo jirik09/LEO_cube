@@ -248,6 +248,19 @@ command parseCounterCmd(void)
 			error = COUNTER_INVALID_FEATURE_PARAM;
 		}
 		break;
+	case CMD_CNT_QUANTITY:
+		cmdIn = giveNextCmd();
+		if(isCounterQuantity(cmdIn)){
+			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
+				counterSetQuantity(QUANTITY_FREQUENCY);
+			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
+				counterSetQuantity(QUANTITY_PERIOD);
+			}
+		}else{
+			cmdIn = CMD_ERR;
+			error = COUNTER_INVALID_FEATURE_PARAM;
+		}
+		break;
 	case CMD_CNT_GATE:
 		cmdIn = giveNextCmd();
 		if(isCounterEtrGate(cmdIn)){
