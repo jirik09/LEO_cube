@@ -75,10 +75,10 @@ void CounterTask(void const *argument)
 			counterInitTI();
 			break;
 		case MSG_CNT_SET_QUANTITY_FREQUENCY:
-			counterSetQuantFreq();
+			counterSetQuantityFreq();
 			break;
 		case MSG_CNT_SET_QUANTITY_PERIOD:
-			counterSetQuantPer();
+			counterSetQuantityPer();
 			break;
 		case MSG_CNT_START:
 			counterStart();
@@ -313,13 +313,13 @@ void counterStop(void){
 	}	
 }
 
-void counterSetQuantFreq(void){
+void counterSetQuantityFreq(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
 	counter.counterEtr.quantity = QUANTITY_FREQUENCY;
 	xSemaphoreGiveRecursive(counterMutex);
 }
 
-void counterSetQuantPer(void){
+void counterSetQuantityPer(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
 	counter.counterEtr.quantity = QUANTITY_PERIOD;
 	xSemaphoreGiveRecursive(counterMutex);
@@ -587,7 +587,11 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 		counter.counterEtr.qError = counterEtrCalculateQuantError(gateFreq);
 		counter.counterEtr.tbError = counterEtrCalculateTimeBaseError();
 		/* Configure the ETR input prescaler */
-		TIM_ETRP_Config(counter.counterEtr.freq);	
+		TIM_ETRP_Config(counter.counterEtr.freq);
+
+		if(counter.counterEtr.quantity == QUANTITY_PERIOD){
+			counter.counterEtr.freq = 1 / counter.counterEtr.freq;
+		}
 
 		if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED){
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
@@ -778,7 +782,7 @@ void counterIcDutyCycleProcess(void)
 double counterEtrCalculateQuantError(float gateFreq)
 {
 	double qError = counter.counterEtr.etrp * gateFreq;
-	if(counter.quantity == QUANTITY_PERIOD){
+	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
 		qError = (1 / (counter.counterEtr.freq - qError) - 1 / counter.counterEtr.freq);
 	}
 	return qError;
@@ -787,7 +791,7 @@ double counterEtrCalculateQuantError(float gateFreq)
 double counterEtrCalculateTimeBaseError(void)
 {
 	double tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
-	if(counter.quantity == QUANTITY_PERIOD){
+	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
 		tbError = (1 / (counter.counterEtr.freq - tbError) - 1 / counter.counterEtr.freq);
 	}
 	return tbError;

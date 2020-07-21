@@ -146,7 +146,7 @@ typedef struct{
 	uint16_t pscTemp;
 
 	uint8_t etrp;		// TIM2 ETRP
-	uint8_t quantity;	// Frequency/Period
+	counterQuantity quantity;	// Frequency/Period
 	uint32_t buffer;
 	uint32_t refBuffer;
 	uint16_t gateTime;	
@@ -185,7 +185,6 @@ typedef struct{
 	counterEtrTypeDef counterEtr;	
 //  counterRefTypeDef counterRef;	-> ETR structure used for REF	counter
 	counterState state;
-	counterQuantity quantity;
 	uint32_t tim4PrphClk;
 	uint32_t tim2PrphClk;
 	
@@ -229,6 +228,8 @@ void counterSetQuantity(uint8_t quant);
 /* ETR mode functions */
 void counterSetEtrGate(uint16_t gateTime);
 void counterGateConfig(uint16_t gateTime);
+void counterSetQuantityFreq(void);
+void counterSetQuantityPer(void);
 
 /* ETR error calculations */
 double counterEtrCalculateQuantError(float gateFreq);
