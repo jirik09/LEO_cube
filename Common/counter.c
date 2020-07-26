@@ -586,8 +586,8 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 		counter.counterEtr.etrp = TIM_ETPS_GetPrescaler();
 		float gateFreq = ((double)counter.tim4PrphClk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */
 		counter.counterEtr.freq = ((double)counter.counterEtr.buffer * gateFreq * counter.counterEtr.etrp);								/* Sampled frequency */
-		counter.counterEtr.qError = counterEtrCalculateQuantError(gateFreq);
-		counter.counterEtr.tbError = counterEtrCalculateTimeBaseError();
+		counter.qError = counterEtrCalculateQuantError(gateFreq);
+		counter.tbError = counterEtrCalculateTimeBaseError();
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);
 

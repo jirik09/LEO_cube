@@ -151,8 +151,6 @@ typedef struct{
 	uint32_t refBuffer;
 	uint16_t gateTime;	
 	double freq;
-	double qError;		// quantization error
-	double tbError;		// time base  error
 }counterEtrTypeDef;
 
 	/**
@@ -187,6 +185,8 @@ typedef struct{
 	counterState state;
 	uint32_t tim4PrphClk;
 	uint32_t tim2PrphClk;
+	double qError;		// quantization error
+	double tbError;		// time base error
 	
 	counterRefSmplCntChange sampleCntChange;
 	counterRefWarning refWarning;

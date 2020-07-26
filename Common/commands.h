@@ -50,8 +50,10 @@ typedef uint32_t command;
 #ifdef USE_COUNTER
 #define STR_CNT_ETR_DATA "ETRD"		// data from ETR measurement
 #define STR_CNT_ETR_BUFF "ETRB"		// buffer itself
+/*
 #define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
 #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
+*/
 
 #define STR_CNT_REF_DATA "REFD"		// data from REF measurement
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
