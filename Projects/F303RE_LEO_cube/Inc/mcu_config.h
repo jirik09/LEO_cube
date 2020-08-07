@@ -162,18 +162,29 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define COUNTER_MODE_FR								"FR__"
 #define COUNTER_MODE_TI								"TI__"
 
+/* Ranges definitions depending on gate time */
+#define CNT_HF_UPP_LIMIT		(uint32_t)300000000
+#define CNT_HF_LOW_LIMIT_TG_01	38000
+#define CNT_HF_LOW_LIMIT_TG_05	16970
+#define CNT_HF_LOW_LIMIT_TG_1	12000
+#define CNT_HF_LOW_LIMIT_TG_5	5366
+#define CNT_HF_LOW_LIMIT_TG_10	3800
+
+#define CNT_LF_UPP_LIMIT		CNT_HF_LOW_LIMIT_TG_10
+#define CNT_LF_LOW_LIMIT		(double)0.033528
+
 /* When porting && less pins -> send "-- " */
 #define CNT_ETR_PIN								"A0__"
-#define CNT_IC_CH1_PIN							"A0__"	// PA0
-#define CNT_IC_CH2_PIN							"A1__"	// PA1
-#define CNT_REF1_PIN							"D7__"	// PA8
-#define CNT_REF2_PIN							"A0__"
-#define CNT_TI_CH1_PIN							"A0__"	// PA0
-#define CNT_TI_CH2_PIN							"A1__"	// PA1
+#define CNT_IC_PIN_CH1							"A0__"	// PA0
+#define CNT_IC_PIN_CH2							"A1__"	// PA1
+#define CNT_REF_PIN_IN1							"D7__"	// PA8
+#define CNT_REF_PIN_IN2							"A0__"
+#define CNT_TI_PIN_CH1							"A0__"	// PA0
+#define CNT_TI_PIN_CH2							"A1__"	// PA1
 
 /* Define frequencies to send to PC application to process correct calculations. */
 #define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
-#define CNT_GATE_PERIPH_CLOCK			  (uint32_t) 72000000
+#define CNT_GATE_PERIPH_CLOCK			(uint32_t) 72000000
 #endif //USE_COUNTER
 
 // PWM generator constants =================================================

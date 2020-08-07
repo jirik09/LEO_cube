@@ -26,6 +26,7 @@ typedef uint32_t command;
 #define STR_NACK "NACK"
 #define STR_ERR "ERR_"
 #define STR_UNKNOWN_MSG "XMSG"
+#define STR_DUMMY "DUMM"		// dummy string
 
 #define STR_SCOPE_OK "S_OK"
 #define STR_GEN_OK "G_OK"
@@ -48,14 +49,18 @@ typedef uint32_t command;
 #endif // USE_SYNC_PWM
 
 #ifdef USE_COUNTER
-#define STR_CNT_ETR_DATA "ETRD"		// data from ETR measurement
-#define STR_CNT_ETR_BUFF "ETRB"		// buffer itself
+#define STR_CNT_QUANT_FREQ "QFRE"
+#define STR_CNT_QUANT_PERI "QPER"
+
+#define STR_CNT_ETR_DATA "ETR_"		// data from ETR measurement
+#define STR_CNT_IC_DATA "IC__"
+#define STR_CNT_REF_DATA "REF_"		// data from REF measurement
+
 /*
 #define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
 #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
 */
 
-#define STR_CNT_REF_DATA "REFD"		// data from REF measurement
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
 
 #define STR_CNT_IC1_DATA "IC1D"		// data from IC1 channel meas.

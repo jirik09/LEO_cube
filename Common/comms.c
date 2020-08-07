@@ -275,6 +275,11 @@ void CommTask(void const *argument){
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
+				if(counter.quantity == QUANTITY_FREQUENCY){
+					commsSendString(STR_CNT_QUANT_FREQ);
+				}else{
+					commsSendString(STR_CNT_QUANT_PERI);
+				}
 				commsSendDouble(counter.counterEtr.freq);
 				commsSendDouble(counter.qError);
 				commsSendDouble(counter.tbError);
@@ -752,21 +757,24 @@ void sendScopeConf(){
  */
 void sendCounterConf(){
 	commsSendString(STR_CONFIG);
-	//commsSendUint32(CNT_COUNTER_PERIPH_CLOCK);
-	//commsSendUint32(CNT_GATE_PERIPH_CLOCK);
-	/* Modes */
-	commsSendString(COUNTER_MODE_HF);
-	commsSendString(COUNTER_MODE_LF);
-	commsSendString(COUNTER_MODE_FR);
-	commsSendString(COUNTER_MODE_TI);
+	commsSendString(STR_DUMMY);
+	/* Send Spec Counters' limits */
+	commsSendUint32(CNT_HF_UPP_LIMIT);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_01);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_05);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_1);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_5);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_10);
+	commsSendUint32(CNT_LF_UPP_LIMIT);
+	commsSendDouble(CNT_LF_LOW_LIMIT);
 	/* Pins */
 	commsSendString(CNT_ETR_PIN);
-	commsSendString(CNT_IC_CH1_PIN);
-	commsSendString(CNT_IC_CH2_PIN);
-	commsSendString(CNT_REF1_PIN);
-	commsSendString(CNT_REF2_PIN);
-	commsSendString(CNT_TI_CH1_PIN);
-	commsSendString(CNT_TI_CH2_PIN);
+	commsSendString(CNT_IC_PIN_CH1);
+	commsSendString(CNT_IC_PIN_CH2);
+	commsSendString(CNT_REF_PIN_IN1);
+	commsSendString(CNT_REF_PIN_IN2);
+	commsSendString(CNT_TI_PIN_CH1);
+	commsSendString(CNT_TI_PIN_CH2);
 }
 #endif //USE_COUNTER
 

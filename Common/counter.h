@@ -146,7 +146,6 @@ typedef struct{
 	uint16_t pscTemp;
 
 	uint8_t etrp;		// TIM2 ETRP
-	counterQuantity quantity;	// Frequency/Period
 	uint32_t buffer;
 	uint32_t refBuffer;
 	uint16_t gateTime;	
@@ -185,6 +184,7 @@ typedef struct{
 	counterState state;
 	uint32_t tim4PrphClk;
 	uint32_t tim2PrphClk;
+	counterQuantity quantity;	// Frequency/Period
 	double qError;		// quantization error
 	double tbError;		// time base error
 	

@@ -317,13 +317,13 @@ void counterStop(void){
 
 void counterSetQuantityFreq(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
-	counter.counterEtr.quantity = QUANTITY_FREQUENCY;
+	counter.quantity = QUANTITY_FREQUENCY;
 	xSemaphoreGiveRecursive(counterMutex);
 }
 
 void counterSetQuantityPer(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
-	counter.counterEtr.quantity = QUANTITY_PERIOD;
+	counter.quantity = QUANTITY_PERIOD;
 	xSemaphoreGiveRecursive(counterMutex);
 }
 
@@ -591,7 +591,7 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);
 
-		if(counter.counterEtr.quantity == QUANTITY_PERIOD){
+		if(counter.quantity == QUANTITY_PERIOD){
 			counter.counterEtr.freq = 1 / counter.counterEtr.freq;
 		}
 
@@ -784,7 +784,7 @@ void counterIcDutyCycleProcess(void)
 double counterEtrCalculateQuantError(float gateFreq)
 {
 	double qError = counter.counterEtr.etrp * gateFreq;
-	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
+	if(counter.quantity == QUANTITY_PERIOD){
 		qError = (1 / (counter.counterEtr.freq - qError) - 1 / counter.counterEtr.freq);
 	}
 	return qError;
@@ -793,7 +793,7 @@ double counterEtrCalculateQuantError(float gateFreq)
 double counterEtrCalculateTimeBaseError(void)
 {
 	double tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
-	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
+	if(counter.quantity == QUANTITY_PERIOD){
 		tbError = (1 / (counter.counterEtr.freq - tbError) - 1 / counter.counterEtr.freq);
 	}
 	return tbError;
@@ -810,6 +810,7 @@ double counterEtrCalculateTimeBaseError(void)
  */
 void counterGateConfig(uint16_t gateTime)
 {
+	counterStop();
 	switch(gateTime){
 	case 100:													/* min.	gate time 00.10 second */
 		TIM_ARR_PSC_Config(0.1);
@@ -829,6 +830,7 @@ void counterGateConfig(uint16_t gateTime)
 	default:
 		break;
 	}
+	counterStart();
 }
 
 /**
@@ -851,7 +853,7 @@ void counterEtrRefSetDefault(void)
 	counter.counterEtr.etrp = 1;
 	counter.counterEtr.buffer = 0;
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
-	counter.counterEtr.quantity = QUANTITY_FREQUENCY;
+	counter.quantity = QUANTITY_FREQUENCY;
 }
 
 void counterIcTiSetDefault(void)
