@@ -271,10 +271,19 @@ void CommTask(void const *argument){
 #ifdef USE_COUNTER
 		case MSG_CNT_SEND_DATA:
 			commsSendString(STR_COUNTER);
+
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
+				if(counter.quantity == QUANTITY_FREQUENCY){
+					commsSendString(STR_CNT_QUANT_FREQ);
+				}else{
+					commsSendString(STR_CNT_QUANT_PERI);
+				}
 				commsSendDouble(counter.counterEtr.freq);
+				commsSendDouble(counter.qError);
+				commsSendDouble(counter.tbError);
+
 				/* REF mode configured */
 			}else if(counter.state==COUNTER_REF){
 				if(counter.refWarning == COUNTER_REF_SEND_DATA){
@@ -747,22 +756,25 @@ void sendScopeConf(){
  * @retval None
  */
 void sendCounterConf(){
-	commsSendString("CNT_");
-	commsSendUint32(CNT_COUNTER_PERIPH_CLOCK);
-	commsSendUint32(CNT_GATE_PERIPH_CLOCK);
-	commsSendString(COUNTER_MODES);
+	commsSendString(STR_CONFIG);
+	commsSendString(STR_DUMMY);
+	/* Send Spec Counters' limits */
+	commsSendUint32(CNT_HF_UPP_LIMIT);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_01);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_05);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_1);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_5);
+	commsSendUint32(CNT_HF_LOW_LIMIT_TG_10);
+	commsSendUint32(CNT_LF_UPP_LIMIT);
+	commsSendDouble(CNT_LF_LOW_LIMIT);
+	/* Pins */
 	commsSendString(CNT_ETR_PIN);
-	commsSendString(CNT_IC_CH1_PIN);
-	commsSendString(CNT_IC_CH2_PIN);
-	commsSendString(CNT_REF1_PIN);
-	commsSendString(CNT_REF2_PIN);
-	/* Timer Interval pins (Events) */
-	commsSendString(CNT_IC_CH1_PIN);
-	commsSendString(CNT_IC_CH2_PIN);
-
-	/* Scope Get Config is the last configuration demand - reconfig usart baud */
-	//	huart2.Init.BaudRate = 2000000;
-	//  HAL_UART_Init(&huart2);
+	commsSendString(CNT_IC_PIN_CH1);
+	commsSendString(CNT_IC_PIN_CH2);
+	commsSendString(CNT_REF_PIN_IN1);
+	commsSendString(CNT_REF_PIN_IN2);
+	commsSendString(CNT_TI_PIN_CH1);
+	commsSendString(CNT_TI_PIN_CH2);
 }
 #endif //USE_COUNTER
 

@@ -54,6 +54,8 @@ void CounterTask(void const *argument)
 		while(1); // Queue was not created and must not be used.
 	}
 
+	counterInitETR();
+
 	while(1){
 
 		xQueueReceive(counterMessageQueue, &message, portMAX_DELAY);
@@ -71,6 +73,12 @@ void CounterTask(void const *argument)
 			break;
 		case MSG_CNT_SET_INTERVAL_MODE:
 			counterInitTI();
+			break;
+		case MSG_CNT_SET_QUANTITY_FREQUENCY:
+			counterSetQuantityFreq();
+			break;
+		case MSG_CNT_SET_QUANTITY_PERIOD:
+			counterSetQuantityPer();
 			break;
 		case MSG_CNT_START:
 			counterStart();
@@ -103,6 +111,7 @@ void CounterTask(void const *argument)
  * @retval None
  */
 void counterSetMode(uint8_t mode){
+	counterSendStop();
 	uint16_t passMsg;
 	switch(mode){
 	case ETR:
@@ -121,6 +130,18 @@ void counterSetMode(uint8_t mode){
 		passMsg = MSG_CNT_SET_INTERVAL_MODE;
 		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 		break;
+	}
+	counterSendStart();
+}
+
+void counterSetQuantity(uint8_t quant){
+	uint16_t passMsg;
+	if(quant == QUANTITY_FREQUENCY){
+		passMsg = MSG_CNT_SET_QUANTITY_FREQUENCY;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+	}else if(quant == QUANTITY_PERIOD){
+		passMsg = MSG_CNT_SET_QUANTITY_PERIOD;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 	}
 }
 
@@ -292,6 +313,18 @@ void counterStop(void){
 		/* no hacer nada */
 		break;
 	}	
+}
+
+void counterSetQuantityFreq(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.quantity = QUANTITY_FREQUENCY;
+	xSemaphoreGiveRecursive(counterMutex);
+}
+
+void counterSetQuantityPer(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.quantity = QUANTITY_PERIOD;
+	xSemaphoreGiveRecursive(counterMutex);
 }
 
 /**
@@ -553,10 +586,16 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 		counter.counterEtr.etrp = TIM_ETPS_GetPrescaler();
 		float gateFreq = ((double)counter.tim4PrphClk / (double)((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1)));			/* TIM4 gating frequency */
 		counter.counterEtr.freq = ((double)counter.counterEtr.buffer * gateFreq * counter.counterEtr.etrp);								/* Sampled frequency */
+		counter.qError = counterEtrCalculateQuantError(gateFreq);
+		counter.tbError = counterEtrCalculateTimeBaseError();
 		/* Configure the ETR input prescaler */
-		TIM_ETRP_Config(counter.counterEtr.freq);	
+		TIM_ETRP_Config(counter.counterEtr.freq);
 
-		if(counter.sampleCntChange != SAMPLE_COUNT_CHANGED){
+		if(counter.quantity == QUANTITY_PERIOD){
+			counter.counterEtr.freq = 1 / counter.counterEtr.freq;
+		}
+
+		if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED){
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 
 		}else{
@@ -740,6 +779,28 @@ void counterIcDutyCycleProcess(void)
 }
 
 /* ************************************************************************************** */
+/* ----------------------------- Counter ERROR computations ----------------------------- */
+/* ************************************************************************************** */
+double counterEtrCalculateQuantError(float gateFreq)
+{
+	double qError = counter.counterEtr.etrp * gateFreq;
+	if(counter.quantity == QUANTITY_PERIOD){
+		qError = (1 / (counter.counterEtr.freq - qError) - 1 / counter.counterEtr.freq);
+	}
+	return qError;
+}
+
+double counterEtrCalculateTimeBaseError(void)
+{
+	double tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
+	if(counter.quantity == QUANTITY_PERIOD){
+		tbError = (1 / (counter.counterEtr.freq - tbError) - 1 / counter.counterEtr.freq);
+	}
+	return tbError;
+}
+
+
+/* ************************************************************************************** */
 /* ----------------------------- Counter specific functions ----------------------------- */
 /* ************************************************************************************** */
 /**
@@ -748,7 +809,8 @@ void counterIcDutyCycleProcess(void)
  * @retval none
  */
 void counterGateConfig(uint16_t gateTime)
-{				
+{
+	counterStop();
 	switch(gateTime){
 	case 100:													/* min.	gate time 00.10 second */
 		TIM_ARR_PSC_Config(0.1);
@@ -768,8 +830,7 @@ void counterGateConfig(uint16_t gateTime)
 	default:
 		break;
 	}
-
-
+	counterStart();
 }
 
 /**
@@ -791,7 +852,8 @@ void counterEtrRefSetDefault(void)
 	}
 	counter.counterEtr.etrp = 1;
 	counter.counterEtr.buffer = 0;
-	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;			
+	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
+	counter.quantity = QUANTITY_FREQUENCY;
 }
 
 void counterIcTiSetDefault(void)
