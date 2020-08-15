@@ -248,13 +248,39 @@ command parseCounterCmd(void)
 			error = COUNTER_INVALID_FEATURE_PARAM;
 		}
 		break;
-	case CMD_CNT_QUANTITY:
+	case CMD_CNT_ETR_QUANTITY:
 		cmdIn = giveNextCmd();
 		if(isCounterQuantity(cmdIn)){
 			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
 				counterSetQuantity(QUANTITY_FREQUENCY);
 			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
 				counterSetQuantity(QUANTITY_PERIOD);
+			}
+		}else{
+			cmdIn = CMD_ERR;
+			error = COUNTER_INVALID_FEATURE_PARAM;
+		}
+		break;
+	case CMD_CNT_IC_CHAN1_QUANTITY:
+		cmdIn = giveNextCmd();
+		if(isCounterQuantity(cmdIn)){
+			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
+				counterSetIc1Quantity(QUANTITY_FREQUENCY);
+			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
+				counterSetIc1Quantity(QUANTITY_PERIOD);
+			}
+		}else{
+			cmdIn = CMD_ERR;
+			error = COUNTER_INVALID_FEATURE_PARAM;
+		}
+		break;
+	case CMD_CNT_IC_CHAN2_QUANTITY:
+		cmdIn = giveNextCmd();
+		if(isCounterQuantity(cmdIn)){
+			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
+				counterSetIc2Quantity(QUANTITY_FREQUENCY);
+			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
+				counterSetIc2Quantity(QUANTITY_PERIOD);
 			}
 		}else{
 			cmdIn = CMD_ERR;

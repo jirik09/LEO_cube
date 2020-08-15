@@ -144,6 +144,7 @@ typedef struct{
 	uint16_t psc;		// TIM4 PSC
 	uint16_t arrTemp;
 	uint16_t pscTemp;
+	counterQuantity quantity;	// Frequency/Period
 
 	uint8_t etrp;		// TIM2 ETRP
 	uint32_t buffer;
@@ -163,14 +164,17 @@ typedef struct{
 	uint16_t ic2BufferSize;
 	uint16_t ic1BufferSizeTemp;
 	uint16_t ic2BufferSizeTemp;	
-	volatile uint32_t ic1buffer[IC12_BUFFER_SIZE];
-	volatile uint32_t ic2buffer[IC12_BUFFER_SIZE];	
+	uint32_t ic1buffer[IC12_BUFFER_SIZE];
+	uint32_t ic2buffer[IC12_BUFFER_SIZE];
 	double ic1freq;
 	double ic2freq;
 	uint8_t ic1psc;
 	uint8_t ic2psc;
 	uint8_t ic1pscTemp;
 	uint8_t ic2pscTemp;
+	counterQuantity quantityChan1;
+	counterQuantity quantityChan2;
+
 	uint32_t tiTimeout; // TI timeout part of IC struct
 }counterIcTypeDef;
 
@@ -184,7 +188,6 @@ typedef struct{
 	counterState state;
 	uint32_t tim4PrphClk;
 	uint32_t tim2PrphClk;
-	counterQuantity quantity;	// Frequency/Period
 	double qError;		// quantization error
 	double tbError;		// time base error
 	
@@ -224,16 +227,24 @@ void counterEtrRefSetDefault(void);
 void counterIcTiSetDefault(void);
 void counterSetMode(uint8_t mode);
 void counterSetQuantity(uint8_t quant);
+void counterSetIc1Quantity(uint8_t quant);
+void counterSetIc2Quantity(uint8_t quant);
 
 /* ETR mode functions */
 void counterSetEtrGate(uint16_t gateTime);
 void counterGateConfig(uint16_t gateTime);
 void counterSetQuantityFreq(void);
 void counterSetQuantityPer(void);
+void counterSetIc1QuantityFreq(void);
+void counterSetIc1QuantityPer(void);
+void counterSetIc2QuantityFreq(void);
+void counterSetIc2QuantityPer(void);
 
 /* ETR error calculations */
 double counterEtrCalculateQuantError(float gateFreq);
 double counterEtrCalculateTimeBaseError(void);
+double counterIcCalculateQuantError(int icChannel);
+double counterIcCalculateTimeBaseError(int icChannel);
 
 /* IC mode functions */
 void counterSetIc1SampleCount(uint16_t buffer);

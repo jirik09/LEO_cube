@@ -52,10 +52,13 @@ typedef uint32_t command;
 #define STR_CNT_QUANT_FREQ "QFRE"
 #define STR_CNT_QUANT_PERI "QPER"
 
-#define STR_CNT_ETR_DATA "ETR_"		// data from ETR measurement
-#define STR_CNT_IC_DATA "IC__"
-#define STR_CNT_REF_DATA "REF_"		// data from REF measurement
+#define STR_CNT_ETR_DATA "HF_D"		// data from ETR measurement
+#define STR_CNT_IC_DATA "LF_D"
+#define STR_CNT_REF_DATA "RF_D"		// data from REF measurement
+#define STR_CNT_TI_DATA  "TI_D"		// data from TI
 
+#define STR_CNT_IC_CHAN1_DATA "IC1D"		// data from IC1 channel meas.
+#define STR_CNT_IC_CHAN2_DATA "IC2D"		// data from IC2 channel meas.
 /*
 #define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
 #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
@@ -63,10 +66,6 @@ typedef uint32_t command;
 
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
 
-#define STR_CNT_IC1_DATA "IC1D"		// data from IC1 channel meas.
-#define STR_CNT_IC2_DATA "IC2D"		// data from IC2 channel meas.
-
-#define STR_CNT_TI_DATA  "TIDA"		// data from TI
 #define STR_CNT_TI_TIMEOUT "TMOT"	// Timeout occured
 
 #define STR_CNT_DUTY_CYCLE  "DUT1"
@@ -181,7 +180,9 @@ typedef uint32_t command;
 //#define CMD_CNT_MULT_PSC 						SWAP_UINT32(0x5053435f)			//	PSC_
 //#define CMD_CNT_MULT_ARR 						SWAP_UINT32(0x4152525f)			//	ARR_
 #define CMD_CNT_REF_SAMPLE_COUNT 				SWAP_UINT32(0x5253435f)					//	RSC_
-#define CMD_CNT_QUANTITY						SWAP_UINT32(0x5155414e)			// QUAN
+#define CMD_CNT_ETR_QUANTITY						SWAP_UINT32(0x5155414e)			// QUAN
+#define CMD_CNT_IC_CHAN1_QUANTITY 				SWAP_UINT32(0x51494331)			// QIC1
+#define CMD_CNT_IC_CHAN2_QUANTITY				SWAP_UINT32(0x51494332)			// QIC2
 #define CMD_CNT_QUANTITY_FREQUENCY				SWAP_UINT32(0x51465245)			//	QFRE
 #define CMD_CNT_QUANTITY_PERIOD					SWAP_UINT32(0x51504552)			//	QPER
 #define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_

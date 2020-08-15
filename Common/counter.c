@@ -80,6 +80,18 @@ void CounterTask(void const *argument)
 		case MSG_CNT_SET_QUANTITY_PERIOD:
 			counterSetQuantityPer();
 			break;
+		case MSG_CNT_SET_IC1_QUANTITY_FREQUENCY:
+			counterSetIc1QuantityFreq();
+			break;
+		case MSG_CNT_SET_IC1_QUANTITY_PERIOD:
+			counterSetIc1QuantityPer();
+			break;
+		case MSG_CNT_SET_IC2_QUANTITY_FREQUENCY:
+			counterSetIc2QuantityFreq();
+			break;
+		case MSG_CNT_SET_IC2_QUANTITY_PERIOD:
+			counterSetIc2QuantityPer();
+			break;
 		case MSG_CNT_START:
 			counterStart();
 			break;
@@ -141,6 +153,28 @@ void counterSetQuantity(uint8_t quant){
 		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 	}else if(quant == QUANTITY_PERIOD){
 		passMsg = MSG_CNT_SET_QUANTITY_PERIOD;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+	}
+}
+
+void counterSetIc1Quantity(uint8_t quant){
+	uint16_t passMsg;
+	if(quant == QUANTITY_FREQUENCY){
+		passMsg = MSG_CNT_SET_IC1_QUANTITY_FREQUENCY;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+	}else if(quant == QUANTITY_PERIOD){
+		passMsg = MSG_CNT_SET_IC1_QUANTITY_PERIOD;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+	}
+}
+
+void counterSetIc2Quantity(uint8_t quant){
+	uint16_t passMsg;
+	if(quant == QUANTITY_FREQUENCY){
+		passMsg = MSG_CNT_SET_IC2_QUANTITY_FREQUENCY;
+		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+	}else if(quant == QUANTITY_PERIOD){
+		passMsg = MSG_CNT_SET_IC2_QUANTITY_PERIOD;
 		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 	}
 }
@@ -317,15 +351,40 @@ void counterStop(void){
 
 void counterSetQuantityFreq(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
-	counter.quantity = QUANTITY_FREQUENCY;
+	counter.counterEtr.quantity = QUANTITY_FREQUENCY;
 	xSemaphoreGiveRecursive(counterMutex);
 }
 
 void counterSetQuantityPer(void){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
-	counter.quantity = QUANTITY_PERIOD;
+	counter.counterEtr.quantity = QUANTITY_PERIOD;
 	xSemaphoreGiveRecursive(counterMutex);
 }
+
+void counterSetIc1QuantityFreq(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.counterIc.quantityChan1 = QUANTITY_FREQUENCY;
+	xSemaphoreGiveRecursive(counterMutex);
+}
+
+void counterSetIc1QuantityPer(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.counterIc.quantityChan1 = QUANTITY_PERIOD;
+	xSemaphoreGiveRecursive(counterMutex);
+}
+
+void counterSetIc2QuantityFreq(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.counterIc.quantityChan2 = QUANTITY_FREQUENCY;
+	xSemaphoreGiveRecursive(counterMutex);
+}
+
+void counterSetIc2QuantityPer(void){
+	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.counterIc.quantityChan2 = QUANTITY_PERIOD;
+	xSemaphoreGiveRecursive(counterMutex);
+}
+
 
 /**
  * @brief  Setter for time gating of direct counting (ETR).
@@ -382,9 +441,11 @@ void counterSetIc2SampleCount(uint16_t buffer){
  * @retval None
  */
 void counterSetIc1Prescaler(uint16_t presc){
+	counterSendStop();
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	TIM_IC1_PSC_Config(presc);
 	DMA_Restart(&hdma_tim2_ch1);
+	counterSendStart();
 }
 
 /**
@@ -392,10 +453,12 @@ void counterSetIc1Prescaler(uint16_t presc){
  * @param  presc: 1, 2, 4, 8
  * @retval None
  */
-void counterSetIc2Prescaler(uint16_t presc){		
+void counterSetIc2Prescaler(uint16_t presc){
+	counterSendStop();
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	TIM_IC2_PSC_Config(presc);	
 	DMA_Restart(&hdma_tim2_ch2_ch4);	
+	counterSendStart();
 }
 
 /**
@@ -591,7 +654,7 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah)
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);
 
-		if(counter.quantity == QUANTITY_PERIOD){
+		if(counter.counterEtr.quantity == QUANTITY_PERIOD){
 			counter.counterEtr.freq = 1 / counter.counterEtr.freq;
 		}
 
@@ -670,6 +733,12 @@ void counterIcProcess(void)
 			uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize-1] - counter.counterIc.ic1buffer[0];
 			counter.counterIc.ic1freq = (double)(counter.tim2PrphClk*(counter.counterIc.psc+1)*counter.counterIc.ic1psc)*((double)(counter.counterIc.ic1BufferSize-1)/(double)capture1);
 
+			counter.qError = counterIcCalculateQuantError(1);
+			counter.tbError = counterIcCalculateTimeBaseError(1);
+			if(counter.counterIc.quantityChan1 == QUANTITY_PERIOD){
+				counter.counterIc.ic1freq = 1 / counter.counterIc.ic1freq;
+			}
+
 			DMA_Restart(&hdma_tim2_ch1);
 			counter.icChannel1 = COUNTER_IRQ_IC;
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
@@ -684,6 +753,12 @@ void counterIcProcess(void)
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();				
 			uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize-1] - counter.counterIc.ic2buffer[0];
 			counter.counterIc.ic2freq = (double)(counter.tim2PrphClk*(counter.counterIc.psc+1)*counter.counterIc.ic2psc)*((double)(counter.counterIc.ic2BufferSize-1)/(double)capture2);
+
+			counter.qError = counterIcCalculateQuantError(2);
+			counter.tbError = counterIcCalculateTimeBaseError(2);
+			if(counter.counterIc.quantityChan2 == QUANTITY_PERIOD){
+				counter.counterIc.ic2freq = 1 / counter.counterIc.ic2freq;
+			}
 
 			DMA_Restart(&hdma_tim2_ch2_ch4);		
 			counter.icChannel2 = COUNTER_IRQ_IC;
@@ -784,7 +859,7 @@ void counterIcDutyCycleProcess(void)
 double counterEtrCalculateQuantError(float gateFreq)
 {
 	double qError = counter.counterEtr.etrp * gateFreq;
-	if(counter.quantity == QUANTITY_PERIOD){
+	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
 		qError = (1 / (counter.counterEtr.freq - qError) - 1 / counter.counterEtr.freq);
 	}
 	return qError;
@@ -793,8 +868,53 @@ double counterEtrCalculateQuantError(float gateFreq)
 double counterEtrCalculateTimeBaseError(void)
 {
 	double tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
-	if(counter.quantity == QUANTITY_PERIOD){
+	if(counter.counterEtr.quantity == QUANTITY_PERIOD){
 		tbError = (1 / (counter.counterEtr.freq - tbError) - 1 / counter.counterEtr.freq);
+	}
+	return tbError;
+}
+
+double counterIcCalculateQuantError(int icChannel)
+{
+	double freq, buffSize;
+	counterQuantity channelQuantity;
+	uint8_t presc;
+
+	if(icChannel == 1){
+		freq = counter.counterIc.ic1freq;
+		buffSize = counter.counterIc.ic1BufferSize;
+		channelQuantity = counter.counterIc.quantityChan1;
+		presc = counter.counterIc.ic1psc;
+	}else {
+		freq = counter.counterIc.ic2freq;
+		buffSize = counter.counterIc.ic2BufferSize;
+		channelQuantity = counter.counterIc.quantityChan2;
+		presc = counter.counterIc.ic2psc;
+	}
+
+	double qError = freq / (counter.tim4PrphClk - freq) * freq / (buffSize * presc);
+	if(channelQuantity == QUANTITY_PERIOD){
+		qError = 1 / (freq - qError) - 1 / freq;
+	}
+	return qError;
+}
+
+double counterIcCalculateTimeBaseError(int icChannel)
+{
+	double freq;
+	counterQuantity channelQuantity;
+
+	if(icChannel == 1){
+		channelQuantity = counter.counterIc.quantityChan1;
+		freq = counter.counterIc.ic1freq;
+	}else {
+		channelQuantity = counter.counterIc.quantityChan2;
+		freq = counter.counterIc.ic2freq;
+	}
+
+	double tbError = freq * NUCLEO_CRYSTAL_ERROR;
+	if(channelQuantity == QUANTITY_PERIOD){
+		tbError = 1 / (freq - tbError) - 1 / freq;
 	}
 	return tbError;
 }
@@ -853,7 +973,7 @@ void counterEtrRefSetDefault(void)
 	counter.counterEtr.etrp = 1;
 	counter.counterEtr.buffer = 0;
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
-	counter.quantity = QUANTITY_FREQUENCY;
+	counter.counterEtr.quantity = QUANTITY_FREQUENCY;
 }
 
 void counterIcTiSetDefault(void)
@@ -872,6 +992,8 @@ void counterIcTiSetDefault(void)
 	}
 	counter.counterIc.ic1psc = 1;
 	counter.counterIc.ic2psc = 1;
+	counter.counterIc.quantityChan1 = QUANTITY_FREQUENCY;
+	counter.counterIc.quantityChan2 = QUANTITY_FREQUENCY;
 	TIM_IC1_PSC_Config(1);
 	TIM_IC2_PSC_Config(1);	
 	counter.counterIc.psc = 0;		

@@ -164,13 +164,13 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 
 /* Ranges definitions depending on gate time */
 #define CNT_HF_UPP_LIMIT		(uint32_t)300000000
-#define CNT_HF_LOW_LIMIT_TG_01	38000
-#define CNT_HF_LOW_LIMIT_TG_05	16970
-#define CNT_HF_LOW_LIMIT_TG_1	12000
-#define CNT_HF_LOW_LIMIT_TG_5	5366
-#define CNT_HF_LOW_LIMIT_TG_10	3800
+#define CNT_HF_LOW_LIMIT_TG_01	(uint32_t)38000
+#define CNT_HF_LOW_LIMIT_TG_05	(uint32_t)16970
+#define CNT_HF_LOW_LIMIT_TG_1	(uint32_t)12000
+#define CNT_HF_LOW_LIMIT_TG_5	(uint32_t)5366
+#define CNT_HF_LOW_LIMIT_TG_10	(uint32_t)3800
 
-#define CNT_LF_UPP_LIMIT		CNT_HF_LOW_LIMIT_TG_10
+#define CNT_LF_UPP_LIMIT		(uint32_t)6500000
 #define CNT_LF_LOW_LIMIT		(double)0.033528
 
 /* When porting && less pins -> send "-- " */

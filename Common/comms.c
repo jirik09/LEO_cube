@@ -275,7 +275,7 @@ void CommTask(void const *argument){
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
-				if(counter.quantity == QUANTITY_FREQUENCY){
+				if(counter.counterEtr.quantity == QUANTITY_FREQUENCY){
 					commsSendString(STR_CNT_QUANT_FREQ);
 				}else{
 					commsSendString(STR_CNT_QUANT_PERI);
@@ -297,16 +297,24 @@ void CommTask(void const *argument){
 				/* IC mode configured channel 1 */
 			}else if(counter.state==COUNTER_IC){
 				if(counter.icDutyCycle==DUTY_CYCLE_DISABLED){
-					if(counter.icChannel1==COUNTER_IRQ_IC){												
-						commsSendString(STR_CNT_IC1_DATA);
+					commsSendString(STR_CNT_IC_DATA);
+					char *freqPer;
+					if(counter.icChannel1==COUNTER_IRQ_IC){
+						freqPer = (counter.counterIc.quantityChan1 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
+						commsSendString(STR_CNT_IC_CHAN1_DATA);
+						commsSendString(freqPer);
 						commsSendDouble(counter.counterIc.ic1freq);
 						counter.icChannel1=COUNTER_IRQ_IC_PASS;
 					}	
-					if(counter.icChannel2==COUNTER_IRQ_IC){							
-						commsSendString(STR_CNT_IC2_DATA);	
+					if(counter.icChannel2==COUNTER_IRQ_IC){
+						freqPer = (counter.counterIc.quantityChan2 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
+						commsSendString(STR_CNT_IC_CHAN2_DATA);
+						commsSendString(freqPer);
 						commsSendDouble(counter.counterIc.ic2freq);
 						counter.icChannel2=COUNTER_IRQ_IC_PASS;
-					}						
+					}
+					commsSendDouble(counter.qError);
+					commsSendDouble(counter.tbError);
 				}else{
 					commsSendString(STR_CNT_DUTY_CYCLE);
 					commsSendDouble(counter.counterIc.ic1freq);
@@ -757,7 +765,6 @@ void sendScopeConf(){
  */
 void sendCounterConf(){
 	commsSendString(STR_CONFIG);
-	commsSendString(STR_DUMMY);
 	/* Send Spec Counters' limits */
 	commsSendUint32(CNT_HF_UPP_LIMIT);
 	commsSendUint32(CNT_HF_LOW_LIMIT_TG_01);
