@@ -27,6 +27,7 @@ typedef uint32_t command;
 #define STR_ERR "ERR_"
 #define STR_UNKNOWN_MSG "XMSG"
 #define STR_DUMMY "DUMM"		// dummy string
+#define VAL_DUMMY 1
 
 #define STR_SCOPE_OK "S_OK"
 #define STR_GEN_OK "G_OK"
@@ -57,8 +58,11 @@ typedef uint32_t command;
 #define STR_CNT_REF_DATA "RF_D"		// data from REF measurement
 #define STR_CNT_TI_DATA  "TI_D"		// data from TI
 
-#define STR_CNT_IC_CHAN1_DATA "IC1D"		// data from IC1 channel meas.
-#define STR_CNT_IC_CHAN2_DATA "IC2D"		// data from IC2 channel meas.
+#define STR_CNT_IC_CHAN1_DATA  "IC1D"		// data from IC1 channel meas.
+#define STR_CNT_IC_CHAN2_DATA  "IC2D"		// data from IC2 channel meas.
+#define STR_CNT_IC_DUTY_CYCLE  "DUTY"
+#define STR_CNT_IC_FREPER_MEAS "FPME"
+//#define STR_CNT_IC_PULSE_WIDTH "PWDT"
 /*
  #define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
  #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
@@ -67,9 +71,6 @@ typedef uint32_t command;
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
 
 #define STR_CNT_TI_TIMEOUT "TMOT"	// Timeout occured
-
-#define STR_CNT_DUTY_CYCLE  "DUT1"
-#define STR_CNT_PULSE_WIDTH "PWD1"
 #endif //USE_COUNTER
 
 #ifdef USE_LOG_ANLYS
