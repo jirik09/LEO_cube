@@ -264,11 +264,8 @@ void counterIc2BufferConfig(uint16_t ic2buffSize);
 void counterIcProcess(void);
 void counterIcDutyCycleProcess(void);
 
-void counterIc1DutyCycleInit(void);
-void counterIc1DutyCycleDeinit(void);
-void counterIc2DutyCycleInit(void);
-void counterIc2DutyCycleDeinit(void);
-void counterIcDutyCycleEnable(void);
+void counterIc1DutyCycleEnable(void);
+void counterIc2DutyCycleEnable(void);
 void counterIcDutyCycleDisable(void);
 
 /* TI mode functions */

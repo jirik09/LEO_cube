@@ -334,18 +334,12 @@ command parseCounterCmd(void)
 	case CMD_CNT_DUTY_CYCLE:
 		cmdIn = giveNextCmd();
 		if(isCounterIcDutyCycle(cmdIn)){
-			if(cmdIn == CMD_DUTY_CYCLE_INIT_CH1){
-				counterIc1DutyCycleInit();
-			}else if(cmdIn == CMD_DUTY_CYCLE_DEINIT_CH1){
-				counterIc1DutyCycleDeinit();
-			}else if(cmdIn == CMD_DUTY_CYCLE_ENABLE){
-				counterIcDutyCycleEnable();
+			if(cmdIn == CMD_DUTY_CYCLE_ENABLE_CH1){
+				counterIc1DutyCycleEnable();
+			}else if(cmdIn == CMD_DUTY_CYCLE_ENABLE_CH2){
+				counterIc2DutyCycleEnable();
 			}else if(cmdIn == CMD_DUTY_CYCLE_DISABLE){
 				counterIcDutyCycleDisable();
-			}else if(cmdIn == CMD_DUTY_CYCLE_INIT_CH2){
-				counterIc2DutyCycleInit();
-			}else if(cmdIn == CMD_DUTY_CYCLE_DEINIT_CH2){
-				counterIc2DutyCycleDeinit();
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -367,14 +361,14 @@ command parseCounterCmd(void)
 		break;
 	case CMD_CNT_PRESC1:
 		cmdIn = giveNextCmd();
-		if(isCounterIcPresc1(cmdIn)){
-			if(cmdIn == CMD_PRESC1_1x){
+		if(isCounterIcPresc(cmdIn)){
+			if(cmdIn == CMD_PRESC_1x){
 				counterSetIc1Prescaler(1);
-			}else if(cmdIn == CMD_PRESC1_2x){
+			}else if(cmdIn == CMD_PRESC_2x){
 				counterSetIc1Prescaler(2);
-			}else if(cmdIn == CMD_PRESC1_4x){
+			}else if(cmdIn == CMD_PRESC_4x){
 				counterSetIc1Prescaler(4);
-			}else if(cmdIn == CMD_PRESC1_8x){
+			}else if(cmdIn == CMD_PRESC_8x){
 				counterSetIc1Prescaler(8);
 			}
 		}else{
@@ -384,14 +378,14 @@ command parseCounterCmd(void)
 		break;
 	case CMD_CNT_PRESC2:
 		cmdIn = giveNextCmd();
-		if(isCounterIcPresc2(cmdIn)){
-			if(cmdIn == CMD_PRESC2_1x){
+		if(isCounterIcPresc(cmdIn)){
+			if(cmdIn == CMD_PRESC_1x){
 				counterSetIc2Prescaler(1);
-			}else if(cmdIn == CMD_PRESC2_2x){
+			}else if(cmdIn == CMD_PRESC_2x){
 				counterSetIc2Prescaler(2);
-			}else if(cmdIn == CMD_PRESC2_4x){
+			}else if(cmdIn == CMD_PRESC_4x){
 				counterSetIc2Prescaler(4);
-			}else if(cmdIn == CMD_PRESC2_8x){
+			}else if(cmdIn == CMD_PRESC_8x){
 				counterSetIc2Prescaler(8);
 			}else{
 				cmdIn = CMD_ERR;

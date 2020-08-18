@@ -60,9 +60,9 @@ typedef uint32_t command;
 #define STR_CNT_IC_CHAN1_DATA "IC1D"		// data from IC1 channel meas.
 #define STR_CNT_IC_CHAN2_DATA "IC2D"		// data from IC2 channel meas.
 /*
-#define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
-#define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
-*/
+ #define STR_CNT_ETR_QUANT_ERR "QERR"		// quantization error
+ #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
+ */
 
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
 
@@ -95,7 +95,7 @@ typedef uint32_t command;
 //Command definitions
 //Common commands
 
-//Query commands
+/**************************** QUERY ****************************/
 #define CMD_IDN 	               SWAP_UINT32(0x49444e3f)								//	IDN?
 #define CMD_VERSION               SWAP_UINT32(0x5645523f)									//	VER?
 #define CMD_GET_CONFIG 						SWAP_UINT32(0x4346473f)			//	CFG?
@@ -114,6 +114,7 @@ typedef uint32_t command;
 #define CMD_ACK 						SWAP_UINT32(0x41434b5f)			//	ACK_
 #define CMD_NACK 						SWAP_UINT32(0x4e41434b)			//	NACK
 #define CMD_END 						SWAP_UINT32(0x454e445f)			//	END_
+/**************************** SCOPE ****************************/
 #define CMD_SCOPE_TRIG_MODE 						SWAP_UINT32(0x54524947)			//	TRIG
 #define CMD_SCOPE_TRIG_EDGE 						SWAP_UINT32(0x45444745)			//	EDGE
 #define CMD_SCOPE_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
@@ -129,103 +130,6 @@ typedef uint32_t command;
 #define CMD_SCOPE_ADC_CHANNEL_SET 						SWAP_UINT32(0x415f4348)			//	A_CH
 #define CMD_SCOPE_ADC_CHANNEL_SET_DEFAULT 						SWAP_UINT32(0x41444546)			//	ADEF
 #define CMD_SCOPE_ADC_CHANNEL_SET_VREF 						SWAP_UINT32(0x41524546)			//	AREF
-#define CMD_GEN_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
-#define CMD_GEN_DATA 						SWAP_UINT32(0x44415441)			//	DATA
-#define CMD_GEN_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
-#define CMD_GEN_OUTBUFF_ON 						SWAP_UINT32(0x425f4f4e)			//	B_ON
-#define CMD_GEN_OUTBUFF_OFF 						SWAP_UINT32(0x425f4f46)			//	B_OF
-#define CMD_GEN_DATA_LENGTH_CH1 						SWAP_UINT32(0x4c434831)			//	LCH1
-#define CMD_GEN_DATA_LENGTH_CH2 						SWAP_UINT32(0x4c434832)			//	LCH2
-#define CMD_GEN_CHANNELS 						SWAP_UINT32(0x4348414e)			//	CHAN
-#define CMD_GEN_START 						SWAP_UINT32(0x53545254)			//	STRT
-#define CMD_GEN_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
-#define CMD_GEN_RESET 						SWAP_UINT32(0x52534554)			//	RSET
-#define CMD_GET_PWM_CONFIG 						SWAP_UINT32(0x5043463f)			//	PCF?
-#define CMD_GEN_PWM_DEINIT 	 					SWAP_UINT32(0x47504449)			//	GPDI
-//#define CMD_GEN_PWM_FREQ_PSC 						SWAP_UINT32(0x46505750)			//	FPWP
-//#define CMD_GEN_PWM_FREQ_ARR 						SWAP_UINT32(0x46505741)			//	FPWA
-#define CMD_GEN_PWM_FREQ_CH1 					SWAP_UINT32(0x47465231)				//	GFR1
-#define CMD_GEN_PWM_FREQ_CH2					SWAP_UINT32(0x47465232)				//	GFR2
-#define CMD_GEN_DAC_VAL 						SWAP_UINT32(0x4441435f)			//	DAC_
-#define CMD_SYNC_PWM_COMMAND 						SWAP_UINT32(0x53434f4d)			//	SCOM
-#define CMD_SYNC_PWM_CHAN_CONFIG 						SWAP_UINT32(0x43434f4e)			//	CCON
-#define CMD_SYNC_PWM_CHAN_NUM 						SWAP_UINT32(0x434e554d)			//	CNUM
-#define CMD_SYNC_PWM_FREQ 						SWAP_UINT32(0x53465251)			//	SFRQ
-#define CMD_SYNC_PWM_CHAN_STATE 						SWAP_UINT32(0x53535441)			//	SSTA
-#define CMD_SYNC_PWM_STEP 						SWAP_UINT32(0x53544550)			//	STEP
-#define CMD_LOG_ANLYS_START 						SWAP_UINT32(0x53545254)			//	STRT
-#define CMD_LOG_ANLYS_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
-#define CMD_LOG_ANLYS_INIT 						SWAP_UINT32(0x494e4954)			//	INIT
-#define CMD_LOG_ANLYS_DEINIT 						SWAP_UINT32(0x4445494e)			//	DEIN
-#define CMD_LOG_ANLYS_POSTTRIG 						SWAP_UINT32(0x504f5354)			//	POST
-#define CMD_LOG_ANLYS_PRETRIG 						SWAP_UINT32(0x50524554)			//	PRET
-#define CMD_LOG_ANLYS_SAMPLING_FREQ 						SWAP_UINT32(0x534d5046)			//	SMPF
-#define CMD_LOG_ANLYS_SAMPLES_NUM 						SWAP_UINT32(0x534d504e)			//	SMPN
-#define CMD_LOG_ANLYS_TRIGGER_MODE 						SWAP_UINT32(0x5452474d)			//	TRGM
-#define CMD_LOG_ANLYS_TRIGGER_EVENT 						SWAP_UINT32(0x54524745)			//	TRGE
-#define CMD_LOG_ANLYS_TRIGGER_CHANNEL 						SWAP_UINT32(0x54524743)			//	TRGC
-#define CMD_CNT_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
-#define CMD_CNT_START 						SWAP_UINT32(0x53545254)			//	STRT
-#define CMD_CNT_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
-#define CMD_CNT_DEINIT 						SWAP_UINT32(0x4445494e)			//	DEIN
-#define CMD_CNT_GATE 						SWAP_UINT32(0x47415445)			//	GATE
-#define CMD_CNT_SAMPLE_COUNT1 						SWAP_UINT32(0x42554631)			//	BUF1
-#define CMD_CNT_SAMPLE_COUNT2 						SWAP_UINT32(0x42554632)			//	BUF2
-#define CMD_CNT_PRESC1 						SWAP_UINT32(0x50524531)			//	PRE1
-#define CMD_CNT_PRESC2 						SWAP_UINT32(0x50524532)			//	PRE2
-#define CMD_CNT_DUTY_CYCLE 						SWAP_UINT32(0x44554359)			//	DUCY
-#define CMD_CNT_EVENT 						SWAP_UINT32(0x45564e54)			//	EVNT
-#define CMD_CNT_TIMEOUT_TIM 						SWAP_UINT32(0x54494d4f)			//	TIMO
-#define CMD_CNT_TI_MODE 						SWAP_UINT32(0x54494d44)			//	TIMD
-//#define CMD_CNT_MULT_PSC 						SWAP_UINT32(0x5053435f)			//	PSC_
-//#define CMD_CNT_MULT_ARR 						SWAP_UINT32(0x4152525f)			//	ARR_
-#define CMD_CNT_REF_SAMPLE_COUNT 				SWAP_UINT32(0x5253435f)					//	RSC_
-#define CMD_CNT_ETR_QUANTITY						SWAP_UINT32(0x5155414e)			// QUAN
-#define CMD_CNT_IC_CHAN1_QUANTITY 				SWAP_UINT32(0x51494331)			// QIC1
-#define CMD_CNT_IC_CHAN2_QUANTITY				SWAP_UINT32(0x51494332)			// QIC2
-#define CMD_CNT_QUANTITY_FREQUENCY				SWAP_UINT32(0x51465245)			//	QFRE
-#define CMD_CNT_QUANTITY_PERIOD					SWAP_UINT32(0x51504552)			//	QPER
-#define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_
-#define CMD_MODE_IC 						SWAP_UINT32(0x49435f5f)			//	IC__
-#define CMD_MODE_REF 						SWAP_UINT32(0x5245465f)			//	REF_
-#define CMD_MODE_TI 						SWAP_UINT32(0x54495f5f)			//	TI__
-#define CMD_GATE_100m 						SWAP_UINT32(0x3130306d)			//	100m
-#define CMD_GATE_500m 						SWAP_UINT32(0x3530306d)			//	500m
-#define CMD_GATE_1s 						SWAP_UINT32(0x31735f5f)			//	1s__
-#define CMD_GATE_5s 						SWAP_UINT32(0x35735f5f)			//	5s__
-#define CMD_GATE_10s 						SWAP_UINT32(0x3130735f)			//	10s_
-#define CMD_PRESC1_1x 						SWAP_UINT32(0x31785f5f)			//	1x__
-#define CMD_PRESC1_2x 						SWAP_UINT32(0x32785f5f)			//	2x__
-#define CMD_PRESC1_4x 						SWAP_UINT32(0x34785f5f)			//	4x__
-#define CMD_PRESC1_8x 						SWAP_UINT32(0x38785f5f)			//	8x__
-#define CMD_PRESC2_1x 						SWAP_UINT32(0x31785f5f)			//	1x__
-#define CMD_PRESC2_2x 						SWAP_UINT32(0x32785f5f)			//	2x__
-#define CMD_PRESC2_4x 						SWAP_UINT32(0x34785f5f)			//	4x__
-#define CMD_PRESC2_8x 						SWAP_UINT32(0x38785f5f)			//	8x__
-#define CMD_EVENT_RF1   						SWAP_UINT32(0x5246315f)			//	RF1_
-#define CMD_EVENT_RF2   						SWAP_UINT32(0x5246325f)			//	RF2_
-#define CMD_EVENT_RO1   						SWAP_UINT32(0x524f315f)			//	RO1_
-#define CMD_EVENT_RO2   						SWAP_UINT32(0x524f325f)			//	RO2_
-#define CMD_EVENT_FO1   						SWAP_UINT32(0x464f315f)			//	FO1_
-#define CMD_EVENT_FO2 	 					SWAP_UINT32(0x464f325f)			//	FO2_
-#define CMD_EVENT_SEQ_AB 						SWAP_UINT32(0x53514142)			//	SQAB
-#define CMD_EVENT_SEQ_BA 						SWAP_UINT32(0x53514241)			//	SQBA
-#define CMD_DUTY_CYCLE_INIT_CH1 						SWAP_UINT32(0x44434931)			//	DCI1
-#define CMD_DUTY_CYCLE_INIT_CH2 						SWAP_UINT32(0x44434932)			//	DCI2
-#define CMD_DUTY_CYCLE_DEINIT_CH1 						SWAP_UINT32(0x44434431)			//	DCD1
-#define CMD_DUTY_CYCLE_DEINIT_CH2 						SWAP_UINT32(0x44434432)			//	DCD2
-#define CMD_DUTY_CYCLE_ENABLE 						SWAP_UINT32(0x4443455f)			//	DCE_
-#define CMD_DUTY_CYCLE_DISABLE 						SWAP_UINT32(0x4443585f)			//	DCX_
-#define CMD_MODE_EVENT_SEQUENCE_DEP 						SWAP_UINT32(0x53455144)			//	SEQD
-#define CMD_MODE_EVENT_SEQUENCE_INDEP 						SWAP_UINT32(0x53455149)			//	SEQI
-#define CMD_MODE_PWM 						SWAP_UINT32(0x50574d5f)			//	PWM_
-#define CMD_MODE_DAC 						SWAP_UINT32(0x4441435f)			//	DAC_
-#define CMD_SYNC_PWM_INIT 						SWAP_UINT32(0x494e4954)			//	INIT
-#define CMD_SYNC_PWM_DEINIT 						SWAP_UINT32(0x44494e49)			//	DINI
-#define CMD_SYNC_PWM_START 						SWAP_UINT32(0x53545254)			//	STRT
-#define CMD_SYNC_PWM_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
-#define CMD_SYNC_PWM_STEP_ENABLE 						SWAP_UINT32(0x53544545)			//	STEE
-#define CMD_SYNC_PWM_STEP_DISABLE 						SWAP_UINT32(0x53544544)			//	STED
 #define CMD_TRIG_MODE_AUTO 						SWAP_UINT32(0x4155544f)			//	AUTO
 #define CMD_TRIG_MODE_NORMAL 						SWAP_UINT32(0x4e4f524d)			//	NORM
 #define CMD_TRIG_MODE_SINGLE 						SWAP_UINT32(0x53494e47)			//	SING
@@ -269,6 +173,100 @@ typedef uint32_t command;
 #define CMD_CHANNELS_2 						SWAP_UINT32(0x3243485f)			//	2CH_
 #define CMD_CHANNELS_3 						SWAP_UINT32(0x3343485f)			//	3CH_
 #define CMD_CHANNELS_4 						SWAP_UINT32(0x3443485f)			//	4CH_
+/**************************** GEN ****************************/
+#define CMD_GEN_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
+#define CMD_MODE_PWM 						SWAP_UINT32(0x50574d5f)			//	PWM_
+#define CMD_MODE_DAC 						SWAP_UINT32(0x4441435f)			//	DAC_
+#define CMD_GEN_DATA 						SWAP_UINT32(0x44415441)			//	DATA
+#define CMD_GEN_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
+#define CMD_GEN_OUTBUFF_ON 						SWAP_UINT32(0x425f4f4e)			//	B_ON
+#define CMD_GEN_OUTBUFF_OFF 						SWAP_UINT32(0x425f4f46)			//	B_OF
+#define CMD_GEN_DATA_LENGTH_CH1 						SWAP_UINT32(0x4c434831)			//	LCH1
+#define CMD_GEN_DATA_LENGTH_CH2 						SWAP_UINT32(0x4c434832)			//	LCH2
+#define CMD_GEN_CHANNELS 						SWAP_UINT32(0x4348414e)			//	CHAN
+#define CMD_GEN_START 						SWAP_UINT32(0x53545254)			//	STRT
+#define CMD_GEN_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
+#define CMD_GEN_RESET 						SWAP_UINT32(0x52534554)			//	RSET
+#define CMD_GET_PWM_CONFIG 						SWAP_UINT32(0x5043463f)			//	PCF?
+#define CMD_GEN_PWM_DEINIT 	 					SWAP_UINT32(0x47504449)			//	GPDI
+//#define CMD_GEN_PWM_FREQ_PSC 						SWAP_UINT32(0x46505750)			//	FPWP
+//#define CMD_GEN_PWM_FREQ_ARR 						SWAP_UINT32(0x46505741)			//	FPWA
+#define CMD_GEN_PWM_FREQ_CH1 					SWAP_UINT32(0x47465231)				//	GFR1
+#define CMD_GEN_PWM_FREQ_CH2					SWAP_UINT32(0x47465232)				//	GFR2
+#define CMD_GEN_DAC_VAL 						SWAP_UINT32(0x4441435f)			//	DAC_
+/**************************** SYNC PWM ****************************/
+#define CMD_SYNC_PWM_COMMAND 						SWAP_UINT32(0x53434f4d)			//	SCOM
+#define CMD_SYNC_PWM_INIT 						SWAP_UINT32(0x494e4954)			//	INIT
+#define CMD_SYNC_PWM_DEINIT 						SWAP_UINT32(0x44494e49)			//	DINI
+#define CMD_SYNC_PWM_START 						SWAP_UINT32(0x53545254)			//	STRT
+#define CMD_SYNC_PWM_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
+#define CMD_SYNC_PWM_CHAN_CONFIG 						SWAP_UINT32(0x43434f4e)			//	CCON
+#define CMD_SYNC_PWM_CHAN_NUM 						SWAP_UINT32(0x434e554d)			//	CNUM
+#define CMD_SYNC_PWM_FREQ 						SWAP_UINT32(0x53465251)			//	SFRQ
+#define CMD_SYNC_PWM_CHAN_STATE 						SWAP_UINT32(0x53535441)			//	SSTA
+#define CMD_SYNC_PWM_STEP 						SWAP_UINT32(0x53544550)			//	STEP
+#define CMD_SYNC_PWM_STEP_ENABLE 						SWAP_UINT32(0x53544545)			//	STEE
+#define CMD_SYNC_PWM_STEP_DISABLE 						SWAP_UINT32(0x53544544)			//	STED
+/**************************** LOGIC ANALYZER ****************************/
+#define CMD_LOG_ANLYS_START 						SWAP_UINT32(0x53545254)			//	STRT
+#define CMD_LOG_ANLYS_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
+#define CMD_LOG_ANLYS_INIT 						SWAP_UINT32(0x494e4954)			//	INIT
+#define CMD_LOG_ANLYS_DEINIT 						SWAP_UINT32(0x4445494e)			//	DEIN
+#define CMD_LOG_ANLYS_POSTTRIG 						SWAP_UINT32(0x504f5354)			//	POST
+#define CMD_LOG_ANLYS_PRETRIG 						SWAP_UINT32(0x50524554)			//	PRET
+#define CMD_LOG_ANLYS_SAMPLING_FREQ 						SWAP_UINT32(0x534d5046)			//	SMPF
+#define CMD_LOG_ANLYS_SAMPLES_NUM 						SWAP_UINT32(0x534d504e)			//	SMPN
+#define CMD_LOG_ANLYS_TRIGGER_MODE 						SWAP_UINT32(0x5452474d)			//	TRGM
+#define CMD_LOG_ANLYS_TRIGGER_EVENT 						SWAP_UINT32(0x54524745)			//	TRGE
+#define CMD_LOG_ANLYS_TRIGGER_CHANNEL 						SWAP_UINT32(0x54524743)			//	TRGC
+/**************************** COUNTER ****************************/
+#define CMD_CNT_START 						SWAP_UINT32(0x53545254)			//	STRT
+#define CMD_CNT_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
+#define CMD_CNT_DEINIT 						SWAP_UINT32(0x4445494e)			//	DEIN
+#define CMD_CNT_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
+#define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_
+#define CMD_MODE_IC 						SWAP_UINT32(0x49435f5f)			//	IC__
+#define CMD_MODE_REF 						SWAP_UINT32(0x5245465f)			//	REF_
+#define CMD_MODE_TI 						SWAP_UINT32(0x54495f5f)			//	TI__
+#define CMD_CNT_GATE 						SWAP_UINT32(0x47415445)			//	GATE
+#define CMD_CNT_SAMPLE_COUNT1 						SWAP_UINT32(0x42554631)			//	BUF1
+#define CMD_CNT_SAMPLE_COUNT2 						SWAP_UINT32(0x42554632)			//	BUF2
+#define CMD_CNT_PRESC1 						SWAP_UINT32(0x50524531)			//	PRE1
+#define CMD_CNT_PRESC2 						SWAP_UINT32(0x50524532)			//	PRE2
+#define CMD_CNT_EVENT 						SWAP_UINT32(0x45564e54)			//	EVNT
+#define CMD_CNT_TIMEOUT_TIM 						SWAP_UINT32(0x54494d4f)			//	TIMO
+#define CMD_CNT_TI_MODE 						SWAP_UINT32(0x54494d44)			//	TIMD
+//#define CMD_CNT_MULT_PSC 						SWAP_UINT32(0x5053435f)			//	PSC_
+//#define CMD_CNT_MULT_ARR 						SWAP_UINT32(0x4152525f)			//	ARR_
+#define CMD_CNT_REF_SAMPLE_COUNT 				SWAP_UINT32(0x5253435f)					//	RSC_
+#define CMD_CNT_ETR_QUANTITY						SWAP_UINT32(0x5155414e)			// QUAN
+#define CMD_CNT_IC_CHAN1_QUANTITY 				SWAP_UINT32(0x51494331)			// QIC1
+#define CMD_CNT_IC_CHAN2_QUANTITY				SWAP_UINT32(0x51494332)			// QIC2
+#define CMD_CNT_QUANTITY_FREQUENCY				SWAP_UINT32(0x51465245)			//	QFRE
+#define CMD_CNT_QUANTITY_PERIOD					SWAP_UINT32(0x51504552)			//	QPER
+#define CMD_GATE_100m 						SWAP_UINT32(0x3130306d)			//	100m
+#define CMD_GATE_500m 						SWAP_UINT32(0x3530306d)			//	500m
+#define CMD_GATE_1s 						SWAP_UINT32(0x31735f5f)			//	1s__
+#define CMD_GATE_5s 						SWAP_UINT32(0x35735f5f)			//	5s__
+#define CMD_GATE_10s 						SWAP_UINT32(0x3130735f)			//	10s_
+#define CMD_PRESC_1x 						SWAP_UINT32(0x31785f5f)			//	1x__
+#define CMD_PRESC_2x 						SWAP_UINT32(0x32785f5f)			//	2x__
+#define CMD_PRESC_4x 						SWAP_UINT32(0x34785f5f)			//	4x__
+#define CMD_PRESC_8x 						SWAP_UINT32(0x38785f5f)			//	8x__
+#define CMD_EVENT_RF1   						SWAP_UINT32(0x5246315f)			//	RF1_
+#define CMD_EVENT_RF2   						SWAP_UINT32(0x5246325f)			//	RF2_
+#define CMD_EVENT_RO1   						SWAP_UINT32(0x524f315f)			//	RO1_
+#define CMD_EVENT_RO2   						SWAP_UINT32(0x524f325f)			//	RO2_
+#define CMD_EVENT_FO1   						SWAP_UINT32(0x464f315f)			//	FO1_
+#define CMD_EVENT_FO2 	 					SWAP_UINT32(0x464f325f)			//	FO2_
+#define CMD_EVENT_SEQ_AB 						SWAP_UINT32(0x53514142)			//	SQAB
+#define CMD_EVENT_SEQ_BA 						SWAP_UINT32(0x53514241)			//	SQBA
+#define CMD_CNT_DUTY_CYCLE 						SWAP_UINT32(0x44554359)			//	DUCY
+#define CMD_DUTY_CYCLE_ENABLE_CH1 						SWAP_UINT32(0x44434531)			//	DCE1
+#define CMD_DUTY_CYCLE_ENABLE_CH2 						SWAP_UINT32(0x44434532)			//	DCE2
+#define CMD_DUTY_CYCLE_DISABLE 						SWAP_UINT32(0x4443585f)			//	DCX_
+#define CMD_MODE_EVENT_SEQUENCE_DEP 						SWAP_UINT32(0x53455144)			//	SEQD
+#define CMD_MODE_EVENT_SEQUENCE_INDEP 						SWAP_UINT32(0x53455149)			//	SEQI
 
 //Counter modes
 
@@ -290,19 +288,12 @@ typedef uint32_t command;
 		((CMD) == CMD_GATE_5s) || \
 		((CMD) == CMD_GATE_10s))
 
-//Counter IC prescaler 1
+//Counter IC prescaler
 
-#define isCounterIcPresc1(CMD) (((CMD) == CMD_PRESC1_1x) || \
-		((CMD) == CMD_PRESC1_2x) || \
-		((CMD) == CMD_PRESC1_4x) || \
-		((CMD) == CMD_PRESC1_8x))
-
-//Counter IC prescaler 2
-
-#define isCounterIcPresc2(CMD) (((CMD) == CMD_PRESC2_1x) || \
-		((CMD) == CMD_PRESC2_2x) || \
-		((CMD) == CMD_PRESC2_4x) || \
-		((CMD) == CMD_PRESC2_8x))
+#define isCounterIcPresc(CMD) (((CMD) == CMD_PRESC_1x) || \
+		((CMD) == CMD_PRESC_2x) || \
+		((CMD) == CMD_PRESC_4x) || \
+		((CMD) == CMD_PRESC_8x))
 
 //Counter IC pulse mode change configuration + TI (time interval)
 
@@ -317,11 +308,8 @@ typedef uint32_t command;
 
 //Counter IC duty cycle init/deinit
 
-#define isCounterIcDutyCycle(CMD) (((CMD) == CMD_DUTY_CYCLE_INIT_CH1) || \
-		((CMD) == CMD_DUTY_CYCLE_INIT_CH2) || \
-		((CMD) == CMD_DUTY_CYCLE_DEINIT_CH1) || \
-		((CMD) == CMD_DUTY_CYCLE_DEINIT_CH2) || \
-		((CMD) == CMD_DUTY_CYCLE_ENABLE) || \
+#define isCounterIcDutyCycle(CMD) (((CMD) == CMD_DUTY_CYCLE_ENABLE_CH1) || \
+		((CMD) == CMD_DUTY_CYCLE_ENABLE_CH2) || \
 		((CMD) == CMD_DUTY_CYCLE_DISABLE))
 
 //Counter TI mode

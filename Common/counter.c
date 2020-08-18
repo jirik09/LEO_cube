@@ -462,61 +462,26 @@ void counterSetIc2Prescaler(uint16_t presc){
 }
 
 /**
- * @brief  Init duty cycle measuring during reciprocal (IC) mode on channel 1.
+ * @brief  DUTY CYCLE enable/disable
  * @param  None
  * @retval None
  */
-void counterIc1DutyCycleInit(void){	
+void counterIc1DutyCycleEnable(void){
 	counter.icDutyCycle = DUTY_CYCLE_CH1_ENABLED;
-	TIM_IC_DutyCycle_Init();	
-}
-
-/**
- * @brief  Deinit duty cycle measuring during reciprocal (IC) mode on channel 1.
- * @param  None
- * @retval None
- */
-void counterIc1DutyCycleDeinit(void){	
-	TIM_IC_DutyCycle_Deinit();		
-	counter.icDutyCycle = DUTY_CYCLE_DISABLED;
-}
-
-/**
- * @brief  Init duty cycle measuring during reciprocal (IC) mode on channel 2.
- * @param  None
- * @retval None
- */
-void counterIc2DutyCycleInit(void){	
-	counter.icDutyCycle = DUTY_CYCLE_CH2_ENABLED;
-	TIM_IC_DutyCycle_Init();	
-}
-
-/**
- * @brief  Deinit duty cycle measuring during reciprocal (IC) mode on channel 2.
- * @param  None
- * @retval None
- */
-void counterIc2DutyCycleDeinit(void){		
-	TIM_IC_DutyCycle_Deinit();		
-	counter.icDutyCycle = DUTY_CYCLE_DISABLED;
-}
-
-/**
- * @brief  Start duty cycle measurement on channel 1 or 2.
- * @param  None
- * @retval None
- */
-void counterIcDutyCycleEnable(void){
+	TIM_IC_DutyCycle_Init();
 	TIM_IC_DutyCycle_Start();
 }
 
-/**
- * @brief  Stop duty cycle measurement on channel 1 or 2.
- * @param  None
- * @retval None
- */
+void counterIc2DutyCycleEnable(void){
+	counter.icDutyCycle = DUTY_CYCLE_CH2_ENABLED;
+	TIM_IC_DutyCycle_Init();
+	TIM_IC_DutyCycle_Start();
+}
+
 void counterIcDutyCycleDisable(void){
 	TIM_IC_DutyCycle_Stop();
+	TIM_IC_DutyCycle_Deinit();
+	counter.icDutyCycle = DUTY_CYCLE_DISABLED;
 }
 
 /**
