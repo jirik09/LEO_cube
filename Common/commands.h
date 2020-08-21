@@ -68,6 +68,7 @@ typedef uint32_t command;
  #define STR_CNT_ETR_TIMEBASE_ERR "TERR"		// time base error
  */
 
+#define STR_CNT_REF_MEAS "MEAS"
 #define STR_CNT_REF_WARN "WARN"		// reference counter sample count warning
 
 #define STR_CNT_TI_TIMEOUT "TMOT"	// Timeout occured
@@ -227,7 +228,7 @@ typedef uint32_t command;
 #define CMD_CNT_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
 #define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_
 #define CMD_MODE_IC 						SWAP_UINT32(0x49435f5f)			//	IC__
-#define CMD_MODE_REF 						SWAP_UINT32(0x5245465f)			//	REF_
+#define CMD_MODE_RAT 						SWAP_UINT32(0x5241545f)			//	RAT_
 #define CMD_MODE_TI 						SWAP_UINT32(0x54495f5f)			//	TI__
 #define CMD_CNT_GATE 						SWAP_UINT32(0x47415445)			//	GATE
 #define CMD_CNT_SAMPLE_COUNT1 						SWAP_UINT32(0x42554631)			//	BUF1
@@ -273,7 +274,7 @@ typedef uint32_t command;
 
 #define isCounterMode(CMD) (((CMD) == CMD_MODE_ETR) || \
 		((CMD) == CMD_MODE_IC) || \
-		((CMD) == CMD_MODE_REF) || \
+		((CMD) == CMD_MODE_RAT) || \
 		((CMD) == CMD_MODE_TI))
 
 //Counter ETR quantity

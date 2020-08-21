@@ -238,7 +238,7 @@ command parseCounterCmd(void)
 				counterSetMode(ETR);
 			}else if(cmdIn == CMD_MODE_IC){
 				counterSetMode(IC);
-			}else if(cmdIn == CMD_MODE_REF){
+			}else if(cmdIn == CMD_MODE_RAT){
 				counterSetMode(REF);
 			}else if(cmdIn == CMD_MODE_TI){
 				counterSetMode(TI);

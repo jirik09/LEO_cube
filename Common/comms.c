@@ -286,12 +286,14 @@ void CommTask(void const *argument){
 
 				/* REF mode configured */
 			}else if(counter.state==COUNTER_REF){
+				commsSendString(STR_CNT_REF_DATA);
 				if(counter.refWarning == COUNTER_REF_SEND_DATA){
-					commsSendString(STR_CNT_REF_DATA);
+					commsSendString(STR_CNT_REF_MEAS);
 					/* Frequency ratio as: REF buffer / ETR buffer = ARR * PSC / buffer */
 					commsSendDouble(counter.counterEtr.freq);
 				} else {
 					commsSendString(STR_CNT_REF_WARN);
+					commsSendDouble(VAL_DUMMY);
 				}
 
 				/* IC mode configured channel 1 */
@@ -772,14 +774,16 @@ void sendScopeConf(){
 void sendCounterConf(){
 	commsSendString(STR_CONFIG);
 	/* Send Spec Counters' limits */
-	commsSendUint32(CNT_HF_UPP_LIMIT);
-	commsSendUint32(CNT_HF_LOW_LIMIT_TG_01);
-	commsSendUint32(CNT_HF_LOW_LIMIT_TG_05);
-	commsSendUint32(CNT_HF_LOW_LIMIT_TG_1);
-	commsSendUint32(CNT_HF_LOW_LIMIT_TG_5);
-	commsSendUint32(CNT_HF_LOW_LIMIT_TG_10);
-	commsSendUint32(CNT_LF_UPP_LIMIT);
-	commsSendDouble(CNT_LF_LOW_LIMIT);
+	commsSendUint32(CNT_HF_MAX);
+	commsSendUint32(CNT_HF_MIN_TG_01);
+	commsSendUint32(CNT_HF_MIN_TG_05);
+	commsSendUint32(CNT_HF_MIN_TG_1);
+	commsSendUint32(CNT_HF_MIN_TG_5);
+	commsSendUint32(CNT_HF_MIN_TG_10);
+	commsSendUint32(CNT_LF_MAX);
+	commsSendDouble(CNT_LF_MIN);
+	commsSendUint32(CNT_REF_INPUT_MAX);
+	commsSendUint32(CNT_REF_CHAN_MAX);
 	/* Pins */
 	commsSendString(CNT_ETR_PIN);
 	commsSendString(CNT_IC_PIN_CH1);

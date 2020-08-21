@@ -404,6 +404,7 @@ void counterSetEtrGate(uint16_t gateTime){
  */
 void counterSetRefSampleCount(uint32_t sampleCount){
 	xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
+	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	counter.counterEtr.refBuffer = sampleCount;
 	xSemaphoreGiveRecursive(counterMutex);
 	TIM_REF_Reconfig_cnt(sampleCount);
