@@ -331,18 +331,22 @@ void CommTask(void const *argument){
 				commsSendDouble(counter.tbError);
 
 				/* TI mode configured */
-			}else if(counter.state==COUNTER_TI){						
+			}else if(counter.state==COUNTER_TI){
+				commsSendString(STR_CNT_TI_DATA);
 				switch(counter.tiState){
 				case TIMEOUT:
 					commsSendString(STR_CNT_TI_TIMEOUT);
+					commsSendDouble(VAL_DUMMY);
 					break;
 				case SEND_TI_DATA:
-					commsSendString(STR_CNT_TI_DATA);
+					commsSendString(STR_DUMMY);
 					commsSendDouble(counter.counterIc.ic1freq);
 					break;
 				default:
 					break;
 				}
+				commsSendDouble(counter.qError);
+				commsSendDouble(counter.tbError);
 				counter.tiState = CLEAR;
 			}
 			break;

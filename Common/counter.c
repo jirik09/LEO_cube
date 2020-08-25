@@ -143,7 +143,9 @@ void counterSetMode(uint8_t mode){
 		xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
 		break;
 	}
-	counterSendStart();
+
+	if(mode != TI)
+		counterSendStart();
 }
 
 void counterSetQuantity(uint8_t quant){
@@ -468,12 +470,14 @@ void counterSetIc2Prescaler(uint16_t presc){
  * @retval None
  */
 void counterIc1DutyCycleEnable(void){
+	counterSetIc1SampleCount(1);
 	counter.icDutyCycle = DUTY_CYCLE_CH1_ENABLED;
 	TIM_IC_DutyCycle_Init();
 	TIM_IC_DutyCycle_Start();
 }
 
 void counterIc2DutyCycleEnable(void){
+	counterSetIc2SampleCount(1);
 	counter.icDutyCycle = DUTY_CYCLE_CH2_ENABLED;
 	TIM_IC_DutyCycle_Init();
 	TIM_IC_DutyCycle_Start();
@@ -766,7 +770,9 @@ void counterTiProcess(void)
 				counter.tiState = SEND_TI_DATA;						
 				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			}
-		}		
+		}
+		counter.qError = counterIcCalculateQuantError(1);
+		counter.tbError = counterIcCalculateTimeBaseError(1);
 	}else{
 		TIM_TI_Stop();					
 		counter.tiState = TIMEOUT;	
