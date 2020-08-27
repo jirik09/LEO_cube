@@ -282,6 +282,9 @@ void counter_deinit(void){
 		TIM_etr_deinit();
 		break;
 	case COUNTER_IC:
+		if(counter.icDutyCycle != DUTY_CYCLE_DISABLED){
+			counterIcDutyCycleDisable();
+		}
 		TIM_ic_deinit();
 		break;
 	case COUNTER_REF:
@@ -591,11 +594,12 @@ void counterSetTiMode_Dependent(void){
 
 /**
  * @brief  Setter for counter TI measurement timeout.
- * @param  timeout: 500 - 28000 in milliseconds
+ * @param  timeout: 1 - 3600 seconds
  * @retval None
  */
 void counterSetTiTimeout(uint32_t timeout){
-	counter.counterIc.tiTimeout = timeout;				
+	counter.counterIc.tiTimeout = timeout*1000;
+	xStartTime = xTaskGetTickCount();
 }
 
 /* ************************************************************************************** */
@@ -751,7 +755,7 @@ void counterTiProcess(void)
 	uint16_t passMsg = MSG_CNT_SEND_DATA;
 
 	/* Check timeout. */
-	if((xTaskGetTickCountFromISR() - xStartTime) <= counter.counterIc.tiTimeout){
+	if ((xTaskGetTickCountFromISR() - xStartTime) <= counter.counterIc.tiTimeout){
 		/* Check the event sequence - AB or BA */
 		if(counter.abba == BIN0){			
 			/* Check DMA transfer channel 1 occured */			
@@ -773,7 +777,7 @@ void counterTiProcess(void)
 		}
 		counter.qError = counterIcCalculateQuantError(1);
 		counter.tbError = counterIcCalculateTimeBaseError(1);
-	}else{
+	} else {
 		TIM_TI_Stop();					
 		counter.tiState = TIMEOUT;	
 		xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
@@ -958,9 +962,10 @@ void counterIcTiSetDefault(void)
 	}else{
 		counter.counterIc.ic1BufferSize = 1;			/* only 1 sample for one event that occurs on one single channel */
 		counter.counterIc.ic2BufferSize = 1;
-		counter.counterIc.tiTimeout = 10000;
+		counter.counterIc.tiTimeout = 5000;
 		counter.eventChan1 = EVENT_RISING;
 		counter.eventChan2 = EVENT_RISING;
+		counter.tiMode = TI_MODE_EVENT_SEQUENCE_INDEP;
 	}
 	counter.counterIc.ic1psc = 1;
 	counter.counterIc.ic2psc = 1;
