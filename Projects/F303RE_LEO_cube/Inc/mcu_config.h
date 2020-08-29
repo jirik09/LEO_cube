@@ -170,7 +170,7 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define CNT_HF_MIN_TG_5	(uint32_t)5366
 #define CNT_HF_MIN_TG_10	(uint32_t)3800
 
-#define CNT_LF_MAX		(uint32_t)6500000
+#define CNT_LF_MAX		(uint32_t)1000000
 #define CNT_LF_MIN		(double)0.033528
 
 #define CNT_REF_INPUT_MAX		(uint32_t)36000000
