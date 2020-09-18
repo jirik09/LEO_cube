@@ -75,7 +75,7 @@
 #define SCOPE_VREF_INT (uint16_t)*((uint16_t *)0x1FFFF7BA)
 
 #define RANGE_1_LOW 0
-#define RANGE_1_HI SCOPE_VREF
+#define RANGE_1_HI SCOPE_VREF //this range is used by default to send with data
 #define RANGE_2_LOW -SCOPE_VREF
 #define RANGE_2_HI SCOPE_VREF*2
 #define RANGE_3_LOW 0

@@ -388,6 +388,7 @@ typedef uint32_t command;
 		((CMD) == CMD_SAMPLES_10K) || \
 		((CMD) == CMD_SAMPLES_20K) || \
 		((CMD) == CMD_SAMPLES_50K) || \
+		((CMD) <  0x07FFFFFF) || \
 		((CMD) == CMD_SAMPLES_100K))
 
 //Scope Data depths

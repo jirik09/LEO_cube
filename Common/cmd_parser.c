@@ -94,20 +94,12 @@ void CmdParserTask(void const *argument){
 				case CMD_RESET_DEVICE:
 					resetDevice();
 					break;
-				case CMD_VERSION:
-					passMsg = MSG_SYSTEM_VERSION;
-					xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
-					break;
 				case CMD_IS_SHIELD:
 					passMsg = MSG_SHIELD_AVAIL;
 					xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 					break;
 				case CMD_SYSTEM:
 					tempCmd = parseSystemCmd();
-					printErrResponse(tempCmd);
-					break;
-				case CMD_COMMS:
-					tempCmd = parseCommsCmd();
 					printErrResponse(tempCmd);
 					break;
 #ifdef USE_SCOPE
@@ -168,43 +160,12 @@ command parseSystemCmd(void){
 	switch(cmdIn){
 	uint16_t passMsg;
 	case CMD_GET_CONFIG:
-		passMsg = MSG_SYSTEM_CONFIG;
+		passMsg = MSG_SYSTEM_SPEC;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case CMD_END:break;
 	default:
 		error = SYSTEM_INVALID_FEATURE;
-		cmdIn = CMD_ERR;
-		break;
-	}
-	if(error>0){
-		cmdIn=error;
-	}else{
-		cmdIn=CMD_END;
-	}
-	return cmdIn;
-}
-
-/**
- * @brief  Communications command parse function
- * @param  None
- * @retval Command ACK or ERR
- */
-command parseCommsCmd(void){
-	command cmdIn=CMD_ERR;
-	uint8_t error=0;
-	uint16_t passMsg;
-	//try to parse command while buffer is not empty 
-
-	cmdIn = giveNextCmd();
-	switch(cmdIn){
-	case CMD_GET_CONFIG:
-		passMsg = MSG_COMMS_CONFIG;
-		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
-		break;
-	case CMD_END:break;
-	default:
-		error = COMMS_INVALID_FEATURE;
 		cmdIn = CMD_ERR;
 		break;
 	}
@@ -645,7 +606,7 @@ command parseScopeCmd(void){
 		}
 		break;
 
-	case CMD_SCOPE_DATA_LENGTH: //set trigger edge
+	case CMD_SCOPE_DATA_LENGTH:
 		cmdIn = giveNextCmd();
 		if(isScopeNumOfSamples(cmdIn)){
 			if(cmdIn == CMD_SAMPLES_100){
@@ -668,6 +629,8 @@ command parseScopeCmd(void){
 				error=scopeSetNumOfSamples(50000);
 			}else if(cmdIn == CMD_SAMPLES_100K){
 				error=scopeSetNumOfSamples(100000);
+			}else if(cmdIn < 0x07FFFFFF){
+				error=scopeSetNumOfSamples(cmdIn);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -688,7 +651,7 @@ command parseScopeCmd(void){
 
 		break;
 	case CMD_GET_CONFIG:
-		passMsg = MSG_SCOPE_CONFIG;
+		passMsg = MSG_SCOPE_SPEC;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case CMD_GET_INPUTS:

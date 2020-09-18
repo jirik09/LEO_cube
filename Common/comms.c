@@ -115,7 +115,7 @@ void CommTask(void const *argument){
 	xSemaphoreGiveRecursive(commsMutex);
 
 #ifdef USE_SCOPE
-	uint8_t header[16]="OSC_yyyyxxxxCH0x";
+	uint8_t header[20]="OSC_yyyyxxxxCH0x";
 	uint8_t *pointer;
 
 	uint8_t k;
@@ -183,7 +183,11 @@ void CommTask(void const *argument){
 				header[10]=(uint8_t)(dataLength >> 16);
 				header[11]=(uint8_t)(dataLength >> 8);
 				header[12]=(uint8_t)dataLength;
-				header[15]=channels;
+				header[13]=(uint8_t)(RANGE_1_LOW >> 8);
+				header[14]=(uint8_t)RANGE_1_LOW;
+				header[15]=(uint8_t)(RANGE_1_HI >> 8);
+				header[16]=(uint8_t)RANGE_1_HI;
+				header[19]=channels;
 
 				if(j+dataLength>oneChanMemSize){
 					dataLenFirst=oneChanMemSize-j;
@@ -198,9 +202,9 @@ void CommTask(void const *argument){
 					pointer = (uint8_t*)getDataPointer(i);
 
 					//sending header
-					header[14]=(i+1);
+					header[18]=(i+1);
 
-					commsSendBuff(header,16);
+					commsSendBuff(header,20);
 
 					if(dataLenFirst>COMMS_BULK_SIZE ){
 						tmpToSend=dataLenFirst;
@@ -393,16 +397,11 @@ void CommTask(void const *argument){
 			//      }
 			break;
 #endif //USE_LOG_ANLYS
-		case MSG_SYSTEM_CONFIG:
+		case MSG_SYSTEM_SPEC:
 			sendSystConf();
 			break;
-		case MSG_COMMS_CONFIG:
-			commsSendString(STR_SYSTEM);
-			sendCommsConf();
-			break;
 #ifdef USE_SCOPE
-		case MSG_SCOPE_CONFIG:
-			commsSendString(STR_SCOPE);
+		case MSG_SCOPE_SPEC:
 			sendScopeConf();
 			break;
 		case MSG_SCOPE_INPUTS:
@@ -458,10 +457,6 @@ void CommTask(void const *argument){
 			commsSendString(STR_GEN_OK);
 			break;
 #endif //USE_GEN || USE_GEN_PWM
-		case MSG_SYSTEM_VERSION:
-			commsSendString(STR_SYSTEM);
-			sendSystemVersion();
-			break;
 		case MSG_ACK:
 			commsSendString(STR_SYSTEM);
 			commsSendString(STR_ACK);
@@ -505,12 +500,7 @@ void commsInit(void){
 	comm.writePointer = 0;
 	comm.readPointer = 0;
 	comm.state = BUFF_EMPTY;
-	//	commTX.memory = commTXBuffMem;
-	//	commTX.bufferSize = COMM_TX_BUFFER_SIZE;
-	//	commTX.writePointer = 0;
-	//	commTX.readPointer = 0;
-	//	commTX.state = BUFF_EMPTY;
-	//HAL_UART_Receive_DMA(&huart2,comm.memory,comm.bufferSize);
+
 }
 
 /**
@@ -694,45 +684,6 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 
 }
 
-/**
- * @brief  Send Communication configuration.
- * @param  None
- * @retval None
- */
-void sendCommsConf(){
-	commsSendString("COMM");
-	commsSendUint32(COMM_BUFFER_SIZE);
-	commsSendUint32(UART_SPEED);
-	commsSendString(USART_TX_PIN_STR);
-	commsSendString(USART_RX_PIN_STR);
-#ifdef USE_USB
-	commsSendString("USB_");
-	commsSendString(USB_DP_PIN_STR);
-	commsSendString(USB_DM_PIN_STR);
-#endif
-}
-
-/**
- * @brief  Send System version.
- * @param  None
- * @retval None
- */
-void sendSystemVersion(){
-	commsSendString("VER_");
-	commsSendString("LEO FW"); 	//12
-	commsSendString(FW_VERSION); 			//4
-	commsSendString(BUILD);						//4
-	commsSendString("FreeRTOS");			//8	
-	commsSendString(tskKERNEL_VERSION_NUMBER);//6
-	commsSendString("ST HAL");				//6
-	commsSend('V');
-	commsSend((HAL_GetHalVersion()>>24)+48);
-	commsSend('.');
-	commsSend((HAL_GetHalVersion()>>16)+48);
-	commsSend('.');
-	commsSend((HAL_GetHalVersion()>>8)+48); //6
-
-}
 
 #ifdef USE_SCOPE
 /**
@@ -742,29 +693,41 @@ void sendSystemVersion(){
  */
 void sendScopeConf(){
 	uint8_t i;
+	commsSendString(STR_SCOPE);
 	commsSendString(STR_CONFIG);
 	commsSendUint32(MAX_SAMPLING_FREQ_12B);
+	commsSendString(":");
+	commsSendUint32(MAX_INTERLEAVE_FREQ_8B);
+	commsSendString(":");
 	commsSendUint32(MAX_SCOPE_BUFF_SIZE);
+	commsSendString(":");
 	commsSendUint32(MAX_ADC_CHANNELS);
+	commsSendString(":");
+	commsSendUint32(SCOPE_VREF);
+	commsSendString(":");
+	commsSendUint32(SCOPE_VREF_INT);
+	commsSendString(":");
 	for (i=0;i<MAX_ADC_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(SCOPE_CH1_PIN_STR);
+			commsSendString(":");
 			break;
 		case 1:
 			commsSendString(SCOPE_CH2_PIN_STR);
+			commsSendString(":");
 			break;
 		case 2:
 			commsSendString(SCOPE_CH3_PIN_STR);
+			commsSendString(":");
 			break;
 		case 3:
 			commsSendString(SCOPE_CH4_PIN_STR);
+			commsSendString(":");
 			break;
 		}
 	}
-	commsSendUint32(SCOPE_VREF);
-	commsSendUint32(SCOPE_VREF_INT);
-	commsSendBuff((uint8_t*)scopeGetRanges(&i),i);
+	//commsSendBuff((uint8_t*)scopeGetRanges(&i),i);
 }
 #endif //USE_SCOPE
 
