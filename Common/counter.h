@@ -54,6 +54,14 @@ typedef enum{
 }counterState;
 
 /**
+* @brief  Counter paused; prevents starting the counter by all matters.
+*/
+typedef enum{
+	NO = 0,
+	YES
+}counterPaused;
+
+/**
 * @brief  Counter ETR mode Quantity selection.
 */
 typedef enum{
@@ -190,6 +198,7 @@ typedef struct{
 	uint32_t tim2PrphClk;
 	double qError;		// quantization error
 	double tbError;		// time base error
+	counterPaused paused;
 	
 	counterRefSmplCntChange sampleCntChange;
 	counterRefWarning refWarning;
@@ -220,6 +229,8 @@ void counterInitTI(void);
 void counter_deinit(void);
 void counterSendStart(void);
 void counterSendStop(void);
+void counterPause(void);
+void counterUnpause(void);
 void counterStart(void);
 void counterStop(void);
 void counterDeinit(void);

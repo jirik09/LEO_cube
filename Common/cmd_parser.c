@@ -394,8 +394,16 @@ command parseCounterCmd(void)
 			error = COUNTER_INVALID_FEATURE_PARAM;
 		}
 		break;
+	case CMD_CNT_PAUSE:
+		counterPause();
+		break;
+	case CMD_CNT_UNPAUSE:
+		counterUnpause();
+		break;
 	case CMD_CNT_START:
-		counterSendStart();
+		if(counter.paused == NO){
+			counterSendStart();
+		}
 		break;
 	case CMD_CNT_STOP:
 		counterSendStop();

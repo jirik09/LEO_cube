@@ -144,8 +144,10 @@ void counterSetMode(uint8_t mode){
 		break;
 	}
 
-	if(mode != TI)
-		counterSendStart();
+	if(counter.paused == NO){
+		if(mode != TI)
+			counterSendStart();
+	}
 }
 
 void counterSetQuantity(uint8_t quant){
@@ -204,6 +206,16 @@ void counterSendStart(void){
 void counterSendStop(void){	
 	uint16_t passMsg = MSG_CNT_STOP;
 	xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+}
+
+void counterPause(void){
+	counter.paused = YES;
+	counterSendStop();
+}
+
+void counterUnpause(void){
+	counter.paused = NO;
+	counterSendStart();
 }
 
 /**
@@ -451,7 +463,9 @@ void counterSetIc1Prescaler(uint16_t presc){
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	TIM_IC1_PSC_Config(presc);
 	DMA_Restart(&hdma_tim2_ch1);
-	counterSendStart();
+	if(counter.paused == NO){
+		counterSendStart();
+	}
 }
 
 /**
@@ -464,7 +478,9 @@ void counterSetIc2Prescaler(uint16_t presc){
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	TIM_IC2_PSC_Config(presc);	
 	DMA_Restart(&hdma_tim2_ch2_ch4);	
-	counterSendStart();
+	if(counter.paused == NO){
+		counterSendStart();
+	}
 }
 
 /**
@@ -926,7 +942,8 @@ void counterGateConfig(uint16_t gateTime)
 	default:
 		break;
 	}
-	counterStart();
+	if(counter.paused == NO)
+		counterStart();
 }
 
 /**

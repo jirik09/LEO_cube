@@ -224,6 +224,8 @@ typedef uint32_t command;
 /**************************** COUNTER ****************************/
 #define CMD_CNT_START 						SWAP_UINT32(0x53545254)			//	STRT
 #define CMD_CNT_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
+#define CMD_CNT_PAUSE 						SWAP_UINT32(0x50415553)			//	PAUS
+#define CMD_CNT_UNPAUSE 					SWAP_UINT32(0x55504155)			// 	UPAU
 #define CMD_CNT_DEINIT 						SWAP_UINT32(0x4445494e)			//	DEIN
 #define CMD_CNT_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
 #define CMD_MODE_ETR 						SWAP_UINT32(0x4554525f)			//	ETR_
