@@ -213,9 +213,9 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterQuantity(cmdIn)){
 			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
-				counterSetQuantity(QUANTITY_FREQUENCY);
+				error = counterSetQuantity(QUANTITY_FREQUENCY);
 			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
-				counterSetQuantity(QUANTITY_PERIOD);
+				error = counterSetQuantity(QUANTITY_PERIOD);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -226,9 +226,9 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterQuantity(cmdIn)){
 			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
-				counterSetIc1Quantity(QUANTITY_FREQUENCY);
+				error = counterSetIc1Quantity(QUANTITY_FREQUENCY);
 			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
-				counterSetIc1Quantity(QUANTITY_PERIOD);
+				error = counterSetIc1Quantity(QUANTITY_PERIOD);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -239,9 +239,9 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterQuantity(cmdIn)){
 			if(cmdIn == CMD_CNT_QUANTITY_FREQUENCY){
-				counterSetIc2Quantity(QUANTITY_FREQUENCY);
+				error = counterSetIc2Quantity(QUANTITY_FREQUENCY);
 			}else if(cmdIn == CMD_CNT_QUANTITY_PERIOD){
-				counterSetIc2Quantity(QUANTITY_PERIOD);
+				error = counterSetIc2Quantity(QUANTITY_PERIOD);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -252,15 +252,15 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterEtrGate(cmdIn)){
 			if(cmdIn == CMD_GATE_100m){
-				counterSetEtrGate(100);
+				error = counterSetEtrGate(100);
 			}else if(cmdIn == CMD_GATE_500m){
-				counterSetEtrGate(500);
+				error = counterSetEtrGate(500);
 			}else if(cmdIn == CMD_GATE_1s){
-				counterSetEtrGate(1000);
+				error = counterSetEtrGate(1000);
 			}else if(cmdIn == CMD_GATE_5s){
-				counterSetEtrGate(5000);
+				error = counterSetEtrGate(5000);
 			}else if(cmdIn == CMD_GATE_10s){
-				counterSetEtrGate(10000);
+				error = counterSetEtrGate(10000);
 			}					
 		}else{
 			cmdIn = CMD_ERR;
@@ -271,21 +271,21 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterIcTiEvent(cmdIn)){
 			if(cmdIn == CMD_EVENT_RF1){
-				counterSetIcTi1_RisingFalling();
+				error = counterSetIcTi1_RisingFalling();
 			}else if(cmdIn == CMD_EVENT_RF2){
-				counterSetIcTi2_RisingFalling();
+				error = counterSetIcTi2_RisingFalling();
 			}else if(cmdIn == CMD_EVENT_RO1){
-				counterSetIcTi1_Rising();
+				error = counterSetIcTi1_Rising();
 			}else if(cmdIn == CMD_EVENT_RO2){
-				counterSetIcTi2_Rising();
+				error = counterSetIcTi2_Rising();
 			}else if(cmdIn == CMD_EVENT_FO1){
-				counterSetIcTi1_Falling();
+				error = counterSetIcTi1_Falling();
 			}else if(cmdIn == CMD_EVENT_FO2){
-				counterSetIcTi2_Falling();
+				error = counterSetIcTi2_Falling();
 			}else if(cmdIn == CMD_EVENT_SEQ_AB){
-				counterSetTiSequence_AB();
+				error = counterSetTiSequence_AB();
 			}else if(cmdIn == CMD_EVENT_SEQ_BA){
-				counterSetTiSequence_BA();
+				error = counterSetTiSequence_BA();
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -296,11 +296,11 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterIcDutyCycle(cmdIn)){
 			if(cmdIn == CMD_DUTY_CYCLE_ENABLE_CH1){
-				counterIc1DutyCycleEnable();
+				error = counterIc1DutyCycleEnable();
 			}else if(cmdIn == CMD_DUTY_CYCLE_ENABLE_CH2){
-				counterIc2DutyCycleEnable();
+				error = counterIc2DutyCycleEnable();
 			}else if(cmdIn == CMD_DUTY_CYCLE_DISABLE){
-				counterIcDutyCycleDisable();
+				error = counterIcDutyCycleDisable();
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -311,9 +311,9 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterTiMode(cmdIn)){
 			if(cmdIn == CMD_MODE_EVENT_SEQUENCE_DEP){
-				counterSetTiMode_Dependent();
+				error = counterSetTiMode_Dependent();
 			}else if(cmdIn == CMD_MODE_EVENT_SEQUENCE_INDEP){
-				counterSetTiMode_Independent();
+				error = counterSetTiMode_Independent();
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -324,13 +324,13 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterIcPresc(cmdIn)){
 			if(cmdIn == CMD_PRESC_1x){
-				counterSetIc1Prescaler(1);
+				error = counterSetIc1Prescaler(1);
 			}else if(cmdIn == CMD_PRESC_2x){
-				counterSetIc1Prescaler(2);
+				error = counterSetIc1Prescaler(2);
 			}else if(cmdIn == CMD_PRESC_4x){
-				counterSetIc1Prescaler(4);
+				error = counterSetIc1Prescaler(4);
 			}else if(cmdIn == CMD_PRESC_8x){
-				counterSetIc1Prescaler(8);
+				error = counterSetIc1Prescaler(8);
 			}
 		}else{
 			cmdIn = CMD_ERR;
@@ -341,13 +341,13 @@ command parseCounterCmd(void)
 		cmdIn = giveNextCmd();
 		if(isCounterIcPresc(cmdIn)){
 			if(cmdIn == CMD_PRESC_1x){
-				counterSetIc2Prescaler(1);
+				error = counterSetIc2Prescaler(1);
 			}else if(cmdIn == CMD_PRESC_2x){
-				counterSetIc2Prescaler(2);
+				error = counterSetIc2Prescaler(2);
 			}else if(cmdIn == CMD_PRESC_4x){
-				counterSetIc2Prescaler(4);
+				error = counterSetIc2Prescaler(4);
 			}else if(cmdIn == CMD_PRESC_8x){
-				counterSetIc2Prescaler(8);
+				error = counterSetIc2Prescaler(8);
 			}else{
 				cmdIn = CMD_ERR;
 				error = COUNTER_INVALID_FEATURE_PARAM;
@@ -360,7 +360,7 @@ command parseCounterCmd(void)
 	case CMD_CNT_SAMPLE_COUNT1:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			counterSetIc1SampleCount((uint16_t)cmdIn);
+			error = counterSetIc1SampleCount((uint16_t)cmdIn);
 		}else{
 			cmdIn = CMD_ERR;
 			error = COUNTER_INVALID_FEATURE_PARAM;
@@ -369,7 +369,7 @@ command parseCounterCmd(void)
 	case CMD_CNT_SAMPLE_COUNT2:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			counterSetIc2SampleCount((uint16_t)cmdIn);
+			error = counterSetIc2SampleCount((uint16_t)cmdIn);
 		}else{
 			cmdIn = CMD_ERR;
 			error = COUNTER_INVALID_FEATURE_PARAM;
@@ -378,7 +378,7 @@ command parseCounterCmd(void)
 	case CMD_CNT_REF_SAMPLE_COUNT:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			counterSetRefSampleCount((uint32_t)cmdIn);
+			error = counterSetRefSampleCount((uint32_t)cmdIn);
 		}else{
 			cmdIn = CMD_ERR;
 			error = COUNTER_INVALID_FEATURE_PARAM;
@@ -388,7 +388,7 @@ command parseCounterCmd(void)
 	case CMD_CNT_TIMEOUT_TIM:
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			counterSetTiTimeout((uint32_t)cmdIn);
+			error = counterSetTiTimeout((uint32_t)cmdIn);
 		}else{
 			cmdIn = CMD_ERR;
 			error = COUNTER_INVALID_FEATURE_PARAM;

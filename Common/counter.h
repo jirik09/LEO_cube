@@ -237,12 +237,12 @@ void counterDeinit(void);
 void counterEtrRefSetDefault(void);
 void counterIcTiSetDefault(void);
 void counterSetMode(uint8_t mode);
-void counterSetQuantity(uint8_t quant);
-void counterSetIc1Quantity(uint8_t quant);
-void counterSetIc2Quantity(uint8_t quant);
+uint8_t counterSetQuantity(uint8_t quant);
+uint8_t counterSetIc1Quantity(uint8_t quant);
+uint8_t counterSetIc2Quantity(uint8_t quant);
 
 /* ETR mode functions */
-void counterSetEtrGate(uint16_t gateTime);
+uint8_t counterSetEtrGate(uint16_t gateTime);
 void counterGateConfig(uint16_t gateTime);
 void counterSetQuantityFreq(void);
 void counterSetQuantityPer(void);
@@ -258,37 +258,37 @@ double counterIcCalculateQuantError(int icChannel);
 double counterIcCalculateTimeBaseError(int icChannel);
 
 /* IC mode functions */
-void counterSetIc1SampleCount(uint16_t buffer);
-void counterSetIc2SampleCount(uint16_t buffer);
-void counterSetIc1Prescaler(uint16_t presc);
-void counterSetIc2Prescaler(uint16_t presc);
-void counterSetIcTi1_RisingFalling(void);
-void counterSetIcTi2_RisingFalling(void);
-void counterSetIcTi1_Rising(void);
-void counterSetIcTi2_Rising(void);
-void counterSetIcTi1_Falling(void);
-void counterSetIcTi2_Falling(void);
-void counterSetTiSequence_AB(void);
-void counterSetTiSequence_BA(void);
+uint8_t counterSetIc1SampleCount(uint16_t buffer);
+uint8_t counterSetIc2SampleCount(uint16_t buffer);
+uint8_t counterSetIc1Prescaler(uint16_t presc);
+uint8_t counterSetIc2Prescaler(uint16_t presc);
+uint8_t counterSetIcTi1_RisingFalling(void);
+uint8_t counterSetIcTi2_RisingFalling(void);
+uint8_t counterSetIcTi1_Rising(void);
+uint8_t counterSetIcTi2_Rising(void);
+uint8_t counterSetIcTi1_Falling(void);
+uint8_t counterSetIcTi2_Falling(void);
+uint8_t counterSetTiSequence_AB(void);
+uint8_t counterSetTiSequence_BA(void);
 void counterIc1BufferConfig(uint16_t ic1buffSize);
 void counterIc2BufferConfig(uint16_t ic2buffSize);
 void counterIcProcess(void);
 void counterIcDutyCycleProcess(void);
 
-void counterIc1DutyCycleEnable(void);
-void counterIc2DutyCycleEnable(void);
-void counterIcDutyCycleDisable(void);
+uint8_t counterIc1DutyCycleEnable(void);
+uint8_t counterIc2DutyCycleEnable(void);
+uint8_t counterIcDutyCycleDisable(void);
 
 /* TI mode functions */
 void counterTiProcess(void);
-void counterSetTiTimeout(uint32_t timeout);
-void counterSetTiMode_Independent(void);
-void counterSetTiMode_Dependent(void);
+uint8_t counterSetTiTimeout(uint32_t timeout);
+uint8_t counterSetTiMode_Independent(void);
+uint8_t counterSetTiMode_Dependent(void);
 
 /* REF mode functions */
 void counterSetRefPsc(uint16_t psc);
 void counterSetRefArr(uint16_t arr);
-void counterSetRefSampleCount(uint32_t sampleCount);
+uint8_t counterSetRefSampleCount(uint32_t sampleCount);
 
 void COUNTER_IC_TIM_Elapse(void);
 void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim);
