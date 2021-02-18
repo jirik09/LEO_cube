@@ -652,6 +652,8 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 	commsSendString(":");
 	commsSendBuff((uint8_t *)MCU_UID,12);
 	commsSendString(":");
+	commsSendBuff(__DATE__,11);
+	commsSendString(":");
 	commsSendString("LEO FW:"); 	//12
 	commsSendString(FW_VERSION); 			//4
 	commsSendString(":");						//4
