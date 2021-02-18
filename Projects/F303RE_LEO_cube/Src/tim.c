@@ -216,8 +216,8 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
 		uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed) {
 
 	int32_t clkDiv;
-	uint16_t prescaler;
-	uint16_t autoReloadReg;
+	uint16_t prescaler = 0;
+	uint16_t autoReloadReg = 1;
 	uint32_t errMinRatio = 0;
 	uint8_t result = UNKNOW_ERROR;
 
@@ -336,20 +336,20 @@ double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, d
 //	return realFreq;
 
 	int32_t clkDiv;
-	uint16_t prescaler;
-	uint16_t autoReloadReg;
+	uint16_t prescaler = 0;
+	uint16_t autoReloadReg = 1;
 	uint32_t errMinRatio = 0;
 	double realFreq;
-	uint8_t result = UNKNOW_ERROR;
+	//uint8_t result = UNKNOW_ERROR;
 
 	clkDiv = ((2 * periphClock / reqFreq) + 1) / 2; //to minimize rounding error
 
 	if (clkDiv == 0) { //error
-		result = GEN_FREQ_MISMATCH;
+		//result = GEN_FREQ_MISMATCH;
 	} else if (clkDiv <= 0x0FFFF) { //Sampling frequency is high enough so no prescaler needed
 		prescaler = 0;
 		autoReloadReg = clkDiv - 1;
-		result = 0;
+		//esult = 0;
 	} else {	// finding prescaler and autoReload value
 		uint32_t errVal = 0xFFFFFFFF;
 		uint32_t errMin = 0xFFFFFFFF;
@@ -381,11 +381,11 @@ double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, d
 			autoReloadReg = div - 1;
 		}
 
-		if (errVal) {
+		/*if (errVal) {
 			result = GEN_FREQ_IS_INACCURATE;
 		} else {
 			result = 0;
-		}
+		}*/
 	}
 
 	realFreq = periphClock / (double)((prescaler + 1) * (autoReloadReg + 1));

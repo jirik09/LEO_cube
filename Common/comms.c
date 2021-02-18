@@ -11,6 +11,7 @@
 
 #include "cmsis_os.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 #include "comms.h"
 #include "comms_hal.h"
 #include "cmd_parser.h"
@@ -129,7 +130,7 @@ void CommTask(void const *argument){
 #endif //USE_SCOPE
 
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
-	uint8_t header_gen[12]="GEN_xCH_Fxxx";
+	//uint8_t header_gen[12]="GEN_xCH_Fxxx";
 #endif //USE_GEN || USE_GEN_PWM
 
 #if defined(USE_GEN) || defined(USE_SCOPE)
@@ -649,7 +650,7 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 	commsSendString(":");
 	commsSendUint32(HAL_RCC_GetHCLKFreq());  //CCLK
 	commsSendString(":");
-	commsSendBuff(MCU_UID,12);
+	commsSendBuff((uint8_t *)MCU_UID,12);
 	commsSendString(":");
 	commsSendString("LEO FW:"); 	//12
 	commsSendString(FW_VERSION); 			//4

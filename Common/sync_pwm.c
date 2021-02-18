@@ -129,6 +129,7 @@ double syncPwmSetFreq(double freq)
 	syncPwm.realPwmFreq =  TIM_Reconfig_SyncPwm(freq);
 	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ;
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+	return syncPwm.realPwmFreq;
 }
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state)

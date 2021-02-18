@@ -116,7 +116,7 @@ void MX_TIM7_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM1_GEN_PWM_Init(void)
+void MX_TIM1_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -174,7 +174,7 @@ static void MX_TIM1_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM3_GEN_PWM_Init(void)
+void MX_TIM3_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -215,7 +215,7 @@ static void MX_TIM3_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM6_GEN_PWM_Init(void)
+void MX_TIM6_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -242,7 +242,7 @@ static void MX_TIM6_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM7_GEN_PWM_Init(void)
+void MX_TIM7_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -324,8 +324,6 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
-
 	__HAL_RCC_TIM6_CLK_ENABLE();
 
 	/* Peripheral DMA init*/
@@ -344,8 +342,6 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
-
 	__HAL_RCC_TIM7_CLK_ENABLE();
 
 	/* Peripheral DMA init*/

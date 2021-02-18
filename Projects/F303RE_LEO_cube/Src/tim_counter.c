@@ -57,7 +57,7 @@ DMA_HandleTypeDef hdma_tim2_ch2_ch4;
  * @param  None
  * @retval None
  */
-static void MX_TIM4_Init(void)
+void MX_TIM4_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -108,7 +108,7 @@ static void MX_TIM4_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM2_ETRorREF_Init(void)
+void MX_TIM2_ETRorREF_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_SlaveConfigTypeDef sSlaveConfig;
@@ -152,7 +152,7 @@ static void MX_TIM2_ETRorREF_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM2_ICorTI_Init(void)
+void MX_TIM2_ICorTI_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -1196,7 +1196,7 @@ uint8_t TIM_IC2PSC_GetPrescaler(void)
  */
 uint8_t TIM_GetPrescaler(uint32_t regPrescValue)
 {
-	uint8_t presc;
+	uint8_t presc = 1;
 	/* Save the real value of ICxPSC prescaler for later calculations */
 	switch(regPrescValue){
 	case 0:
