@@ -12,6 +12,7 @@
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_nucleo.h"
 #include "firmware_version.h"
+#include "resources.h"
 //#include "usb_device.h"
 #include "math.h"
 #include "err_list.h"
@@ -56,12 +57,12 @@
 
 
 // Scope constatnts ===========================================================
+#define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
 #define MAX_SAMPLING_FREQ_12B 4000000 //smps
 #define MAX_SAMPLING_FREQ_8B 4800000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
-//#define MIN_ADC_SAMPLING_TIME 2 //1.5 + 0.5 cycle from ADC resolution
 
 
 #define MAX_SCOPE_BUFF_SIZE 30000//40000 //in bytes
@@ -101,7 +102,7 @@
 
 
 // Generator constatnts =======================================================
-
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define MAX_GENERATING_FREQ 2000000 //smps
 #define MAX_DAC_CHANNELS 2
 #define MAX_GENERATOR_BUFF_SIZE 8000//2000
@@ -120,6 +121,7 @@
 #define GEN_CH2_PIN_STR "D13_" //must be 4 chars
 
 // Counter constatnts =======================================================
+#define COUNTER_RESOURCES TIM2_R|TIM4_R
 #ifdef USE_COUNTER
 /* TIM4 -> ARR & PSC set to gate 100 ms */
 #define TIM4_ARR										999
