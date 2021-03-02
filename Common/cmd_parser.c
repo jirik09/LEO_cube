@@ -8,6 +8,7 @@
  */
 
 // Includes ===================================================================
+#include <string.h>
 #include "cmsis_os.h"
 #include "mcu_config.h"
 #include "cmd_parser.h"
@@ -21,6 +22,7 @@
 #include "sync_pwm.h"
 #include "logic_analyzer.h"
 #include "messages.h"
+
 
 /** @defgroup Parser Parser
  * @{
@@ -67,7 +69,7 @@ void CmdParserTask(void const *argument){
 	uint16_t message = 0xFFFF;
 	cmdParserMessageQueue = xQueueCreate(32, sizeof(message)/sizeof(uint8_t));
 
-	uint8_t cmdIn[5];
+	uint8_t cmdIn[5] = {0};
 	uint8_t chr;
 	uint8_t byteRead;
 	command tempCmd;

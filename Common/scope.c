@@ -12,6 +12,7 @@
 
 #include "cmsis_os.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 #include "comms.h"
 #include "scope.h"
 #include "adc.h"
@@ -560,7 +561,7 @@ void scopeSetPretrigger(uint16_t pretrig){
  */
 uint8_t scopeSetNumOfSamples(uint32_t smp){
 	uint8_t result=BUFFER_SIZE_ERR;
-	uint32_t smpTmp=scope.settings.samplesToSend;
+	//uint32_t smpTmp=scope.settings.samplesToSend;
 	xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
 	if(smp<scope.oneChanSamples){
 		scope.settings.samplesToSend = smp;
@@ -720,7 +721,7 @@ uint8_t scopeInitADCMode(scopeMode mode){
 		ADCInitMultiMode();
 		break;
 	}
-
+	return 0;
 }
 
 

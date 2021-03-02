@@ -46,7 +46,7 @@ DMA_HandleTypeDef hdma_tim8_ch4_trig_com;
  * @param  None
  * @retval None
  */
-static void MX_TIM8_SYNC_PWM_Init(void) {
+void MX_TIM8_SYNC_PWM_Init(void) {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;

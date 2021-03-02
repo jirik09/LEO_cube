@@ -11,6 +11,7 @@
 
 #include "cmsis_os.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 #include "comms.h"
 #include "comms_hal.h"
 #include "cmd_parser.h"
@@ -129,7 +130,7 @@ void CommTask(void const *argument){
 #endif //USE_SCOPE
 
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
-	uint8_t header_gen[12]="GEN_xCH_Fxxx";
+	//uint8_t header_gen[12]="GEN_xCH_Fxxx";
 #endif //USE_GEN || USE_GEN_PWM
 
 #if defined(USE_GEN) || defined(USE_SCOPE)
@@ -405,13 +406,11 @@ void CommTask(void const *argument){
 			sendScopeConf();
 			break;
 		case MSG_SCOPE_INPUTS:
-			commsSendString(STR_SCOPE);
 			sendScopeInputs();
 			break;
 #endif //USE_SCOPE
 #ifdef USE_COUNTER
 		case MSG_CNT_CONFIG:
-			commsSendString(STR_COUNTER);
 			sendCounterConf();
 			break;
 #endif //USE_COUNTER
@@ -649,7 +648,9 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 	commsSendString(":");
 	commsSendUint32(HAL_RCC_GetHCLKFreq());  //CCLK
 	commsSendString(":");
-	commsSendBuff(MCU_UID,12);
+	commsSendBuff((uint8_t *)MCU_UID,12);
+	commsSendString(":");
+	commsSendBuff((uint8_t *)__DATE__,11);
 	commsSendString(":");
 	commsSendString("LEO FW:"); 	//12
 	commsSendString(FW_VERSION); 			//4
@@ -695,39 +696,29 @@ void sendScopeConf(){
 	uint8_t i;
 	commsSendString(STR_SCOPE);
 	commsSendString(STR_CONFIG);
+	commsSendUint32(SCOPE_RESOURCES);
 	commsSendUint32(MAX_SAMPLING_FREQ_12B);
-	commsSendString(":");
 	commsSendUint32(MAX_INTERLEAVE_FREQ_8B);
-	commsSendString(":");
 	commsSendUint32(MAX_SCOPE_BUFF_SIZE);
-	commsSendString(":");
 	commsSendUint32(MAX_ADC_CHANNELS);
-	commsSendString(":");
 	commsSendUint32(SCOPE_VREF);
-	commsSendString(":");
 	commsSendUint32(SCOPE_VREF_INT);
-	commsSendString(":");
 	for (i=0;i<MAX_ADC_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(SCOPE_CH1_PIN_STR);
-			commsSendString(":");
 			break;
 		case 1:
 			commsSendString(SCOPE_CH2_PIN_STR);
-			commsSendString(":");
 			break;
 		case 2:
 			commsSendString(SCOPE_CH3_PIN_STR);
-			commsSendString(":");
 			break;
 		case 3:
 			commsSendString(SCOPE_CH4_PIN_STR);
-			commsSendString(":");
 			break;
 		}
 	}
-	//commsSendBuff((uint8_t*)scopeGetRanges(&i),i);
 }
 #endif //USE_SCOPE
 
@@ -739,7 +730,9 @@ void sendScopeConf(){
  * @retval None
  */
 void sendCounterConf(){
+	commsSendString(STR_COUNTER);
 	commsSendString(STR_CONFIG);
+	commsSendUint32(COUNTER_RESOURCES);
 	/* Send Spec Counters' limits */
 	commsSendUint32(CNT_HF_MAX);
 	commsSendUint32(CNT_HF_MIN_TG_01);
@@ -771,6 +764,7 @@ void sendCounterConf(){
  */
 void sendScopeInputs(){
 	uint8_t i,j;
+	commsSendString(STR_SCOPE);
 	commsSendString("INP_");
 
 	if(MAX_ADC_CHANNELS>=1){

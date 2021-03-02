@@ -348,7 +348,7 @@ uint32_t genGetRealSmplFreq(uint8_t chan){
 uint8_t genSetLength(uint32_t length,uint8_t chan){
 	uint8_t result=GEN_INVALID_STATE;
 	if(generator.state==GENERATOR_IDLE){
-		uint32_t smpTmp=generator.maxOneChanSamples;
+		//uint32_t smpTmp=generator.maxOneChanSamples;
 		if(length<=generator.maxOneChanSamples){
 			generator.oneChanSamples[chan-1]=length;
 			clearGenBuffer();

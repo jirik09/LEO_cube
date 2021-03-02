@@ -373,7 +373,7 @@ void TIM_SamplingStop(void){
 void GPIO_EnableTrigger(void)
 {
 	GPIO_InitTypeDef   GPIO_InitStructure;
-	IRQn_Type ExtiLine;
+	IRQn_Type ExtiLine = EXTI0_IRQn;
 
 	//restore default settings
 	HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);

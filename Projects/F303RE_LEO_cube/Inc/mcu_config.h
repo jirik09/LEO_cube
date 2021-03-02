@@ -6,12 +6,13 @@
  * @brief   Hardware abstraction for communication
  *****************************************************************************
  */
-#ifndef STM32F4_CONFIG_H_
-#define STM32F4_CONFIG_H_
+#ifndef STM32F3_CONFIG_H_
+#define STM32F3_CONFIG_H_
 
 #include "stm32f3xx_hal.h"
 #include "stm32f3xx_nucleo.h"
 #include "firmware_version.h"
+#include "resources.h"
 //#include "usb_device.h"
 #include "math.h"
 #include "err_list.h"
@@ -21,7 +22,8 @@
 #define SHIELD_STRING_2 " + Shield LEO V0.2"
 #define MCU "STM32F303RE"
 
-#define MCU_UID (uint8_t)*((uint8_t *)0x1FFFF7AC)
+//#define MCU_UID (uint8_t)*((uint8_t *)0x1FFFF7AC)
+#define MCU_UID 0x1FFFF7AC
 
 #define NUCLEO_CRYSTAL_ERROR_PPM  20
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
@@ -55,12 +57,12 @@
 
 
 // Scope constatnts ===========================================================
+#define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
 #define MAX_SAMPLING_FREQ_12B 4000000 //smps
 #define MAX_SAMPLING_FREQ_8B 4800000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
-//#define MIN_ADC_SAMPLING_TIME 2 //1.5 + 0.5 cycle from ADC resolution
 
 
 #define MAX_SCOPE_BUFF_SIZE 30000//40000 //in bytes
@@ -99,39 +101,8 @@
 #endif
 
 
-//scope channels inputs
-static const uint8_t ANALOG_DEFAULT_INPUTS[MAX_ADC_CHANNELS]={2,4,2,1}; //{2,4,2,1};
-static const uint8_t ANALOG_VREF_INPUTS[MAX_ADC_CHANNELS]={8,9,3,3};
-
-
-#define ADC1_NUM_CHANNELS 9
-static const uint16_t ANALOG_PIN_ADC1[ADC1_NUM_CHANNELS] = {				GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_2,			GPIO_PIN_3,			GPIO_PIN_11,		0,							0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC1[ADC1_NUM_CHANNELS] = {				GPIOA,					GPIOA,					GPIOC,					GPIOC,					GPIOC,					GPIOC,					GPIOB,					0,							0};
-static const uint32_t ANALOG_CHANNEL_ADC1[ADC1_NUM_CHANNELS] = {		ADC_CHANNEL_1,	ADC_CHANNEL_2,	ADC_CHANNEL_6,	ADC_CHANNEL_7,	ADC_CHANNEL_8,	ADC_CHANNEL_9,	ADC_CHANNEL_14, ADC_CHANNEL_16, ADC_CHANNEL_18};
-static const char* ANALOG_CHANN_ADC1_NAME[ADC1_NUM_CHANNELS] = { 		"A0", 			"A1", 			"A5", 			"A4", 			"PC2", 			"PC3", 			"PB11", 		"Temp", 		"Vref" };
-
-#define ADC2_NUM_CHANNELS 10
-static const uint16_t ANALOG_PIN_ADC2[ADC2_NUM_CHANNELS] = {				GPIO_PIN_6,			GPIO_PIN_7,			GPIO_PIN_4,			GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_2,			GPIO_PIN_3,			GPIO_PIN_5,			GPIO_PIN_2,			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC2[ADC2_NUM_CHANNELS] = {				GPIOA,					GPIOA,					GPIOC,					GPIOC,					GPIOC,					GPIOC,					GPIOC,					GPIOC,					GPIOB,					0};
-static const uint32_t ANALOG_CHANNEL_ADC2[ADC2_NUM_CHANNELS] = {		ADC_CHANNEL_3,	ADC_CHANNEL_4,	ADC_CHANNEL_5,	ADC_CHANNEL_6,	ADC_CHANNEL_7,	ADC_CHANNEL_8,	ADC_CHANNEL_9,	ADC_CHANNEL_11,	ADC_CHANNEL_12,	ADC_CHANNEL_18};
-static const char* ANALOG_CHANN_ADC2_NAME[ADC2_NUM_CHANNELS] = { 		"D12", 			"D11", 			"PC4", 			"A5", 			"A4", 			"PC2", 			"PC3", 			"PC5", 			"PB2", 			"Vref"};
-
-#define ADC3_NUM_CHANNELS 4
-static const uint16_t ANALOG_PIN_ADC3[ADC3_NUM_CHANNELS] = {				GPIO_PIN_1,			GPIO_PIN_13,		GPIO_PIN_0,			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC3[ADC3_NUM_CHANNELS] = {				GPIOB,					GPIOB,					GPIOB,					0};
-static const uint32_t ANALOG_CHANNEL_ADC3[ADC3_NUM_CHANNELS] = {		ADC_CHANNEL_1,	ADC_CHANNEL_5,	ADC_CHANNEL_12,	ADC_CHANNEL_18};
-static const char* ANALOG_CHANN_ADC3_NAME[ADC3_NUM_CHANNELS] = { 		"PB1", 					"PB13", 				"A3", 					"Vref" };
-
-#define ADC4_NUM_CHANNELS 4
-static const uint16_t ANALOG_PIN_ADC4[ADC4_NUM_CHANNELS] = {				GPIO_PIN_13,		GPIO_PIN_14,		GPIO_PIN_15,		0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC4[ADC4_NUM_CHANNELS] = {				GPIOB,					GPIOB,					GPIOB,					0};
-static const uint32_t ANALOG_CHANNEL_ADC4[ADC4_NUM_CHANNELS] = {		ADC_CHANNEL_3,	ADC_CHANNEL_4,	ADC_CHANNEL_5,	ADC_CHANNEL_18};
-static const char* ANALOG_CHANN_ADC4_NAME[ADC4_NUM_CHANNELS] = { 		"PB13", 				"PB14", 				"PB15", 				"Vref" };
-
-
-static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,ADC2_NUM_CHANNELS,ADC3_NUM_CHANNELS,ADC4_NUM_CHANNELS}; //number of ADC channels {ADC1,ADC2,ADC3,ADC4}
 // Generator constatnts =======================================================
-
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define MAX_GENERATING_FREQ 2000000 //smps
 #define MAX_DAC_CHANNELS 2
 #define MAX_GENERATOR_BUFF_SIZE 8000//2000
@@ -150,6 +121,7 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define GEN_CH2_PIN_STR "D13_" //must be 4 chars
 
 // Counter constatnts =======================================================
+#define COUNTER_RESOURCES TIM2_R|TIM4_R
 #ifdef USE_COUNTER
 /* TIM4 -> ARR & PSC set to gate 100 ms */
 #define TIM4_ARR										999
@@ -235,7 +207,7 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #endif //USE_LOG_ANLYS
 
 //Definition of assert to check length of strings
-#define CASSERT(ex) {typedef char cassert_type[(ex)?1:-1];}
+#define CASSERT(ex) {char cassert[(ex)?1:-1];cassert[0] = 0;if(cassert[0] == 0){}}
 
 
-#endif /* STM32F4_CONFIG_H_ */
+#endif /* STM32F3_CONFIG_H_ */

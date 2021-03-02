@@ -40,6 +40,7 @@
 #include "gpio.h"
 #include "dma.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -371,7 +372,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     	GPIO_InitStruct.Pin = ANALOG_PIN_ADC1[ADCChannel[0]];
     	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     	GPIO_InitStruct.Pull = GPIO_NOPULL;
-    	HAL_GPIO_Init(ANALOG_GPIO_ADC1[ADCChannel[0]], &GPIO_InitStruct);
+    	HAL_GPIO_Init((GPIO_TypeDef *)ANALOG_GPIO_ADC1[ADCChannel[0]], &GPIO_InitStruct);
     }
 
     /* Peripheral DMA init*/
@@ -426,7 +427,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     	GPIO_InitStruct.Pin = ANALOG_PIN_ADC2[ADCChannel[1]];
     	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     	GPIO_InitStruct.Pull = GPIO_NOPULL;
-    	HAL_GPIO_Init(ANALOG_GPIO_ADC2[ADCChannel[1]], &GPIO_InitStruct);
+    	HAL_GPIO_Init((GPIO_TypeDef *)ANALOG_GPIO_ADC2[ADCChannel[1]], &GPIO_InitStruct);
     }
     /* Peripheral DMA init*/
   
@@ -470,7 +471,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     	GPIO_InitStruct.Pin = ANALOG_PIN_ADC3[ADCChannel[2]];
     	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     	GPIO_InitStruct.Pull = GPIO_NOPULL;
-    	HAL_GPIO_Init(ANALOG_GPIO_ADC3[ADCChannel[2]], &GPIO_InitStruct);
+    	HAL_GPIO_Init((GPIO_TypeDef *)ANALOG_GPIO_ADC3[ADCChannel[2]], &GPIO_InitStruct);
     }
     /* Peripheral DMA init*/
   
@@ -524,7 +525,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     	GPIO_InitStruct.Pin = ANALOG_PIN_ADC4[ADCChannel[3]];
     	GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     	GPIO_InitStruct.Pull = GPIO_NOPULL;
-    	HAL_GPIO_Init(ANALOG_GPIO_ADC4[ADCChannel[3]], &GPIO_InitStruct);
+    	HAL_GPIO_Init((GPIO_TypeDef *)ANALOG_GPIO_ADC4[ADCChannel[3]], &GPIO_InitStruct);
     }
     /* Peripheral DMA init*/
   
@@ -738,7 +739,7 @@ uint16_t DMA_GetCurrDataCounter(uint8_t channel){
   * @retval None
   */
 void ADC_set_sampling_time(uint32_t realfreq){
-	uint8_t ADCRes;
+	uint8_t ADCRes = 12;
 	uint32_t cyclesForConversion;
 	switch(ADCResolution){
 		case ADC_RESOLUTION_12B:
