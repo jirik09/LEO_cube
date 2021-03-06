@@ -176,6 +176,8 @@ typedef struct{
 	uint32_t ic2buffer[IC12_BUFFER_SIZE];
 	double ic1freq;
 	double ic2freq;
+	double duty;
+	double pulseWidth;
 	uint8_t ic1psc;
 	uint8_t ic2psc;
 	uint8_t ic1pscTemp;
@@ -205,7 +207,7 @@ typedef struct{
 	counterRefSmplCntChange sampleCntChange;
 	counterRefWarning refWarning;
 	counterIcChannel icChannel1;
-	counterIcChannel icChannel2;	
+	counterIcChannel icChannel2;
 	counterIcDutyCycle icDutyCycle;
 	counterTiStateTypeDef tiState;	
 	counterTiModeTypeDef tiMode;

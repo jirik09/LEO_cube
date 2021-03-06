@@ -89,7 +89,7 @@ void LLCommTask(void const *argument){
 	}
 }
 
-int commSend = 0;
+int testChan1 = 0, testChan2 = 0;
 /**
  * @brief  Communication task function.
  * @param  Task handler, parameters pointer
@@ -276,7 +276,6 @@ void CommTask(void const *argument){
 #ifdef USE_COUNTER
 		case MSG_CNT_SEND_DATA:
 			commsSendString(STR_COUNTER);
-
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
@@ -307,33 +306,34 @@ void CommTask(void const *argument){
 				if(counter.icDutyCycle==DUTY_CYCLE_DISABLED){
 					commsSendString(STR_CNT_IC_FREPER_MEAS);  // frequency or period
 					char *quant;
-					if (counter.icChannel1 ==COUNTER_IRQ_IC){
+					if (counter.icChannel1==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan1 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
 						commsSendString(STR_CNT_IC_CHAN1_DATA);
 						commsSendString(quant);
 						commsSendDouble(counter.counterIc.ic1freq);
 						commsSendDouble(1); // dummy
-						counter.icChannel1=COUNTER_IRQ_IC_PASS;
 						commsSendDouble(counter.qError);
 						commsSendDouble(counter.tbError);
-					}	
-					if(counter.icChannel2==COUNTER_IRQ_IC){
+						testChan1++;
+						counter.icChannel1=COUNTER_IRQ_IC_PASS;
+					}else if(counter.icChannel2==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan2 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
 						commsSendString(STR_CNT_IC_CHAN2_DATA);
 						commsSendString(quant);
 						commsSendDouble(counter.counterIc.ic2freq);
 						commsSendDouble(1); // dummy
-						counter.icChannel2=COUNTER_IRQ_IC_PASS;
 						commsSendDouble(counter.qError2);
 						commsSendDouble(counter.tbError2);
+						testChan2++;
+						counter.icChannel2=COUNTER_IRQ_IC_PASS;
 					}
 				}else{
 					char *chanEnabled = (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) ? STR_CNT_IC_CHAN1_DATA : STR_CNT_IC_CHAN2_DATA;
 					commsSendString(STR_CNT_IC_DUTY_CYCLE);
 					commsSendString(chanEnabled);
 					commsSendString(STR_DUMMY);
-					commsSendDouble(counter.counterIc.ic1freq);
-					commsSendDouble(counter.counterIc.ic2freq);
+					commsSendDouble(counter.counterIc.duty);
+					commsSendDouble(counter.counterIc.pulseWidth);
 					counter.qError = 0; counter.tbError = 0;
 					commsSendDouble(counter.qError);
 					commsSendDouble(counter.tbError);
