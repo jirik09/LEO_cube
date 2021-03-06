@@ -876,8 +876,8 @@ void counterIcProcess(void) {
 					* ((double) (counter.counterIc.ic2BufferSize - 1)
 							/ (double) capture2);
 
-			counter.qError = counterIcCalculateQuantError(2);
-			counter.tbError = counterIcCalculateTimeBaseError(2);
+			counter.qError2 = counterIcCalculateQuantError(2);
+			counter.tbError2 = counterIcCalculateTimeBaseError(2);
 			if (counter.counterIc.quantityChan2 == QUANTITY_PERIOD) {
 				counter.counterIc.ic2freq = 1 / counter.counterIc.ic2freq;
 			}

@@ -198,6 +198,8 @@ typedef struct{
 	uint32_t tim2PrphClk;
 	double qError;		// quantization error
 	double tbError;		// time base error
+	double qError2;		// quantization error
+	double tbError2;		// time base error
 	counterPaused paused;
 	
 	counterRefSmplCntChange sampleCntChange;

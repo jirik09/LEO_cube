@@ -305,7 +305,7 @@ void CommTask(void const *argument){
 			}else if(counter.state==COUNTER_IC){
 				commsSendString(STR_CNT_IC_DATA);
 				if(counter.icDutyCycle==DUTY_CYCLE_DISABLED){
-					commsSendString(STR_CNT_IC_FREPER_MEAS);
+					commsSendString(STR_CNT_IC_FREPER_MEAS);  // frequency or period
 					char *quant;
 					if (counter.icChannel1 ==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan1 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
@@ -314,6 +314,8 @@ void CommTask(void const *argument){
 						commsSendDouble(counter.counterIc.ic1freq);
 						commsSendDouble(1); // dummy
 						counter.icChannel1=COUNTER_IRQ_IC_PASS;
+						commsSendDouble(counter.qError);
+						commsSendDouble(counter.tbError);
 					}	
 					if(counter.icChannel2==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan2 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
@@ -322,6 +324,8 @@ void CommTask(void const *argument){
 						commsSendDouble(counter.counterIc.ic2freq);
 						commsSendDouble(1); // dummy
 						counter.icChannel2=COUNTER_IRQ_IC_PASS;
+						commsSendDouble(counter.qError2);
+						commsSendDouble(counter.tbError2);
 					}
 				}else{
 					char *chanEnabled = (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) ? STR_CNT_IC_CHAN1_DATA : STR_CNT_IC_CHAN2_DATA;
@@ -331,9 +335,9 @@ void CommTask(void const *argument){
 					commsSendDouble(counter.counterIc.ic1freq);
 					commsSendDouble(counter.counterIc.ic2freq);
 					counter.qError = 0; counter.tbError = 0;
+					commsSendDouble(counter.qError);
+					commsSendDouble(counter.tbError);
 				}
-				commsSendDouble(counter.qError);
-				commsSendDouble(counter.tbError);
 
 				/* TI mode configured */
 			}else if(counter.state==COUNTER_TI){
