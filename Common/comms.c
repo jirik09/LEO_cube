@@ -90,6 +90,7 @@ void LLCommTask(void const *argument){
 }
 
 int testChan1 = 0, testChan2 = 0;
+int testIncom = 0;
 /**
  * @brief  Communication task function.
  * @param  Task handler, parameters pointer
@@ -314,8 +315,8 @@ void CommTask(void const *argument){
 						commsSendDouble(1); // dummy
 						commsSendDouble(counter.qError);
 						commsSendDouble(counter.tbError);
-						testChan1++;
 						counter.icChannel1=COUNTER_IRQ_IC_PASS;
+						counterIcRestartMeas(1);
 					}else if(counter.icChannel2==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan2 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
 						commsSendString(STR_CNT_IC_CHAN2_DATA);
@@ -324,9 +325,10 @@ void CommTask(void const *argument){
 						commsSendDouble(1); // dummy
 						commsSendDouble(counter.qError2);
 						commsSendDouble(counter.tbError2);
-						testChan2++;
 						counter.icChannel2=COUNTER_IRQ_IC_PASS;
+						counterIcRestartMeas(2);
 					}
+
 				}else{
 					char *chanEnabled = (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) ? STR_CNT_IC_CHAN1_DATA : STR_CNT_IC_CHAN2_DATA;
 					commsSendString(STR_CNT_IC_DUTY_CYCLE);

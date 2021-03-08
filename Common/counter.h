@@ -8,11 +8,9 @@
 */ 
 
 #ifdef USE_COUNTER
+
 #ifndef COUNTER_H_
 #define COUNTER_H_
-
-/* Includes */
-#include <stdint.h>
 
 /** @addtogroup Counter
   * @{
@@ -73,8 +71,8 @@ typedef enum{
   * @brief  Reciprocal mode ISR pass through flag. 
   */
 typedef enum{
-	COUNTER_IRQ_IC = 0,
-	COUNTER_IRQ_IC_PASS
+	COUNTER_IRQ_IC = 3,
+	COUNTER_IRQ_IC_PASS = 4
 }counterIcChannel;
 
 	/**
@@ -274,6 +272,8 @@ uint8_t counterSetIcTi1_Falling(void);
 uint8_t counterSetIcTi2_Falling(void);
 uint8_t counterSetTiSequence_AB(void);
 uint8_t counterSetTiSequence_BA(void);
+void counterIcRestartMeasCh1(void);
+void counterIcRestartMeasCh2(void);
 void counterIc1BufferConfig(uint16_t ic1buffSize);
 void counterIc2BufferConfig(uint16_t ic2buffSize);
 void counterIcProcess(void);

@@ -15,8 +15,6 @@
 #include "comms.h"
 #include "counter.h"
 #include "tim.h"
-#include "stdlib.h"
-#include "portmacro.h"
 #include "messages.h"
 
 /** @defgroup Counter Counter
@@ -91,6 +89,12 @@ void CounterTask(void const *argument) {
 			break;
 		case MSG_CNT_SET_IC2_QUANTITY_PERIOD:
 			counterSetIc2QuantityPer();
+			break;
+		case MSG_CNT_RESTART_IC1:
+			counterIcRestartMeasCh1();
+			break;
+		case MSG_CNT_RESTART_IC2:
+			counterIcRestartMeasCh2();
 			break;
 		case MSG_CNT_START:
 			counterStart();
@@ -777,7 +781,7 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 	} else if (counter.state == COUNTER_REF) {
 
 		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED)
-				&& (xTaskGetTickCount() - xStartTime) < 100) {
+				&& (xTaskGetTickCount() - xStartTime) < 250) {
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
 			TIM_REF_SecondInputDisable();
@@ -828,7 +832,7 @@ void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  * @retval None
  * @state  VERY USED
  */
-int testChann1 = 0, testChann2 = 0;
+int testChann1 = 0, testChann2 = 0, testIncomm = 0;
 void counterIcProcess(void) {
 	portBASE_TYPE xHigherPriorityTaskWoken;
 	uint16_t passMsg = MSG_CNT_SEND_DATA;
@@ -836,8 +840,7 @@ void counterIcProcess(void) {
 	if (counter.bin != BIN0) {
 		counter.bin = BIN0;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch1)) {
-			testChann1++;
+		if (DMA_TransferComplete(&hdma_tim2_ch1) && counter.icChannel1==COUNTER_IRQ_IC_PASS) {
 			counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();
 			uint32_t capture1 =
 					counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize
@@ -856,14 +859,12 @@ void counterIcProcess(void) {
 			counter.icChannel1 = COUNTER_IRQ_IC;
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
-
-			DMA_Restart(&hdma_tim2_ch1);
 		}
+
 	} else if (counter.bin != BIN1) {
 		counter.bin = BIN1;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
-			testChann2++;
+		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)  && counter.icChannel2==COUNTER_IRQ_IC_PASS) {
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();
 			uint32_t capture2 =
 					counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize
@@ -882,10 +883,26 @@ void counterIcProcess(void) {
 			counter.icChannel2 = COUNTER_IRQ_IC;
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
-
-			DMA_Restart(&hdma_tim2_ch2_ch4);
 		}
 	}
+}
+
+void counterIcRestartMeas(int channel) {
+	uint16_t passMsg;
+	if(channel == 1){
+		passMsg = MSG_CNT_RESTART_IC1;
+	}else if(channel = 2){
+		passMsg = MSG_CNT_RESTART_IC2;
+	}
+	xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+}
+
+void counterIcRestartMeasCh1(void) {
+	DMA_Restart(&hdma_tim2_ch1);
+}
+
+void counterIcRestartMeasCh2(void) {
+	DMA_Restart(&hdma_tim2_ch2_ch4);
 }
 
 /**

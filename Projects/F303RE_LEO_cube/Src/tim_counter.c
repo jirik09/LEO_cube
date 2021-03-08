@@ -7,10 +7,11 @@
  *****************************************************************************
  */
 
+
 #include "tim.h"
+#include "FreeRTOS.h"
 #include "counter.h"
 #include "mcu_config.h"
-#include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 #include "stm32f3xx_ll_tim.h"
@@ -31,6 +32,7 @@
 
 extern portTickType xStartTime;
 extern xSemaphoreHandle counterMutex;
+extern xQueueHandle counterMessageQueue;
 uint32_t timCcerRegCc1eVal = 0x01;
 uint32_t timCcerRegCc2eVal = 0x10;
 
