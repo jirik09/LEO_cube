@@ -24,8 +24,8 @@ typedef enum{
 }syncPwmChannelTypeDef;
 
 typedef enum{
-	CHAN_DISABLE = 0,
-	CHAN_ENABLE
+	CH_DISABLE = 0,
+	CH_ENABLE
 }syncPwmChannelStateTypeDef;
 
 /* Structs */
@@ -35,16 +35,11 @@ typedef enum{
 	 by a new data transfered by DMA. Two dimensional array is needed to define rising edge
 	 and falling edge. */
 typedef struct{		
-	uint16_t dataEdgeChan1[2];
-	uint16_t dataEdgeChan2[2];
-	uint16_t dataEdgeChan3[2];
-	uint16_t dataEdgeChan4[2];		
-	
-	uint16_t timAutoReloadReg;
-	uint16_t timPrescReg;
-	double realPwmFreq;
+	double realPwmFreqCh12;
+	double realPwmFreqCh34;
 	
 	syncPwmChannelTypeDef channelToConfig;
+
 	syncPwmChannelStateTypeDef chan1;
 	syncPwmChannelStateTypeDef chan2;
 	syncPwmChannelStateTypeDef chan3;
@@ -53,7 +48,7 @@ typedef struct{
 }syncPwmTypeDef;
 
 // Externs ===========================================================
-extern volatile syncPwmTypeDef syncPwm;
+extern syncPwmTypeDef syncPwm;
 
 // Functions Prototypes ==============================================
 void SyncPwmTask(void const *argument);
@@ -73,8 +68,8 @@ void syncPwmStop(void);
 
 void syncPwmChannelNumber(uint8_t chanNum);
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
-void syncPwmChannelConfig(uint32_t ccr1st, uint16_t ccr2nd);
-double syncPwmSetFreq(double freq);
+void syncPwmSetFreqCh12(double freq);
+void syncPwmSetFreqCh34(double freq);
 
 void syncPwmSetDefault(void);
 

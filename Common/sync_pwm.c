@@ -20,7 +20,7 @@
 xQueueHandle syncPwmMessageQueue;
 xSemaphoreHandle syncPwmMutex;
 
-volatile syncPwmTypeDef syncPwm;
+syncPwmTypeDef syncPwm;
 
 // Function definitions =======================================================
 /**
@@ -111,59 +111,40 @@ void syncPwmStop(void){
 }	
 
 /* The received number determines what channel needs to be configured. */
-void syncPwmChannelNumber(uint8_t chanNum)
-{	
+void syncPwmChannelNumber(uint8_t chanNum){
 	syncPwm.channelToConfig = (syncPwmChannelTypeDef)chanNum;
 }
 
-/* Set two DMA transfers to transfer the required data to CCR1 register
-	 upon DMA Output Compare event. */
-void syncPwmChannelConfig(uint32_t ccr1st, uint16_t ccr2nd)
-{	
-	TIM_SYNC_PWM_DMA_ChanConfig(ccr1st, ccr2nd);
-}
-
-/* Frequency reconfiguring. */
-double syncPwmSetFreq(double freq)
-{
-	syncPwm.realPwmFreq =  TIM_Reconfig_SyncPwm(freq);
-	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ;
+/* Frequency reconfig */
+void syncPwmSetFreqCh12(double freq){
+	syncPwm.realPwmFreqCh12 = TIM_Reconfig_SyncPwm_Ch12(freq);
+	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH12;
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
-	return syncPwm.realPwmFreq;
 }
 
-void syncPwmSetChannelState(uint8_t channel, uint8_t state)
-{
+void syncPwmSetFreqCh34(double freq){
+	syncPwm.realPwmFreqCh34 = TIM_Reconfig_SyncPwm_Ch34(freq);
+	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH34;
+	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+}
+
+void syncPwmSetChannelState(uint8_t channel, uint8_t state){
 	TIM_SYNC_PWM_ChannelState(channel, state);
 }
 
-void syncPwmSetStepMode(void)
-{
+void syncPwmSetStepMode(void){
 	TIM_SYNC_PWM_StepMode_Enable();
 }
 
-void syncPwmResetStepMode(void)
-{
+void syncPwmResetStepMode(void){
 	TIM_SYNC_PWM_StepMode_Disable();
 }
 
-void syncPwmSetDefault(void)
-{
-	/* Four channels to generate by default. */
-	syncPwm.chan1 = CHAN_ENABLE;
-	syncPwm.chan2 = CHAN_ENABLE;
-	syncPwm.chan3 = CHAN_ENABLE;
-	syncPwm.chan4 = CHAN_ENABLE;
-
-	/* Default 4 channels equidistant 90� and 25% duty cycle settings. */
-	syncPwm.dataEdgeChan1[0] = 3600;
-	syncPwm.dataEdgeChan1[1] = 0;
-	syncPwm.dataEdgeChan2[0] = 7200;
-	syncPwm.dataEdgeChan2[1] = 3600;			
-	syncPwm.dataEdgeChan3[0] = 10400;
-	syncPwm.dataEdgeChan3[1] = 7200;			
-	syncPwm.dataEdgeChan4[0] = 14000;
-	syncPwm.dataEdgeChan4[1] = 10400;		
+void syncPwmSetDefault(void){
+	syncPwm.chan1 = CH_ENABLE;
+	syncPwm.chan2 = CH_ENABLE;
+	syncPwm.chan3 = CH_ENABLE;
+	syncPwm.chan4 = CH_ENABLE;
 }
 
 #endif //USE_SYNC_PWM

@@ -200,8 +200,14 @@ void PWMGeneratingDisable(void);
 
 #ifdef USE_SYNC_PWM
 
+void MX_TIM1_SYNC_PWM_Init(void);
+void MX_TIM3_SYNC_PWM_Init(void);
 void MX_TIM8_SYNC_PWM_Init(void);
+void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM3_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM1_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM3_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 void TIM_SYNC_PWM_Init(void);
@@ -211,7 +217,8 @@ void TIM_SYNC_PWM_Stop(void);
 
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
 void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd);
-double TIM_Reconfig_SyncPwm(double freq);
+double TIM_Reconfig_SyncPwm_Ch12(double freq);
+double TIM_Reconfig_SyncPwm_Ch34(double freq);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);

@@ -366,10 +366,15 @@ void CommTask(void const *argument){
 			/* ------------------ END OF COUNTER ------------------ */
 			/* ---------------------------------------------------- */
 #ifdef USE_SYNC_PWM
-		case MSG_SYNCPWM_REAL_FREQ:
+		case MSG_SYNCPWM_REAL_FREQ_CH12:
 			commsSendString(STR_SYNC_PWM);
-			commsSendString(STR_SYNC_PWM_REAL_FREQ);
-			commsSendDouble(syncPwm.realPwmFreq);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH12);
+			commsSendDouble(syncPwm.realPwmFreqCh12);
+			break;
+		case MSG_SYNCPWM_REAL_FREQ_CH34:
+			commsSendString(STR_SYNC_PWM);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH34);
+			commsSendDouble(syncPwm.realPwmFreqCh34);
 			break;
 #endif // USE_SYNC_PWM
 		/* Send LOGIC ANALYZER data */

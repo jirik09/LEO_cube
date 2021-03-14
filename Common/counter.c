@@ -891,7 +891,7 @@ void counterIcRestartMeas(int channel) {
 	uint16_t passMsg;
 	if(channel == 1){
 		passMsg = MSG_CNT_RESTART_IC1;
-	}else if(channel = 2){
+	}else if(channel == 2){
 		passMsg = MSG_CNT_RESTART_IC2;
 	}
 	xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);

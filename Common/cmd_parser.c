@@ -738,20 +738,23 @@ command parseSyncPwmCmd(void){
 			cmdIn = CMD_ERR;
 		}
 		break;
-	case CMD_SYNC_PWM_CHAN_CONFIG:
-		cmdIn = giveNextCmd();
-		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmChannelConfig(((cmdIn)&0xffff0000)>>16,(uint16_t)(cmdIn));
-		}else{
-			cmdIn = CMD_ERR;
-		}
-		break;
-	case CMD_SYNC_PWM_FREQ:
+	case CMD_SYNC_PWM_FREQ_CH12:
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
 		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmSetFreq(freq);
+			syncPwmSetFreqCh12(freq);
+		}else{
+			cmdIn = CMD_ERR;
+			error = SYNC_PWM_INVALID_FEATURE;
+		}
+		break;
+	case CMD_SYNC_PWM_FREQ_CH34:
+		cmdIn = giveNextCmd();
+		secondHalfOfDouble = commBufferReadUInt32();
+		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+			syncPwmSetFreqCh34(freq);
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;

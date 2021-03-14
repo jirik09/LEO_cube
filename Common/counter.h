@@ -272,6 +272,7 @@ uint8_t counterSetIcTi1_Falling(void);
 uint8_t counterSetIcTi2_Falling(void);
 uint8_t counterSetTiSequence_AB(void);
 uint8_t counterSetTiSequence_BA(void);
+void counterIcRestartMeas(int channel);
 void counterIcRestartMeasCh1(void);
 void counterIcRestartMeasCh2(void);
 void counterIc1BufferConfig(uint16_t ic1buffSize);
