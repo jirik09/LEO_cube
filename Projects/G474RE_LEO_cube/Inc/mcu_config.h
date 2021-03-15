@@ -12,6 +12,7 @@
 #include "stm32g4xx_hal.h"
 //#include "stm32f3xx_nucleo.h"
 #include "firmware_version.h"
+#include "resources.h"
 //#include "usb_device.h"
 #include "math.h"
 #include "err_list.h"
@@ -22,6 +23,9 @@
 #define MCU "STM32G474RE"
 
 #define MCU_UID (uint8_t)*((uint8_t *) 0x1FFF7590)
+
+#define NUCLEO_CRYSTAL_ERROR_PPM  20
+#define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
 // Communication constatnts ===================================================
 #define COMM_BUFFER_SIZE 512
@@ -47,7 +51,8 @@
 
 
 
-// Scope constatnts ===========================================================
+// Scope constatnts ===========================================================¨
+#define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
 #define MAX_SAMPLING_FREQ_12B 4000000 //smps
 #define MAX_SAMPLING_FREQ_8B 4800000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 8000000 //smps
@@ -93,39 +98,8 @@
 #endif
 
 
-//scope channels inputs
-static const uint8_t ANALOG_DEFAULT_INPUTS[MAX_ADC_CHANNELS]={0,0,0,0}; //{2,4,2,1};
-static const uint8_t ANALOG_VREF_INPUTS[MAX_ADC_CHANNELS]={8,7,3,3};
-
-
-#define ADC1_NUM_CHANNELS 9
-static const uint16_t ANALOG_PIN_ADC1[ADC1_NUM_CHANNELS] = {				GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_2,			GPIO_PIN_3,			GPIO_PIN_2,			GPIO_PIN_3,			GPIO_PIN_11,		0,						0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC1[ADC1_NUM_CHANNELS] = {				GPIOC,				GPIOC,				GPIOC,				GPIOC,				GPIOA,				GPIOA,				GPIOB,				0,						0};
-static const uint32_t ANALOG_CHANNEL_ADC1[ADC1_NUM_CHANNELS] = {			ADC_CHANNEL_6,		ADC_CHANNEL_7,		ADC_CHANNEL_8,		ADC_CHANNEL_9,		ADC_CHANNEL_3,		ADC_CHANNEL_4,		ADC_CHANNEL_14, 	ADC_CHANNEL_16, 		ADC_CHANNEL_VREFINT};
-static const char* ANALOG_CHANN_ADC1_NAME[ADC1_NUM_CHANNELS] = { 			"A5", 				"A4", 				"PC2", 				"PC3", 				"PA2", 				"PA3", 				"PB11", 			"Temp", 				"Vref" };
-
-#define ADC2_NUM_CHANNELS 8
-static const uint16_t ANALOG_PIN_ADC2[ADC2_NUM_CHANNELS] = {				GPIO_PIN_1,			GPIO_PIN_0,			GPIO_PIN_6,			GPIO_PIN_2,			GPIO_PIN_3,			GPIO_PIN_2,			GPIO_PIN_15,			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC2[ADC2_NUM_CHANNELS] = {				GPIOC,				GPIOC,				GPIOA,				GPIOC,				GPIOC,				GPIOB,				GPIOB,					0};
-static const uint32_t ANALOG_CHANNEL_ADC2[ADC2_NUM_CHANNELS] = {			ADC_CHANNEL_7,		ADC_CHANNEL_6,		ADC_CHANNEL_3,		ADC_CHANNEL_8,		ADC_CHANNEL_9,		ADC_CHANNEL_12,		ADC_CHANNEL_15,			ADC_CHANNEL_17};
-static const char* ANALOG_CHANN_ADC2_NAME[ADC2_NUM_CHANNELS] = { 			"A4", 				"A5", 				"D12",				"PC2", 				"PC3", 				"PB2", 				"PB15", 				"Vref"};
-
-#define ADC3_NUM_CHANNELS 4
-static const uint16_t ANALOG_PIN_ADC3[ADC3_NUM_CHANNELS] = {				GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_13,		0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC3[ADC3_NUM_CHANNELS] = {				GPIOB,				GPIOB,				GPIOB,				0};
-static const uint32_t ANALOG_CHANNEL_ADC3[ADC3_NUM_CHANNELS] = {			ADC_CHANNEL_12,		ADC_CHANNEL_1,		ADC_CHANNEL_5,		ADC_CHANNEL_VREFINT};
-static const char* ANALOG_CHANN_ADC3_NAME[ADC3_NUM_CHANNELS] = { 			"A3",				"PB1", 				"PB13", 			"Vref" };
-
-#define ADC4_NUM_CHANNELS 4
-static const uint16_t ANALOG_PIN_ADC4[ADC4_NUM_CHANNELS] = {				GPIO_PIN_14,		GPIO_PIN_12,		GPIO_PIN_15,		0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC4[ADC4_NUM_CHANNELS] = {				GPIOB,				GPIOB,				GPIOB,				0};
-static const uint32_t ANALOG_CHANNEL_ADC4[ADC4_NUM_CHANNELS] = {			ADC_CHANNEL_4,		ADC_CHANNEL_3,		ADC_CHANNEL_5,		ADC_CHANNEL_VREFINT};
-static const char* ANALOG_CHANN_ADC4_NAME[ADC4_NUM_CHANNELS] = { 			"PB14", 			"PB12", 			"PB15", 			"Vref" };
-
-
-static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,ADC2_NUM_CHANNELS,ADC3_NUM_CHANNELS,ADC4_NUM_CHANNELS}; //number of ADC channels {ADC1,ADC2,ADC3,ADC4}
 // Generator constatnts =======================================================
-
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define MAX_GENERATING_FREQ 2000000 //smps
 #define MAX_DAC_CHANNELS 2
 #define MAX_GENERATOR_BUFF_SIZE 10000//2000
@@ -144,21 +118,40 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 #define GEN_CH2_PIN_STR "D13_" //must be 4 chars
 
 // Counter constatnts =======================================================
+#define COUNTER_RESOURCES TIM2_R|TIM4_R
 #ifdef USE_COUNTER
-	/* TIM4 -> ARR & PSC set to gate 100 ms */
-	#define TIM4_ARR										999			
-	#define TIM4_PSC										16799
-	#define IC_THRESHOLD								20	
-	
-	/* Instead send for. ex. "HF      " or "LF RF   " */
-	#define COUNTER_MODES								"HF LF FR EV"
-	
-	/* When porting && less pins -> send "-- " */
-	#define CNT_ETR_PIN									"A0 "
-	#define CNT_IC_CH1_PIN							"A0 "	// PA0
-	#define CNT_IC_CH2_PIN							"A1 "	// PA1
-	#define CNT_REF1_PIN								"D7 "	// PA8
-	#define CNT_REF2_PIN								"A0 "	
+
+#define TIM4_ARR										999
+#define TIM4_PSC										16799
+#define IC_THRESHOLD								20
+/* Counter Modes supported */
+#define COUNTER_MODE_HF								"HF__"
+#define COUNTER_MODE_LF								"LF__"
+#define COUNTER_MODE_FR								"FR__"
+#define COUNTER_MODE_TI								"TI__"
+
+/* Ranges definitions depending on gate time */
+#define CNT_HF_MAX		(uint32_t)300000000
+#define CNT_HF_MIN_TG_01	(uint32_t)38000
+#define CNT_HF_MIN_TG_05	(uint32_t)16970
+#define CNT_HF_MIN_TG_1	(uint32_t)12000
+#define CNT_HF_MIN_TG_5	(uint32_t)5366
+#define CNT_HF_MIN_TG_10	(uint32_t)3800
+
+#define CNT_LF_MAX		(uint32_t)1000000
+#define CNT_LF_MIN		(double)0.033528
+
+#define CNT_REF_INPUT_MAX		(uint32_t)36000000
+#define CNT_REF_CHAN_MAX		(uint32_t)36000000
+
+/* When porting && less pins -> send "-- " */
+#define CNT_ETR_PIN								"A0__"
+#define CNT_IC_PIN_CH1							"A0__"	// PA0
+#define CNT_IC_PIN_CH2							"A1__"	// PA1
+#define CNT_REF_PIN_IN1							"D7__"	// PA8
+#define CNT_REF_PIN_IN2							"A0__"
+#define CNT_TI_PIN_CH1							"A0__"	// PA0
+#define CNT_TI_PIN_CH2							"A1__"	// PA1
 	
 	/* Define frequencies to send to PC application to process correct calculations. */
 	#define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 168000000

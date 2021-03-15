@@ -6,6 +6,7 @@
 *.ko
 *.obj
 *.elf
+*.mk
 
 # Linker output
 *.ilk
@@ -41,6 +42,7 @@
 *.su
 *.idb
 *.pdb
+Debug/
 
 
 *.mk
@@ -48,3 +50,4 @@
 *.launch
 *.list
 Projects/F303RE_LEO_cube/Debug/makefile
+

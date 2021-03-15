@@ -3,8 +3,8 @@
  * @file    resources.h
  *****************************************************************************
  */
-#ifndef STM32F3_RESOURCES_H_
-#define STM32F3_RESOURCES_H_
+#ifndef STM3G43_RESOURCES_H_
+#define STM3G43_RESOURCES_H_
 
 #define DMA1_R 0x0001
 #define DMA2_R 0x0002
@@ -48,4 +48,4 @@
 #define RESERVED1_R 0x80000000
 
 
-#endif /*STM32F3_RESOURCES_H_*/
+#endif /*STM3G43_RESOURCES_H_*/

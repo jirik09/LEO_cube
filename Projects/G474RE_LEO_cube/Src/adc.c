@@ -40,6 +40,7 @@
 #include "gpio.h"
 #include "dma.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 
 /* USER CODE BEGIN 0 */
 
