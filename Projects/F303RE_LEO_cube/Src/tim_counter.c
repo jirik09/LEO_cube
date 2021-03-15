@@ -201,7 +201,7 @@ void MX_TIM2_ICorTI_Init(void)
 /** @defgroup Counter_Timer_MSPInit_Functions Counter Timer MSP (De)Init Functions
  * @{
  */
-void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM2_CNT_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -239,7 +239,7 @@ void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
 	counterEtrRefSetDefault();
 }
 
-void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM2_CNT_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -296,7 +296,7 @@ void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 	counterIcTiSetDefault();
 }
 
-void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM4_CNT_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 

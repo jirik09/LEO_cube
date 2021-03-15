@@ -216,9 +216,10 @@ void TIM_SYNC_PWM_Start(void);
 void TIM_SYNC_PWM_Stop(void);
 
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
-void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd);
 double TIM_Reconfig_SyncPwm_Ch12(double freq);
 double TIM_Reconfig_SyncPwm_Ch34(double freq);
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, uint32_t phase);
+void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
@@ -293,9 +294,9 @@ void MX_TIM4_Init(void);
 void MX_TIM2_ETRorREF_Init(void);
 void MX_TIM2_ICorTI_Init(void);
 
-void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM2_CNT_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM2_CNT_ICorTI_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM4_CNT_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM2_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM4_CNT_MspDeinit(TIM_HandleTypeDef* htim_base);
 

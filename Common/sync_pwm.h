@@ -15,18 +15,12 @@
 /* Includes */
 #include <stdint.h>
 
-/* Enums */
-typedef enum{
-	SYNC_PWM_CHANNEL1 = 1,
-	SYNC_PWM_CHANNEL2 = 2,
-	SYNC_PWM_CHANNEL3 = 3,
-	SYNC_PWM_CHANNEL4 = 4
-}syncPwmChannelTypeDef;
+#define SYNC_PWM_CHAN_NUM	4
 
 typedef enum{
 	CH_DISABLE = 0,
 	CH_ENABLE
-}syncPwmChannelStateTypeDef;
+}syncPwmStateTypeDef;
 
 /* Structs */
 /* Timer set in Toggle mode (beside PWM mode 1/2, Asymmetrical mode, ...).
@@ -37,14 +31,10 @@ typedef enum{
 typedef struct{		
 	double realPwmFreqCh12;
 	double realPwmFreqCh34;
-	
-	syncPwmChannelTypeDef channelToConfig;
 
-	syncPwmChannelStateTypeDef chan1;
-	syncPwmChannelStateTypeDef chan2;
-	syncPwmChannelStateTypeDef chan3;
-	syncPwmChannelStateTypeDef chan4;
-	syncPwmChannelStateTypeDef stepMode;
+	syncPwmStateTypeDef chan[SYNC_PWM_CHAN_NUM];
+	syncPwmStateTypeDef chanInvert[SYNC_PWM_CHAN_NUM];
+	syncPwmStateTypeDef stepMode;
 }syncPwmTypeDef;
 
 // Externs ===========================================================
@@ -66,10 +56,11 @@ void syncPwmDeinit(void);
 void syncPwmStart(void);
 void syncPwmStop(void);
 
-void syncPwmChannelNumber(uint8_t chanNum);
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t state);
 void syncPwmSetFreqCh12(double freq);
 void syncPwmSetFreqCh34(double freq);
+void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase);
 
 void syncPwmSetDefault(void);
 
