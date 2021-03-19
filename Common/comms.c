@@ -422,6 +422,7 @@ void CommTask(void const *argument){
 #endif //USE_SCOPE
 #ifdef USE_COUNTER
 		case MSG_CNT_CONFIG:
+			commsSendString(STR_COUNTER);
 			sendCounterConf();
 			break;
 #endif //USE_COUNTER
@@ -741,7 +742,6 @@ void sendScopeConf(){
  * @retval None
  */
 void sendCounterConf(){
-	commsSendString(STR_COUNTER);
 	commsSendString(STR_CONFIG);
 	commsSendUint32(COUNTER_RESOURCES);
 	/* Send Spec Counters' limits */
@@ -894,12 +894,13 @@ void sendGenPwmConf(void){
  */
 void sendSyncPwmConf(void)
 {
-	uint8_t i;
-	commsSendString("SYNP");		
-	commsSendUint32(SYNC_PWM_TIM_PERIPH_CLOCK);
+	commsSendString(STR_CONFIG);
+	commsSendUint32(SYNC_PWM_RESOURCES);
+
 	commsSendUint32(MAX_SYNC_PWM_FREQ);
 	commsSendUint32(MAX_SYNC_PWM_CHANNELS);
-	for (i=0;i<MAX_SYNC_PWM_CHANNELS;i++){
+
+	for (int i=0;i<MAX_SYNC_PWM_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(SYNC_PWM_CH1_PIN);

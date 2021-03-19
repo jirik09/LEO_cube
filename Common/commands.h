@@ -108,7 +108,7 @@ typedef uint32_t command;
 #define CMD_RESET_DEVICE 						SWAP_UINT32(0x52455321)			//	RES!
 #define CMD_SCOPE 						SWAP_UINT32(0x4f534350)			//	OSCP
 #define CMD_GENERATOR 						SWAP_UINT32(0x47454e5f)			//	GEN_
-#define CMD_SYNC_PWM 						SWAP_UINT32(0x53594e50)			//	SYNP
+#define CMD_SYNC_PWM 						SWAP_UINT32(0x5350574d)			//	SPWM
 #define CMD_LOG_ANLYS 						SWAP_UINT32(0x4c4f4741)			//	LOGA
 #define CMD_COUNTER 						SWAP_UINT32(0x434e545f)			//	CNT_
 #define CMD_COMMS 						SWAP_UINT32(0x434f4d53)			//	COMS

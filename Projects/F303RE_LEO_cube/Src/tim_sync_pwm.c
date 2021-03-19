@@ -98,6 +98,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
 
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 9000;
@@ -106,6 +107,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM2;
 	sConfigOC.Pulse = 18000;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
 
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 27000;
@@ -142,7 +144,7 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig);
 
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
-	sConfigOC.Pulse = 9000;
+	sConfigOC.Pulse = 18000;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
@@ -151,8 +153,9 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1);
 
 	sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM2;
-	sConfigOC.Pulse = 18000;
+	sConfigOC.Pulse = 9000;
 	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
 
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 36000;
@@ -161,6 +164,7 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM2;
 	sConfigOC.Pulse = 27000;
 	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_ENABLE);
 
 	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
 	sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
@@ -174,6 +178,7 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	sBreakDeadTimeConfig.Break2Filter = 0;
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
 	HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig);
+	__HAL_TIM_MOE_ENABLE(&htim8);
 }
 
 void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
@@ -191,7 +196,7 @@ void TIM3_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
 	GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_8;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -209,7 +214,7 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
 	GPIO_InitStruct.Pin = GPIO_PIN_7 | GPIO_PIN_9;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate = GPIO_AF4_TIM8;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
