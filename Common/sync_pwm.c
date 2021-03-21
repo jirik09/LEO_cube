@@ -110,11 +110,6 @@ void syncPwmStop(void){
 	TIM_SYNC_PWM_Stop();
 }	
 
-/* The received number determines what channel needs to be configured. */
-void syncPwmChannelNumber(uint8_t chanNum){
-	syncPwm.channelToConfig = (syncPwmChannelTypeDef)chanNum;
-}
-
 /* Frequency reconfig */
 void syncPwmSetFreqCh12(double freq){
 	syncPwm.realPwmFreqCh12 = TIM_Reconfig_SyncPwm_Ch12(freq);
@@ -128,8 +123,17 @@ void syncPwmSetFreqCh34(double freq){
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
+void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase){
+	TIM_SYNC_PWM_SetChanDutyPhase(channel, dutyCycle, phase);
+}
+
 void syncPwmSetChannelState(uint8_t channel, uint8_t state){
 	TIM_SYNC_PWM_ChannelState(channel, state);
+}
+
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t state){
+	TIM_SYNC_PWM_SetChanInvert(channel, state);
+	syncPwm.chanInvert[channel] = state;
 }
 
 void syncPwmSetStepMode(void){
@@ -141,10 +145,10 @@ void syncPwmResetStepMode(void){
 }
 
 void syncPwmSetDefault(void){
-	syncPwm.chan1 = CH_ENABLE;
-	syncPwm.chan2 = CH_ENABLE;
-	syncPwm.chan3 = CH_ENABLE;
-	syncPwm.chan4 = CH_ENABLE;
+	for(int i = 0; i < SYNC_PWM_CHAN_NUM; i++){
+		syncPwm.chan[i] = CH_ENABLE;
+		syncPwm.chanInvert[i] = CH_DISABLE;
+	}
 }
 
 #endif //USE_SYNC_PWM

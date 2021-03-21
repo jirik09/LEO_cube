@@ -97,15 +97,15 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 #ifdef USE_COUNTER
 	if (htim_base->Instance == TIM2) {
 		if (counter.state == COUNTER_ETR || counter.state == COUNTER_REF) {
-			TIM2_ETRorREF_MspInit(htim_base);
+			TIM2_CNT_ETRorREF_MspInit(htim_base);
 		} else if (counter.state == COUNTER_IC || counter.state == COUNTER_TI) {
-			TIM2_ICorTI_MspInit(htim_base);
+			TIM2_CNT_ICorTI_MspInit(htim_base);
 		}
 	}else if (htim_base->Instance == TIM4) {
 #ifdef USE_LOG_ANLYS
 		if (logAnlys.enable == LOGA_DISABLED) {
 #endif //USE_LOG_ANLYS
-			TIM4_REForICorTI_MspInit(htim_base);
+			TIM4_CNT_REForICorTI_MspInit(htim_base);
 #ifdef USE_LOG_ANLYS
 		}
 #endif //USE_LOG_ANLYS
