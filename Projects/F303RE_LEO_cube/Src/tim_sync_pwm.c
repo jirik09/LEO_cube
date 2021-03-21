@@ -298,8 +298,8 @@ void TIM_SYNC_PWM_Start(void) {
 }
 
 void TIM_SYNC_PWM_Stop(void) {
-	LL_TIM_DisableCounter(htim3.Instance);
-	LL_TIM_DisableCounter(htim8.Instance);
+	HAL_TIM_Base_Stop(&htim3);
+	HAL_TIM_Base_Stop(&htim8);
 }
 
 /**
