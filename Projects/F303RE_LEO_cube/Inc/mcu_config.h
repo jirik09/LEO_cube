@@ -174,6 +174,7 @@
 #endif //USE_GEN_PWM
 
 // Synchronized PWM generator constants ====================================
+#define SYNC_PWM_RESOURCES TIM1_R|TIM3_R|TIM8_R
 #ifdef USE_SYNC_PWM
 #define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #define MAX_SYNC_PWM_FREQ						(uint32_t) 100000

@@ -8,11 +8,9 @@
 */ 
 
 #ifdef USE_COUNTER
+
 #ifndef COUNTER_H_
 #define COUNTER_H_
-
-/* Includes */
-#include <stdint.h>
 
 /** @addtogroup Counter
   * @{
@@ -73,8 +71,8 @@ typedef enum{
   * @brief  Reciprocal mode ISR pass through flag. 
   */
 typedef enum{
-	COUNTER_IRQ_IC = 0,
-	COUNTER_IRQ_IC_PASS
+	COUNTER_IRQ_IC = 3,
+	COUNTER_IRQ_IC_PASS = 4
 }counterIcChannel;
 
 	/**
@@ -176,6 +174,8 @@ typedef struct{
 	uint32_t ic2buffer[IC12_BUFFER_SIZE];
 	double ic1freq;
 	double ic2freq;
+	double duty;
+	double pulseWidth;
 	uint8_t ic1psc;
 	uint8_t ic2psc;
 	uint8_t ic1pscTemp;
@@ -198,12 +198,14 @@ typedef struct{
 	uint32_t tim2PrphClk;
 	double qError;		// quantization error
 	double tbError;		// time base error
+	double qError2;		// quantization error
+	double tbError2;		// time base error
 	counterPaused paused;
 	
 	counterRefSmplCntChange sampleCntChange;
 	counterRefWarning refWarning;
 	counterIcChannel icChannel1;
-	counterIcChannel icChannel2;	
+	counterIcChannel icChannel2;
 	counterIcDutyCycle icDutyCycle;
 	counterTiStateTypeDef tiState;	
 	counterTiModeTypeDef tiMode;
@@ -270,6 +272,9 @@ uint8_t counterSetIcTi1_Falling(void);
 uint8_t counterSetIcTi2_Falling(void);
 uint8_t counterSetTiSequence_AB(void);
 uint8_t counterSetTiSequence_BA(void);
+void counterIcRestartMeas(int channel);
+void counterIcRestartMeasCh1(void);
+void counterIcRestartMeasCh2(void);
 void counterIc1BufferConfig(uint16_t ic1buffSize);
 void counterIc2BufferConfig(uint16_t ic2buffSize);
 void counterIcProcess(void);

@@ -15,18 +15,12 @@
 /* Includes */
 #include <stdint.h>
 
-/* Enums */
-typedef enum{
-	SYNC_PWM_CHANNEL1 = 1,
-	SYNC_PWM_CHANNEL2 = 2,
-	SYNC_PWM_CHANNEL3 = 3,
-	SYNC_PWM_CHANNEL4 = 4
-}syncPwmChannelTypeDef;
+#define SYNC_PWM_CHAN_NUM	4
 
 typedef enum{
-	CHAN_DISABLE = 0,
-	CHAN_ENABLE
-}syncPwmChannelStateTypeDef;
+	CH_DISABLE = 0,
+	CH_ENABLE
+}syncPwmStateTypeDef;
 
 /* Structs */
 /* Timer set in Toggle mode (beside PWM mode 1/2, Asymmetrical mode, ...).
@@ -35,25 +29,16 @@ typedef enum{
 	 by a new data transfered by DMA. Two dimensional array is needed to define rising edge
 	 and falling edge. */
 typedef struct{		
-	uint16_t dataEdgeChan1[2];
-	uint16_t dataEdgeChan2[2];
-	uint16_t dataEdgeChan3[2];
-	uint16_t dataEdgeChan4[2];		
-	
-	uint16_t timAutoReloadReg;
-	uint16_t timPrescReg;
-	double realPwmFreq;
-	
-	syncPwmChannelTypeDef channelToConfig;
-	syncPwmChannelStateTypeDef chan1;
-	syncPwmChannelStateTypeDef chan2;
-	syncPwmChannelStateTypeDef chan3;
-	syncPwmChannelStateTypeDef chan4;
-	syncPwmChannelStateTypeDef stepMode;
+	double realPwmFreqCh12;
+	double realPwmFreqCh34;
+
+	syncPwmStateTypeDef chan[SYNC_PWM_CHAN_NUM];
+	syncPwmStateTypeDef chanInvert[SYNC_PWM_CHAN_NUM];
+	syncPwmStateTypeDef stepMode;
 }syncPwmTypeDef;
 
 // Externs ===========================================================
-extern volatile syncPwmTypeDef syncPwm;
+extern syncPwmTypeDef syncPwm;
 
 // Functions Prototypes ==============================================
 void SyncPwmTask(void const *argument);
@@ -71,10 +56,11 @@ void syncPwmDeinit(void);
 void syncPwmStart(void);
 void syncPwmStop(void);
 
-void syncPwmChannelNumber(uint8_t chanNum);
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
-void syncPwmChannelConfig(uint32_t ccr1st, uint16_t ccr2nd);
-double syncPwmSetFreq(double freq);
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t state);
+void syncPwmSetFreqCh12(double freq);
+void syncPwmSetFreqCh34(double freq);
+void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase);
 
 void syncPwmSetDefault(void);
 

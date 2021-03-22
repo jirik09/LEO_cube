@@ -89,7 +89,8 @@ void LLCommTask(void const *argument){
 	}
 }
 
-int commSend = 0;
+int testChan1 = 0, testChan2 = 0;
+int testIncom = 0;
 /**
  * @brief  Communication task function.
  * @param  Task handler, parameters pointer
@@ -276,7 +277,6 @@ void CommTask(void const *argument){
 #ifdef USE_COUNTER
 		case MSG_CNT_SEND_DATA:
 			commsSendString(STR_COUNTER);
-
 			/* ETR mode configured */	
 			if(counter.state==COUNTER_ETR){
 				commsSendString(STR_CNT_ETR_DATA);
@@ -305,35 +305,41 @@ void CommTask(void const *argument){
 			}else if(counter.state==COUNTER_IC){
 				commsSendString(STR_CNT_IC_DATA);
 				if(counter.icDutyCycle==DUTY_CYCLE_DISABLED){
-					commsSendString(STR_CNT_IC_FREPER_MEAS);
+					commsSendString(STR_CNT_IC_FREPER_MEAS);  // frequency or period
 					char *quant;
-					if (counter.icChannel1 ==COUNTER_IRQ_IC){
+					if (counter.icChannel1==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan1 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
 						commsSendString(STR_CNT_IC_CHAN1_DATA);
 						commsSendString(quant);
 						commsSendDouble(counter.counterIc.ic1freq);
 						commsSendDouble(1); // dummy
+						commsSendDouble(counter.qError);
+						commsSendDouble(counter.tbError);
 						counter.icChannel1=COUNTER_IRQ_IC_PASS;
-					}	
-					if(counter.icChannel2==COUNTER_IRQ_IC){
+						counterIcRestartMeas(1);
+					}else if(counter.icChannel2==COUNTER_IRQ_IC){
 						quant = (counter.counterIc.quantityChan2 == QUANTITY_FREQUENCY) ? STR_CNT_QUANT_FREQ : STR_CNT_QUANT_PERI;
 						commsSendString(STR_CNT_IC_CHAN2_DATA);
 						commsSendString(quant);
 						commsSendDouble(counter.counterIc.ic2freq);
 						commsSendDouble(1); // dummy
+						commsSendDouble(counter.qError2);
+						commsSendDouble(counter.tbError2);
 						counter.icChannel2=COUNTER_IRQ_IC_PASS;
+						counterIcRestartMeas(2);
 					}
+
 				}else{
 					char *chanEnabled = (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) ? STR_CNT_IC_CHAN1_DATA : STR_CNT_IC_CHAN2_DATA;
 					commsSendString(STR_CNT_IC_DUTY_CYCLE);
 					commsSendString(chanEnabled);
 					commsSendString(STR_DUMMY);
-					commsSendDouble(counter.counterIc.ic1freq);
-					commsSendDouble(counter.counterIc.ic2freq);
+					commsSendDouble(counter.counterIc.duty);
+					commsSendDouble(counter.counterIc.pulseWidth);
 					counter.qError = 0; counter.tbError = 0;
+					commsSendDouble(counter.qError);
+					commsSendDouble(counter.tbError);
 				}
-				commsSendDouble(counter.qError);
-				commsSendDouble(counter.tbError);
 
 				/* TI mode configured */
 			}else if(counter.state==COUNTER_TI){
@@ -360,10 +366,15 @@ void CommTask(void const *argument){
 			/* ------------------ END OF COUNTER ------------------ */
 			/* ---------------------------------------------------- */
 #ifdef USE_SYNC_PWM
-		case MSG_SYNCPWM_REAL_FREQ:
+		case MSG_SYNCPWM_REAL_FREQ_CH12:
 			commsSendString(STR_SYNC_PWM);
-			commsSendString(STR_SYNC_PWM_REAL_FREQ);
-			commsSendDouble(syncPwm.realPwmFreq);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH12);
+			commsSendDouble(syncPwm.realPwmFreqCh12);
+			break;
+		case MSG_SYNCPWM_REAL_FREQ_CH34:
+			commsSendString(STR_SYNC_PWM);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH34);
+			commsSendDouble(syncPwm.realPwmFreqCh34);
 			break;
 #endif // USE_SYNC_PWM
 		/* Send LOGIC ANALYZER data */
@@ -411,6 +422,7 @@ void CommTask(void const *argument){
 #endif //USE_SCOPE
 #ifdef USE_COUNTER
 		case MSG_CNT_CONFIG:
+			commsSendString(STR_COUNTER);
 			sendCounterConf();
 			break;
 #endif //USE_COUNTER
@@ -730,7 +742,6 @@ void sendScopeConf(){
  * @retval None
  */
 void sendCounterConf(){
-	commsSendString(STR_COUNTER);
 	commsSendString(STR_CONFIG);
 	commsSendUint32(COUNTER_RESOURCES);
 	/* Send Spec Counters' limits */
@@ -883,12 +894,13 @@ void sendGenPwmConf(void){
  */
 void sendSyncPwmConf(void)
 {
-	uint8_t i;
-	commsSendString("SYNP");		
-	commsSendUint32(SYNC_PWM_TIM_PERIPH_CLOCK);
+	commsSendString(STR_CONFIG);
+	commsSendUint32(SYNC_PWM_RESOURCES);
+
 	commsSendUint32(MAX_SYNC_PWM_FREQ);
 	commsSendUint32(MAX_SYNC_PWM_CHANNELS);
-	for (i=0;i<MAX_SYNC_PWM_CHANNELS;i++){
+
+	for (int i=0;i<MAX_SYNC_PWM_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(SYNC_PWM_CH1_PIN);

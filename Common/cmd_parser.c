@@ -49,6 +49,8 @@ command parseLogAnlysCmd(void);
 command giveNextCmd(void);
 command parseCounterCmd(void);
 command parseGenPwmCmd(void);
+
+double getDouble(command cmd);
 void printErrResponse(command cmd);
 /**
  * @}
@@ -695,8 +697,7 @@ command parseSyncPwmCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
 	uint16_t passMsg;
-	uint32_t secondHalfOfDouble;
-	double freq;
+	double temp, temp2;
 
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
@@ -730,28 +731,32 @@ command parseSyncPwmCmd(void){
 			error = SYNC_PWM_INVALID_FEATURE;
 		}
 		break;
-	case CMD_SYNC_PWM_CHAN_NUM:
+	case CMD_SYNC_PWM_FREQ_CH12:
 		cmdIn = giveNextCmd();
+		temp = getDouble(cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmChannelNumber((uint8_t)cmdIn);
+			syncPwmSetFreqCh12(temp);
 		}else{
 			cmdIn = CMD_ERR;
+			error = SYNC_PWM_INVALID_FEATURE;
 		}
 		break;
-	case CMD_SYNC_PWM_CHAN_CONFIG:
+	case CMD_SYNC_PWM_FREQ_CH34:
 		cmdIn = giveNextCmd();
+		temp = getDouble(cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmChannelConfig(((cmdIn)&0xffff0000)>>16,(uint16_t)(cmdIn));
+			syncPwmSetFreqCh34(temp);
 		}else{
 			cmdIn = CMD_ERR;
+			error = SYNC_PWM_INVALID_FEATURE;
 		}
 		break;
-	case CMD_SYNC_PWM_FREQ:
-		cmdIn = giveNextCmd();
-		secondHalfOfDouble = commBufferReadUInt32();
-		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+	case CMD_SYNC_PWM_DUTYPHASE_CONFIG:
+		temp = getDouble(giveNextCmd());  // duty cycle (Two 32-bit num)
+		temp2 = giveNextCmd(); 			  // phase (One 32-bit num)
+		cmdIn = giveNextCmd();  		  // channel number (32-bit num)
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmSetFreq(freq);
+			syncPwmSetDutyAndPhase(cmdIn, temp, temp2);
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;
@@ -761,6 +766,15 @@ command parseSyncPwmCmd(void){
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			syncPwmSetChannelState(((cmdIn)&0xff00)>>8,(uint8_t)(cmdIn));
+		}else{
+			cmdIn = CMD_ERR;
+			error = SYNC_PWM_INVALID_FEATURE;
+		}
+		break;
+	case CMD_SYNC_PWM_CHAN_INVERT:
+		cmdIn = giveNextCmd();
+		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
+			syncPwmSetChannelInvert(((cmdIn)&0xff00)>>8,(uint8_t)(cmdIn));
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;
@@ -828,7 +842,7 @@ command parseLogAnlysCmd(void){
 	case CMD_LOG_ANLYS_POSTTRIG:
 		cmdIn = giveNextCmd();
 		uint32_t secondHalfOfDouble = commBufferReadUInt32();
-		double postTrigTime = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		double postTrigTime = makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			logAnlysSetPosttrigger(postTrigTime);
 		}else{
@@ -986,7 +1000,7 @@ command parseGeneratorCmd(void){
 	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
-		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		freq = makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 0);
 		}else{
@@ -996,7 +1010,7 @@ command parseGeneratorCmd(void){
 	case CMD_GEN_PWM_FREQ_CH2:
 		cmdIn = giveNextCmd();
 		secondHalfOfDouble = commBufferReadUInt32();
-		freq = makeDoubleFromTwo32bit(secondHalfOfDouble, cmdIn);
+		freq = makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmdIn);
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 1);
 		}else{
@@ -1136,7 +1150,7 @@ void printErrResponse(command cmd){
 	}
 }
 
-double makeDoubleFromTwo32bit(uint32_t word1, uint32_t word2){
+double makeDoubleOutOfTwo32bit(uint32_t word1, uint32_t word2){
 	uint32_t makeArray[2];
 	makeArray[0] = word1;
 	makeArray[1] = word2;
@@ -1144,6 +1158,11 @@ double makeDoubleFromTwo32bit(uint32_t word1, uint32_t word2){
 	double doubleVal;
 	memcpy(&doubleVal, makeArray, sizeof(doubleVal));
 	return doubleVal;
+}
+
+double getDouble(command cmd){
+	uint32_t secondHalfOfDouble = commBufferReadUInt32();
+	return makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmd);
 }
 
 

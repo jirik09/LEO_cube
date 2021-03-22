@@ -7,10 +7,11 @@
  *****************************************************************************
  */
 
+
 #include "tim.h"
+#include "FreeRTOS.h"
 #include "counter.h"
 #include "mcu_config.h"
-#include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
 #include "stm32f3xx_ll_tim.h"
@@ -31,6 +32,7 @@
 
 extern portTickType xStartTime;
 extern xSemaphoreHandle counterMutex;
+extern xQueueHandle counterMessageQueue;
 uint32_t timCcerRegCc1eVal = 0x01;
 uint32_t timCcerRegCc2eVal = 0x10;
 
@@ -199,7 +201,7 @@ void MX_TIM2_ICorTI_Init(void)
 /** @defgroup Counter_Timer_MSPInit_Functions Counter Timer MSP (De)Init Functions
  * @{
  */
-void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM2_CNT_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -237,7 +239,7 @@ void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base)
 	counterEtrRefSetDefault();
 }
 
-void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM2_CNT_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -294,7 +296,7 @@ void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 	counterIcTiSetDefault();
 }
 
-void TIM4_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
+void TIM4_CNT_REForICorTI_MspInit(TIM_HandleTypeDef* htim_base)
 {
 	GPIO_InitTypeDef GPIO_InitStruct;
 

@@ -15,8 +15,6 @@
 #include "comms.h"
 #include "counter.h"
 #include "tim.h"
-#include "stdlib.h"
-#include "portmacro.h"
 #include "messages.h"
 
 /** @defgroup Counter Counter
@@ -91,6 +89,12 @@ void CounterTask(void const *argument) {
 			break;
 		case MSG_CNT_SET_IC2_QUANTITY_PERIOD:
 			counterSetIc2QuantityPer();
+			break;
+		case MSG_CNT_RESTART_IC1:
+			counterIcRestartMeasCh1();
+			break;
+		case MSG_CNT_RESTART_IC2:
+			counterIcRestartMeasCh2();
 			break;
 		case MSG_CNT_START:
 			counterStart();
@@ -777,7 +781,7 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 	} else if (counter.state == COUNTER_REF) {
 
 		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED)
-				&& (xTaskGetTickCount() - xStartTime) < 100) {
+				&& (xTaskGetTickCount() - xStartTime) < 250) {
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
 			TIM_REF_SecondInputDisable();
@@ -828,18 +832,15 @@ void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  * @retval None
  * @state  VERY USED
  */
+int testChann1 = 0, testChann2 = 0, testIncomm = 0;
 void counterIcProcess(void) {
 	portBASE_TYPE xHigherPriorityTaskWoken;
 	uint16_t passMsg = MSG_CNT_SEND_DATA;
 
 	if (counter.bin != BIN0) {
-		/* BINx is used to alternate data sending from IC1 and IC2. Thanks to DMA_TransferComplete function
-		 if there's still no data available from one source (ICx) the second one is not stalled. Meaning,
-		 IC channels don't have to necessarilly rotate/alternate if the difference of frequencies is big. */
 		counter.bin = BIN0;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch1)) {
-
+		if (DMA_TransferComplete(&hdma_tim2_ch1) && counter.icChannel1==COUNTER_IRQ_IC_PASS) {
 			counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();
 			uint32_t capture1 =
 					counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize
@@ -855,18 +856,15 @@ void counterIcProcess(void) {
 				counter.counterIc.ic1freq = 1 / counter.counterIc.ic1freq;
 			}
 
-			DMA_Restart(&hdma_tim2_ch1);
 			counter.icChannel1 = COUNTER_IRQ_IC;
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
 		}
 
 	} else if (counter.bin != BIN1) {
-
 		counter.bin = BIN1;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
-
+		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)  && counter.icChannel2==COUNTER_IRQ_IC_PASS) {
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();
 			uint32_t capture2 =
 					counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize
@@ -876,16 +874,83 @@ void counterIcProcess(void) {
 					* ((double) (counter.counterIc.ic2BufferSize - 1)
 							/ (double) capture2);
 
-			counter.qError = counterIcCalculateQuantError(2);
-			counter.tbError = counterIcCalculateTimeBaseError(2);
+			counter.qError2 = counterIcCalculateQuantError(2);
+			counter.tbError2 = counterIcCalculateTimeBaseError(2);
 			if (counter.counterIc.quantityChan2 == QUANTITY_PERIOD) {
 				counter.counterIc.ic2freq = 1 / counter.counterIc.ic2freq;
 			}
 
-			DMA_Restart(&hdma_tim2_ch2_ch4);
 			counter.icChannel2 = COUNTER_IRQ_IC;
 			xQueueSendToBackFromISR(messageQueue, &passMsg,
 					&xHigherPriorityTaskWoken);
+		}
+	}
+}
+
+void counterIcRestartMeas(int channel) {
+	uint16_t passMsg;
+	if(channel == 1){
+		passMsg = MSG_CNT_RESTART_IC1;
+	}else if(channel == 2){
+		passMsg = MSG_CNT_RESTART_IC2;
+	}
+	xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
+}
+
+void counterIcRestartMeasCh1(void) {
+	DMA_Restart(&hdma_tim2_ch1);
+}
+
+void counterIcRestartMeasCh2(void) {
+	DMA_Restart(&hdma_tim2_ch2_ch4);
+}
+
+/**
+ * @brief  Function colaborating with counterPeriodElapsedCallback to handle
+ one input (TI1 or TI2) that is feeding two IC registers to calculate pulse width
+ and duty cycle. BIN implemented due to UART speed issue when sending data to PC.
+ * @param  None
+ * @retval None
+ * @state  VERY USED
+ */
+void counterIcDutyCycleProcess(void) {
+	portBASE_TYPE xHigherPriorityTaskWoken;
+	uint16_t passMsg = MSG_CNT_SEND_DATA;
+
+	if (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) {
+		if (DMA_TransferComplete(&hdma_tim2_ch1)) {
+			/* Calculate duty cycle (ic1freq) and pulse width(ic2freq). Frequency struct variables temporarily used. */
+			counter.counterIc.duty = (counter.counterIc.ic2buffer[0]
+					/ (double) counter.counterIc.ic1buffer[0]) * 100;
+			counter.counterIc.pulseWidth = counter.counterIc.ic2buffer[0]
+					/ (double) counter.tim2PrphClk;
+
+			TIM_IC_DutyCycleDmaRestart();
+
+			/* DMA transfers some unspecified number immediately after
+			 Duty Cycle start - getting rid of it. */
+			if (counter.bin == BIN0) {
+				counter.bin = BIN1;
+			} else {
+				xQueueSendToBackFromISR(messageQueue, &passMsg,
+						&xHigherPriorityTaskWoken);
+			}
+		}
+	} else if (counter.icDutyCycle == DUTY_CYCLE_CH2_ENABLED) {
+		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
+			counter.counterIc.duty = (counter.counterIc.ic1buffer[0]
+					/ (double) counter.counterIc.ic2buffer[0]) * 100;
+			counter.counterIc.pulseWidth = counter.counterIc.ic1buffer[0]
+					/ (double) counter.tim2PrphClk;
+
+			TIM_IC_DutyCycleDmaRestart();
+
+			if (counter.bin == BIN0) {
+				counter.bin = BIN1;
+			} else {
+				xQueueSendToBackFromISR(messageQueue, &passMsg,
+						&xHigherPriorityTaskWoken);
+			}
 		}
 	}
 }
@@ -935,56 +1000,6 @@ void counterTiProcess(void) {
 		counter.tiState = TIMEOUT;
 		xQueueSendToBackFromISR(messageQueue, &passMsg,
 				&xHigherPriorityTaskWoken);
-	}
-}
-
-/**
- * @brief  Function colaborating with counterPeriodElapsedCallback to handle
- one input (TI1 or TI2) that is feeding two IC registers to calculate pulse width
- and duty cycle. BIN implemented due to UART speed issue when sending data to PC.
- * @param  None
- * @retval None
- * @state  VERY USED
- */
-void counterIcDutyCycleProcess(void) {
-	portBASE_TYPE xHigherPriorityTaskWoken;
-	uint16_t passMsg = MSG_CNT_SEND_DATA;
-
-	if (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) {
-		if (DMA_TransferComplete(&hdma_tim2_ch1)) {
-			/* Calculate duty cycle (ic1freq) and pulse width(ic2freq). Frequency struct variables temporarily used. */
-			counter.counterIc.ic1freq = (counter.counterIc.ic2buffer[0]
-					/ (double) counter.counterIc.ic1buffer[0]) * 100;
-			counter.counterIc.ic2freq = counter.counterIc.ic2buffer[0]
-					/ (double) counter.tim2PrphClk;
-
-			TIM_IC_DutyCycleDmaRestart();
-
-			/* DMA transfers some unspecified number immediately after 
-			 Duty Cycle start - getting rid of it. */
-			if (counter.bin == BIN0) {
-				counter.bin = BIN1;
-			} else {
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
-			}
-		}
-	} else if (counter.icDutyCycle == DUTY_CYCLE_CH2_ENABLED) {
-		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
-			counter.counterIc.ic1freq = (counter.counterIc.ic1buffer[0]
-					/ (double) counter.counterIc.ic2buffer[0]) * 100;
-			counter.counterIc.ic2freq = counter.counterIc.ic1buffer[0]
-					/ (double) counter.tim2PrphClk;
-
-			TIM_IC_DutyCycleDmaRestart();
-
-			if (counter.bin == BIN0) {
-				counter.bin = BIN1;
-			} else {
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
-			}
-		}
 	}
 }
 
