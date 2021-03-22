@@ -827,11 +827,29 @@ void sendScopeInputs(){
  */
 void sendGenConf(){
 	uint8_t i;
-	commsSendString("GEN_");
+	commsSendString(STR_CONFIG);
+	commsSendUint32(GENERATOR_RESOURCES);
 	commsSendUint32(MAX_GENERATING_FREQ);
+	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
 	commsSendUint32(DAC_DATA_DEPTH);
 	commsSendUint32(MAX_DAC_CHANNELS);
+
+#ifdef USE_SHIELD
+	if(isScopeShieldConnected()){
+		commsSendInt32(SHIELD_GEN_LOW);
+		commsSendUint32(SHIELD_GEN_HIGH); 
+	}else{
+		commsSendUint32(0);
+		commsSendUint32(GEN_VREF);
+	}
+#else
+	commsSendUint32(GEN_RANGE_LOW);
+	commsSendUint32(GEN_RANGE_HIGH);
+#endif
+	commsSendUint32(GEN_VDDA);
+	commsSendUint32(GEN_VREF_INT);
+
 	for (i=0;i<MAX_DAC_CHANNELS;i++){
 		switch(i){
 		case 0:
@@ -842,20 +860,6 @@ void sendGenConf(){
 			break;
 		}
 	}
-#ifdef USE_SHIELD
-	if(isScopeShieldConnected()){
-		commsSendInt32(SHIELD_GEN_LOW);
-		commsSendUint32(SHIELD_GEN_HIGH); 
-	}else{
-		commsSendUint32(0);
-		commsSendUint32(GEN_VREF);
-	}
-#else
-	commsSendUint32(0);
-	commsSendUint32(GEN_VREF);
-#endif
-	commsSendUint32(GEN_VDDA);
-	commsSendUint32(GEN_VREF_INT);
 }
 #endif //USE_GEN
 
