@@ -731,21 +731,19 @@ command parseSyncPwmCmd(void){
 			error = SYNC_PWM_INVALID_FEATURE;
 		}
 		break;
-	case CMD_SYNC_PWM_FREQ_CH12:
+	case CMD_SYNC_PWM_FREQ:
 		cmdIn = giveNextCmd();
-		temp = getDouble(cmdIn);
+		temp = getDouble(giveNextCmd());
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmSetFreqCh12(temp);
-		}else{
-			cmdIn = CMD_ERR;
-			error = SYNC_PWM_INVALID_FEATURE;
-		}
-		break;
-	case CMD_SYNC_PWM_FREQ_CH34:
-		cmdIn = giveNextCmd();
-		temp = getDouble(cmdIn);
-		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			syncPwmSetFreqCh34(temp);
+			if(cmdIn == CMD_CHANNELS_1){
+				syncPwmSetFreqCh1(temp);
+			}else if(cmdIn == CMD_CHANNELS_2){
+				syncPwmSetFreqCh2(temp);
+			}else if(cmdIn == CMD_CHANNELS_3){
+				/* not yet used - not independent channels */
+			}else if(cmdIn == CMD_CHANNELS_4){
+
+			}
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;

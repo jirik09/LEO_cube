@@ -19,7 +19,7 @@
 
 typedef enum{
 	CH_DISABLE = 0,
-	CH_ENABLE
+	CH_ENABLE = 1
 }syncPwmStateTypeDef;
 
 /* Structs */
@@ -29,8 +29,8 @@ typedef enum{
 	 by a new data transfered by DMA. Two dimensional array is needed to define rising edge
 	 and falling edge. */
 typedef struct{		
-	double realPwmFreqCh12;
-	double realPwmFreqCh34;
+	double realPwmFreqCh1;
+	double realPwmFreqCh2;
 
 	syncPwmStateTypeDef chan[SYNC_PWM_CHAN_NUM];
 	syncPwmStateTypeDef chanInvert[SYNC_PWM_CHAN_NUM];
@@ -57,9 +57,9 @@ void syncPwmStart(void);
 void syncPwmStop(void);
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
-void syncPwmSetChannelInvert(uint8_t channel, uint8_t state);
-void syncPwmSetFreqCh12(double freq);
-void syncPwmSetFreqCh34(double freq);
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert);
+void syncPwmSetFreqCh1(double freq);
+void syncPwmSetFreqCh2(double freq);
 void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase);
 
 void syncPwmSetDefault(void);

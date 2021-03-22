@@ -289,7 +289,23 @@ void TIM_SYNC_PWM_Deinit(void) {
  */
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
 	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
-	/* TODO - function for dis/enabling the channel */
+
+	uint32_t chanState = ((_Bool)state) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
+
+	switch(channel){
+	case 1:
+		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
+		break;
+	case 2:
+		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
+		break;
+	case 3:
+		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
+		break;
+	case 4:
+		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
+		break;
+	}
 }
 
 void TIM_SYNC_PWM_Start(void) {
@@ -332,12 +348,12 @@ void TIM_SYNC_PWM_StepMode_Disable(void) {
  * @params arrPsc: ARR and PSC register of TIM8
  * @retval None
  */
-double TIM_Reconfig_SyncPwm_Ch12(double freq) {
+double TIM_Reconfig_SyncPwm_Ch1(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34); // HAL_RCC_GetHCLKFreq();
 	return TIM_ReconfigPrecise(&htim3, periphClock, freq);
 }
 
-double TIM_Reconfig_SyncPwm_Ch34(double freq) {
+double TIM_Reconfig_SyncPwm_Ch2(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);
 	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
 }
@@ -382,8 +398,6 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, uint32_t 
 }
 
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert) {
-	syncPwm.chanInvert[channel] = (syncPwmStateTypeDef) setInvert;
-
 	switch (channel) {
 	case 1:
 		if (setInvert == 0) {

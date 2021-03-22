@@ -111,15 +111,15 @@ void syncPwmStop(void){
 }	
 
 /* Frequency reconfig */
-void syncPwmSetFreqCh12(double freq){
-	syncPwm.realPwmFreqCh12 = TIM_Reconfig_SyncPwm_Ch12(freq);
-	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH12;
+void syncPwmSetFreqCh1(double freq){
+	syncPwm.realPwmFreqCh1 = TIM_Reconfig_SyncPwm_Ch1(freq);
+	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH1;
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
-void syncPwmSetFreqCh34(double freq){
-	syncPwm.realPwmFreqCh34 = TIM_Reconfig_SyncPwm_Ch34(freq);
-	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH34;
+void syncPwmSetFreqCh2(double freq){
+	syncPwm.realPwmFreqCh2 = TIM_Reconfig_SyncPwm_Ch2(freq);
+	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH2;
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
@@ -131,9 +131,9 @@ void syncPwmSetChannelState(uint8_t channel, uint8_t state){
 	TIM_SYNC_PWM_ChannelState(channel, state);
 }
 
-void syncPwmSetChannelInvert(uint8_t channel, uint8_t state){
-	TIM_SYNC_PWM_SetChanInvert(channel, state);
-	syncPwm.chanInvert[channel] = state;
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
+	TIM_SYNC_PWM_SetChanInvert(channel, setInvert);
+	syncPwm.chanInvert[channel] = setInvert;
 }
 
 void syncPwmSetStepMode(void){

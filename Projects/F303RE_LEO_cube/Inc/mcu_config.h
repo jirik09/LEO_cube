@@ -176,9 +176,12 @@
 // Synchronized PWM generator constants ====================================
 #define SYNC_PWM_RESOURCES TIM1_R|TIM3_R|TIM8_R
 #ifdef USE_SYNC_PWM
-#define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #define MAX_SYNC_PWM_FREQ						(uint32_t) 100000
-#define MAX_SYNC_PWM_CHANNELS				(uint32_t) 4
+#define MAX_SYNC_PWM_CHANNELS					(uint32_t) 4
+#define SYNC_PWM_CHANNELS_DEPENDENCE			(uint32_t) DEPENDENCE_CH13_CH24
+
+#define DEPENDENCE_NONE      0
+#define DEPENDENCE_CH13_CH24 1
 
 #define SYNC_PWM_CH1_PIN						"PC6_"
 #define SYNC_PWM_CH2_PIN						"PC7_"
