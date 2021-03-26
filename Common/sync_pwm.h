@@ -18,16 +18,16 @@
 #define SYNC_PWM_CHAN_NUM	4
 
 typedef enum{
+	STOPPED = 0,
+	RUNNING = 1
+}syncPwmStopRunState;
+
+typedef enum{
 	CH_DISABLE = 0,
 	CH_ENABLE = 1
 }syncPwmStateTypeDef;
 
 /* Structs */
-/* Timer set in Toggle mode (beside PWM mode 1/2, Asymmetrical mode, ...).
-	 This configuration allows a transition from one logic state to another (Output Compare)
-	 under the condition CNT == CCRx. Upon first transition the CCRx register is changed 
-	 by a new data transfered by DMA. Two dimensional array is needed to define rising edge
-	 and falling edge. */
 typedef struct{		
 	double realPwmFreqCh1;
 	double realPwmFreqCh2;
@@ -35,6 +35,9 @@ typedef struct{
 	syncPwmStateTypeDef chan[SYNC_PWM_CHAN_NUM];
 	syncPwmStateTypeDef chanInvert[SYNC_PWM_CHAN_NUM];
 	syncPwmStateTypeDef stepMode;
+
+	syncPwmStopRunState state;
+	syncPwmStopRunState prevState;
 }syncPwmTypeDef;
 
 // Externs ===========================================================
@@ -58,9 +61,10 @@ void syncPwmStop(void);
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state);
 void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert);
-void syncPwmSetFreqCh1(double freq);
-void syncPwmSetFreqCh2(double freq);
-void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase);
+void syncPwmSetFreq(uint32_t channel, double freq);
+void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, double phase);
+
+void syncPwmOpmPeriodElapsedCallback(TIM_HandleTypeDef *htim);
 
 void syncPwmSetDefault(void);
 

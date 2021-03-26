@@ -93,6 +93,9 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
 
 #ifdef USE_SYNC_PWM
 
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim8;
+
   #define __STEP_MODE_ENABLE()  		TIM8->CR1 |= TIM_CR1_OPM
 	#define __STEP_MODE_DISABLE()  		TIM8->CR1 &= ~TIM_CR1_OPM
 
@@ -216,13 +219,15 @@ void TIM_SYNC_PWM_Start(void);
 void TIM_SYNC_PWM_Stop(void);
 
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
-double TIM_Reconfig_SyncPwm_Ch12(double freq);
-double TIM_Reconfig_SyncPwm_Ch34(double freq);
-void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, uint32_t phase);
+double TIM_Reconfig_SyncPwm_Ch1(double freq);
+double TIM_Reconfig_SyncPwm_Ch2(double freq);
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase);
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
+
+void TIM_SYNC_PWM_EnableInterruptOnSlowTimer(_Bool enable);
 
 #endif // USE_SYNC_PWM
 

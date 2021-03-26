@@ -46,8 +46,8 @@ typedef uint32_t command;
 #endif //USE_GEN_PWM
 
 #ifdef USE_SYNC_PWM
-#define STR_SYNC_PWM_REAL_FREQ_CH12 "SP12"
-#define STR_SYNC_PWM_REAL_FREQ_CH34 "SP34"
+#define STR_SYNC_PWM_REAL_FREQ "SPRF"
+#define STR_SYNC_PWM_OPM_PERIOD_ELAPSED "SPPE"
 #endif // USE_SYNC_PWM
 
 #ifdef USE_COUNTER

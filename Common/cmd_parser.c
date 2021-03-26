@@ -732,27 +732,19 @@ command parseSyncPwmCmd(void){
 		}
 		break;
 	case CMD_SYNC_PWM_FREQ:
+		temp = giveNextCmd() / (double)giveNextCmd();
 		cmdIn = giveNextCmd();
-		temp = getDouble(giveNextCmd());
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
-			if(cmdIn == CMD_CHANNELS_1){
-				syncPwmSetFreqCh1(temp);
-			}else if(cmdIn == CMD_CHANNELS_2){
-				syncPwmSetFreqCh2(temp);
-			}else if(cmdIn == CMD_CHANNELS_3){
-				/* not yet used - not independent channels */
-			}else if(cmdIn == CMD_CHANNELS_4){
-
-			}
+			syncPwmSetFreq(cmdIn, temp);
 		}else{
 			cmdIn = CMD_ERR;
 			error = SYNC_PWM_INVALID_FEATURE;
 		}
 		break;
 	case CMD_SYNC_PWM_DUTYPHASE_CONFIG:
-		temp = getDouble(giveNextCmd());  // duty cycle (Two 32-bit num)
-		temp2 = giveNextCmd(); 			  // phase (One 32-bit num)
-		cmdIn = giveNextCmd();  		  // channel number (32-bit num)
+		temp = giveNextCmd() / (double)giveNextCmd();
+		temp2 = giveNextCmd() / (double)giveNextCmd();
+		cmdIn = giveNextCmd();  		    	// channel number
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			syncPwmSetDutyAndPhase(cmdIn, temp, temp2);
 		}else{
