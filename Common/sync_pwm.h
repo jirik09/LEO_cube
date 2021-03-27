@@ -16,6 +16,9 @@
 #include <stdint.h>
 
 #define SYNC_PWM_CHAN_NUM	4
+#define SYNC_PWM_PI_HALF	90
+#define SYNC_PWM_DEF_FREQ	1000
+#define SYNC_PWM_DEF_DC 	25
 
 typedef enum{
 	STOPPED = 0,
@@ -26,6 +29,11 @@ typedef enum{
 	CH_DISABLE = 0,
 	CH_ENABLE = 1
 }syncPwmStateTypeDef;
+
+typedef struct{
+	float dc;
+	float phase;
+}syncPwmDcPhase;
 
 /* Structs */
 typedef struct{		
@@ -38,6 +46,8 @@ typedef struct{
 
 	syncPwmStopRunState state;
 	syncPwmStopRunState prevState;
+
+	syncPwmDcPhase chanDcPhase[SYNC_PWM_CHAN_NUM];
 }syncPwmTypeDef;
 
 // Externs ===========================================================

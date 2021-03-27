@@ -49,9 +49,9 @@ void MX_TIM1_SYNC_PWM_Init(void) {
 	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
 	htim1.Instance = TIM1;
-	htim1.Init.Prescaler = 65535;
+	htim1.Init.Prescaler = 0;
 	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim1.Init.Period = 65535;
+	htim1.Init.Period = 0;
 	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim1.Init.RepetitionCounter = 0;
 	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -112,6 +112,11 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 27000;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
+
+	HAL_NVIC_EnableIRQ(TIM3_IRQn);
+	HAL_NVIC_SetPriority(TIM3_IRQn, 9, 0);
+
+	TIM_Reconfig_SyncPwm_Ch1(syncPwm.realPwmFreqCh1);
 }
 
 void MX_TIM8_SYNC_PWM_Init(void) {
@@ -179,6 +184,11 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
 	HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig);
 	__HAL_TIM_MOE_ENABLE(&htim8);
+
+	HAL_NVIC_EnableIRQ(TIM8_UP_IRQn);
+	HAL_NVIC_SetPriority(TIM8_UP_IRQn, 9, 0);
+
+	TIM_Reconfig_SyncPwm_Ch2(syncPwm.realPwmFreqCh2);
 }
 
 void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
@@ -222,18 +232,17 @@ void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
 }
 
 void TIM1_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
-	/* Peripheral clock disable */
 	__HAL_RCC_TIM1_CLK_DISABLE();
 }
 
 void TIM3_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
-	/* Peripheral clock disable */
 	__HAL_RCC_TIM3_CLK_DISABLE();
+	HAL_NVIC_DisableIRQ(TIM3_IRQn);
 }
 
 void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
-	/* Peripheral clock disable */
 	__HAL_RCC_TIM8_CLK_DISABLE();
+	HAL_NVIC_DisableIRQ(TIM8_UP_IRQn);
 }
 
 /**
@@ -257,87 +266,85 @@ void TIM_SYNC_PWM_Init(void) {
 void TIM_SYNC_PWM_Deinit(void) {
 	TIM_SYNC_PWM_Stop();
 
-	HAL_TIM_Base_DeInit(&htim1);
-	HAL_TIM_Base_DeInit(&htim8);
-	HAL_TIM_Base_DeInit(&htim3);
-
-	/* Reset TIM8 preipheral */
-	__HAL_RCC_TIM1_FORCE_RESET();
-	__HAL_RCC_TIM1_RELEASE_RESET();
-	__HAL_RCC_TIM3_FORCE_RESET();
-	__HAL_RCC_TIM3_RELEASE_RESET();
-	__HAL_RCC_TIM8_FORCE_RESET();
-	__HAL_RCC_TIM8_RELEASE_RESET();
-}
-
-void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
-	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
-
-	uint32_t chanState = ((_Bool) state) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
-
-	switch (channel) {
-	case 1:
-		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
-		break;
-	case 2:
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
-		break;
-	case 3:
-		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
-		break;
-	case 4:
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
-		break;
-	}
+//	HAL_TIM_Base_DeInit(&htim1);
+//	HAL_TIM_Base_DeInit(&htim8);
+//	HAL_TIM_Base_DeInit(&htim3);
+//
+//	/* Reset TIM8 preipheral */
+//	__HAL_RCC_TIM1_FORCE_RESET();
+//	__HAL_RCC_TIM1_RELEASE_RESET();
+//	__HAL_RCC_TIM3_FORCE_RESET();
+//	__HAL_RCC_TIM3_RELEASE_RESET();
+//	__HAL_RCC_TIM8_FORCE_RESET();
+//	__HAL_RCC_TIM8_RELEASE_RESET();
 }
 
 void TIM_SYNC_PWM_Start(void) {
+	__HAL_TIM_SET_COUNTER(&htim3, 0);
+	__HAL_TIM_SET_COUNTER(&htim8, 0);
 	LL_TIM_EnableCounter(htim1.Instance);
-	LL_TIM_DisableCounter(htim1.Instance);
+	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
+	syncPwm.state = RUNNING;
 }
 
 void TIM_SYNC_PWM_Stop(void) {
-	HAL_TIM_Base_Stop(&htim3);
-	HAL_TIM_Base_Stop(&htim8);
+	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(false);
+	LL_TIM_DisableCounter(htim1.Instance);
+	LL_TIM_DisableCounter(htim3.Instance);
+	LL_TIM_DisableCounter(htim8.Instance);
+	syncPwm.state = STOPPED;
 }
 
 void TIM_SYNC_PWM_StepMode_Enable(void) {
 	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	TIM_SYNC_PWM_EnableInterruptOnSlowTimer(true);
+	syncPwm.stepMode = CH_ENABLE;
 }
 
 void TIM_SYNC_PWM_StepMode_Disable(void) {
 	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	TIM_SYNC_PWM_EnableInterruptOnSlowTimer(false);
-}
-
-void TIM_SYNC_PWM_EnableInterruptOnSlowTimer(_Bool enable) {
-	if (enable) {
-		if (syncPwm.realPwmFreqCh1 > syncPwm.realPwmFreqCh2) {
-			LL_TIM_GenerateEvent_UPDATE(TIM3);
-			HAL_NVIC_EnableIRQ(TIM3_IRQn);
-			HAL_NVIC_SetPriority(TIM3_IRQn, 9, 0);
-			__HAL_TIM_CLEAR_FLAG(&htim3, TIM_FLAG_UPDATE);
-			__HAL_TIM_ENABLE_IT(&htim3, TIM_DIER_UIE);
-		} else {
-			LL_TIM_GenerateEvent_UPDATE(TIM8);
-			HAL_NVIC_EnableIRQ(TIM8_UP_IRQn);
-			HAL_NVIC_SetPriority(TIM8_UP_IRQn, 9, 0);
-			__HAL_TIM_CLEAR_FLAG(&htim8, TIM_FLAG_UPDATE);
-			__HAL_TIM_ENABLE_IT(&htim8, TIM_DIER_UIE);
-		}
-	} else {
-		HAL_NVIC_DisableIRQ(TIM3_IRQn);
-		__HAL_TIM_DISABLE_IT(&htim3, TIM_DIER_UIE);
-		HAL_NVIC_DisableIRQ(TIM8_UP_IRQn);
-		__HAL_TIM_DISABLE_IT(&htim8, TIM_DIER_UIE);
-	}
+	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(false);
+	syncPwm.stepMode = CH_DISABLE;
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 	syncPwmOpmPeriodElapsedCallback(htim);
+	TIM_SYNC_PWM_Stop();
+}
+
+void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base){
+	htim_base->Instance->SR = 0;
+}
+
+void TIM_SYNC_PWM_State_LoadStartSaveStop(_Bool enable){
+	if (syncPwm.stepMode == CH_ENABLE) {
+		syncPwm.prevState = syncPwm.state;
+		if (enable) {
+			if (syncPwm.prevState == RUNNING)
+				TIM_SYNC_PWM_Start();
+		} else {
+			if (syncPwm.state == RUNNING)
+				TIM_SYNC_PWM_Stop();
+		}
+	}
+}
+
+void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable) {
+	if(syncPwm.stepMode == CH_ENABLE){
+		if (enable) {
+			if (syncPwm.realPwmFreqCh1 > syncPwm.realPwmFreqCh2) {
+				TIM_SYNC_PWM_ClearFlagsIT(&htim3);
+				__HAL_TIM_ENABLE_IT(&htim3, TIM_DIER_UIE);
+			} else {
+				TIM_SYNC_PWM_ClearFlagsIT(&htim8);
+				__HAL_TIM_ENABLE_IT(&htim8, TIM_DIER_UIE);
+			}
+		} else {
+			__HAL_TIM_DISABLE_IT(&htim3, TIM_DIER_UIE);
+			__HAL_TIM_DISABLE_IT(&htim8, TIM_DIER_UIE);
+		}
+	}
 }
 
 /**
@@ -348,19 +355,41 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  */
 double TIM_Reconfig_SyncPwm_Ch1(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34); // HAL_RCC_GetHCLKFreq();
-	return TIM_ReconfigPrecise(&htim3, periphClock, freq);
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(false);
+
+	double sendBack = TIM_ReconfigPrecise(&htim3, periphClock, freq);
+	TIM_SYNC_PWM_SetChanDutyPhase(0, syncPwm.chanDcPhase[0].dc, syncPwm.chanDcPhase[0].phase);
+	TIM_SYNC_PWM_SetChanDutyPhase(2, syncPwm.chanDcPhase[2].dc, syncPwm.chanDcPhase[2].phase);
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(true);
+
+	return sendBack;
 }
 
 double TIM_Reconfig_SyncPwm_Ch2(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);
-	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(false);
+
+	double sendBack = TIM_ReconfigPrecise(&htim8, periphClock, freq);
+	TIM_SYNC_PWM_SetChanDutyPhase(1, syncPwm.chanDcPhase[1].dc, syncPwm.chanDcPhase[1].phase);
+	TIM_SYNC_PWM_SetChanDutyPhase(3, syncPwm.chanDcPhase[3].dc, syncPwm.chanDcPhase[3].phase);
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(true);
+
+	return sendBack;
 }
 
-void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle,
-		double phase) {
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase) {
 	float edge1 = phase / (float) 360;
 	float edge2 = edge1 + (float) dutyCycle / 100;
+
+	syncPwm.chanDcPhase[channel].phase = phase;
+	syncPwm.chanDcPhase[channel].dc = dutyCycle;
 	uint32_t temp, period;
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(false);
 
 	switch (channel) {
 	case 0:
@@ -394,63 +423,86 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle,
 	default:
 		break;
 	}
+
+	TIM_SYNC_PWM_State_LoadStartSaveStop(true);
 }
 
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert) {
 	switch (channel) {
 	case 0:
 		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1,
-					LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2,
-					LL_TIM_OCMODE_PWM1);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_COMBINED_PWM2);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_PWM1);
 		} else {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1,
-					LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2,
-					LL_TIM_OCMODE_PWM2);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_COMBINED_PWM1);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_PWM2);
 		}
 		break;
 	case 1:
 		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2,
-					LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1,
-					LL_TIM_OCMODE_PWM1);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_COMBINED_PWM2);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_PWM1);
 		} else {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2,
-					LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1,
-					LL_TIM_OCMODE_PWM2);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_COMBINED_PWM1);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_PWM2);
 		}
 		break;
 	case 2:
 		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3,
-					LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4,
-					LL_TIM_OCMODE_PWM1);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_COMBINED_PWM2);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_PWM1);
 		} else {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3,
-					LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4,
-					LL_TIM_OCMODE_PWM2);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_COMBINED_PWM1);
+			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_PWM2);
 		}
 		break;
 	case 3:
 		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4,
-					LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3,
-					LL_TIM_OCMODE_PWM1);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_COMBINED_PWM2);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_PWM1);
 		} else {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4,
-					LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3,
-					LL_TIM_OCMODE_PWM2);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_COMBINED_PWM1);
+			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_PWM2);
 		}
 		break;
 	default:
+		break;
+	}
+}
+
+/* ENABLE/DIABLE channels */
+
+void TIM_SYNC_PWM_AllChansEnable(_Bool enable){
+	syncPwmStateTypeDef chanStateInternal = (enable) ? CH_ENABLE : CH_DISABLE;
+	uint32_t chanState = (enable) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
+
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
+
+	for(int chan = 0; chan < SYNC_PWM_CHAN_NUM; chan++){
+		syncPwm.chan[chan] = chanStateInternal;
+	}
+}
+
+void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
+	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
+
+	uint32_t chanState = ((_Bool) state) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
+
+	switch (channel) {
+	case 0:
+		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
+		break;
+	case 1:
+		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
+		break;
+	case 2:
+		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
+		break;
+	case 3:
+		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
 		break;
 	}
 }

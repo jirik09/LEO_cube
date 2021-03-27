@@ -105,19 +105,13 @@ void syncPwmDeinit(void){
 
 void syncPwmStart(void){
 	TIM_SYNC_PWM_Start();
-	syncPwm.state = RUNNING;
 }	
 
 void syncPwmStop(void){
 	TIM_SYNC_PWM_Stop();
-	syncPwm.state = STOPPED;
 }	
 
 void syncPwmSetFreq(uint32_t channel, double freq){
-//	syncPwm.prevState = syncPwm.state;
-//	if (syncPwm.state == RUNNING)
-//		syncPwmStop();
-
 	uint16_t passMsg;
 	switch(channel){
 	case 0:
@@ -136,32 +130,15 @@ void syncPwmSetFreq(uint32_t channel, double freq){
 		break;
 	}
 
-//	if(syncPwm.prevState == RUNNING)
-//		syncPwmStart();
-
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, double phase){
-//	syncPwm.prevState = syncPwm.state;
-//	if (syncPwm.state == RUNNING)
-//		syncPwmStop();
-
 	TIM_SYNC_PWM_SetChanDutyPhase(channel, dutyCycle, phase);
-
-//	if(syncPwm.prevState == RUNNING)
-//		syncPwmStart();
 }
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state){
-//	syncPwm.prevState = syncPwm.state;
-//	if (syncPwm.state == RUNNING)
-//		syncPwmStop();
-
 	TIM_SYNC_PWM_ChannelState(channel, state);
-
-//	if(syncPwm.prevState == RUNNING)
-//		syncPwmStart();
 }
 
 void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
@@ -170,21 +147,13 @@ void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
 }
 
 void syncPwmSetStepMode(void){
-	if (syncPwm.state == RUNNING)
-		TIM_SYNC_PWM_Stop();
-
+	TIM_SYNC_PWM_Stop();
 	TIM_SYNC_PWM_StepMode_Enable();
-	syncPwm.stepMode = CH_ENABLE;
-	syncPwm.state = STOPPED;
 }
 
 void syncPwmResetStepMode(void){
-	if (syncPwm.state == RUNNING)
-		TIM_SYNC_PWM_Stop();
-
+	TIM_SYNC_PWM_Stop();
 	TIM_SYNC_PWM_StepMode_Disable();
-	syncPwm.stepMode = CH_DISABLE;
-	syncPwm.state = STOPPED;
 }
 
 void syncPwmOpmPeriodElapsedCallback(TIM_HandleTypeDef *htim){
@@ -196,11 +165,15 @@ void syncPwmOpmPeriodElapsedCallback(TIM_HandleTypeDef *htim){
 void syncPwmSetDefault(void){
 	syncPwm.prevState = STOPPED;
 	syncPwm.state = STOPPED;
-	syncPwm.realPwmFreqCh1 = 1;
-	syncPwm.realPwmFreqCh2 = 1;
-	for(int i = 0; i < SYNC_PWM_CHAN_NUM; i++){
-		syncPwm.chan[i] = CH_ENABLE;
-		syncPwm.chanInvert[i] = CH_DISABLE;
+	syncPwm.realPwmFreqCh1 = SYNC_PWM_DEF_FREQ;
+	syncPwm.realPwmFreqCh2 = SYNC_PWM_DEF_FREQ;
+	float phase = 0;
+	for(int chan = 0; chan < SYNC_PWM_CHAN_NUM; chan++){
+		syncPwm.chan[chan] = CH_ENABLE;
+		syncPwm.chanInvert[chan] = CH_DISABLE;
+		syncPwm.chanDcPhase[chan].phase = phase;
+		syncPwm.chanDcPhase[chan].dc = SYNC_PWM_DEF_DC;
+		phase += SYNC_PWM_PI_HALF;
 	}
 }
 
