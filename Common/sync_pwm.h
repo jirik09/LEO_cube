@@ -47,7 +47,6 @@ typedef struct{
 	syncPwmStateTypeDef stepMode;
 
 	syncPwmStopRunState state;
-	syncPwmStopRunState prevState;
 }syncPwmTypeDef;
 
 // Externs ===========================================================

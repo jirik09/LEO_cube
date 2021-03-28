@@ -95,7 +95,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig);
 
 	sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM2;
-	sConfigOC.Pulse = 0;
+	sConfigOC.Pulse = 1;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
@@ -104,70 +104,6 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 9000;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
-
-	/*-----------------------------*/
-
-//	TIM_SYNC_PWM_SetChanInvert(0, 1);
-
-//	  uint32_t tmpccmrx = 0U;
-//	  uint32_t tmpccer = 0U;
-//	  uint32_t tmpcr2 = 0U;
-//
-//	   /* Disable the Channel 1: Reset the CC1E Bit */
-//	  TIM3->CCER &= ~TIM_CCER_CC1E;
-//
-//	  /* Get the TIMx CCER register value */
-//	  tmpccer = TIM3->CCER;
-//	  /* Get the TIMx CR2 register value */
-//	  tmpcr2 =  TIM3->CR2;
-//
-//	  /* Get the TIMx CCMR1 register value */
-//	  tmpccmrx = TIM3->CCMR1;
-//
-//	  /* Reset the Output Compare Mode Bits */
-//	  tmpccmrx &= ~TIM_CCMR1_OC1M;
-//	  tmpccmrx &= ~TIM_CCMR1_CC1S;
-//	  /* Select the Output Compare Mode */
-//	  tmpccmrx |= OC_Config->OCMode;
-//
-//	  /* Reset the Output Polarity level */
-//	  tmpccer &= ~TIM_CCER_CC1P;
-//	  /* Set the Output Compare Polarity */
-//	  tmpccer |= OC_Config->OCPolarity;
-//
-//	  if(IS_TIM_CCXN_INSTANCE(TIMx, TIM_CHANNEL_1))
-//	  {
-//	    /* Check parameters */
-//	    assert_param(IS_TIM_OCN_POLARITY(OC_Config->OCNPolarity));
-//
-//	    /* Reset the Output N Polarity level */
-//	    tmpccer &= ~TIM_CCER_CC1NP;
-//	    /* Set the Output N Polarity */
-//	    tmpccer |= OC_Config->OCNPolarity;
-//	    /* Reset the Output N State */
-//	    tmpccer &= ~TIM_CCER_CC1NE;
-//	  }
-//	  /* Write to TIMx CR2 */
-//	  TIMx->CR2 = tmpcr2;
-//
-//	  /* Write to TIMx CCMR1 */
-//	  TIMx->CCMR1 = tmpccmrx;
-//
-//	  /* Set the Capture Compare Register value */
-//	  TIMx->CCR1 = OC_Config->Pulse;
-//
-//	  /* Write to TIMx CCER */
-//	  TIMx->CCER = tmpccer;
-
-	//sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM1;
-	//TIM_OC1_SetConfig(htim3.Instance, &sConfigOC);
-
-//	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
-
-	//sConfigOC.OCMode = TIM_OCMODE_PWM2;
-//	TIM_OC2_SetConfig(htim3.Instance, &sConfigOC);
-
-	/*-----------------------------*/
 
 	sConfigOC.OCMode = TIM_OCMODE_COMBINED_PWM2;
 	sConfigOC.Pulse = 18000;
@@ -181,7 +117,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	HAL_NVIC_EnableIRQ(TIM3_IRQn);
 	HAL_NVIC_SetPriority(TIM3_IRQn, 9, 0);
 
-	TIM_Reconfig_SyncPwm_Ch1(syncPwm.realPwmFreqCh1);
+	TIM_SYNC_PWM_SetFreqCh1(syncPwm.realPwmFreqCh1);
 }
 
 void MX_TIM8_SYNC_PWM_Init(void) {
@@ -253,7 +189,7 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	HAL_NVIC_EnableIRQ(TIM8_UP_IRQn);
 	HAL_NVIC_SetPriority(TIM8_UP_IRQn, 9, 0);
 
-	TIM_Reconfig_SyncPwm_Ch2(syncPwm.realPwmFreqCh2);
+	TIM_SYNC_PWM_SetFreqCh2(syncPwm.realPwmFreqCh2);
 }
 
 void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
@@ -345,10 +281,6 @@ void TIM_SYNC_PWM_Deinit(void) {
 }
 
 void TIM_SYNC_PWM_Start(void) {
-	__HAL_TIM_SET_COUNTER(&htim3, 0);
-	__HAL_TIM_SET_COUNTER(&htim8, 0);
-//	HAL_TIM_GenerateEvent(&htim3, TIM_EVENTSOURCE_UPDATE);
-//	HAL_TIM_GenerateEvent(&htim8, TIM_EVENTSOURCE_UPDATE);
 	LL_TIM_EnableCounter(htim1.Instance);
 	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
 	syncPwm.state = RUNNING;
@@ -359,12 +291,11 @@ void TIM_SYNC_PWM_Stop(void) {
 	LL_TIM_DisableCounter(htim1.Instance);
 	LL_TIM_DisableCounter(htim3.Instance);
 	LL_TIM_DisableCounter(htim8.Instance);
-//	HAL_TIM_GenerateEvent(&htim3, TIM_EVENTSOURCE_UPDATE);
-//	HAL_TIM_GenerateEvent(&htim8, TIM_EVENTSOURCE_UPDATE);
 	syncPwm.state = STOPPED;
 }
 
 void TIM_SYNC_PWM_StepMode_Enable(void) {
+	TIM_SYNC_PWM_Stop();
 	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
 	syncPwm.stepMode = CH_ENABLE;
@@ -373,7 +304,7 @@ void TIM_SYNC_PWM_StepMode_Enable(void) {
 void TIM_SYNC_PWM_StepMode_Disable(void) {
 	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
 	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(false);
+	TIM_SYNC_PWM_Stop();
 	syncPwm.stepMode = CH_DISABLE;
 }
 
@@ -386,23 +317,10 @@ void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base){
 	htim_base->Instance->SR = 0;
 }
 
-void TIM_SYNC_PWM_StepMode_LoadStartSaveStop(_Bool enable){
-	if (syncPwm.stepMode == CH_ENABLE) {
-		syncPwm.prevState = syncPwm.state;
-		if (enable) {
-			if (syncPwm.prevState == RUNNING)
-				TIM_SYNC_PWM_Start();
-		} else {
-			if (syncPwm.state == RUNNING)
-				TIM_SYNC_PWM_Stop();
-		}
-	}
-}
-
 void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable) {
 	if(syncPwm.stepMode == CH_ENABLE){
 		if (enable) {
-			if (syncPwm.realPwmFreqCh1 > syncPwm.realPwmFreqCh2) {
+			if (syncPwm.realPwmFreqCh1 < syncPwm.realPwmFreqCh2) {
 				TIM_SYNC_PWM_ClearFlagsIT(&htim3);
 				__HAL_TIM_ENABLE_IT(&htim3, TIM_DIER_UIE);
 			} else {
@@ -416,16 +334,10 @@ void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable) {
 	}
 }
 
-/**
- * @brief  Reconfiguration of PWM frequency.
- * @note		ARR & PSC calculated by host.
- * @params arrPsc: ARR and PSC register of TIM8
- * @retval None
- */
-double TIM_Reconfig_SyncPwm_Ch1(double freq) {
+double TIM_SYNC_PWM_SetFreqCh1(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34); // HAL_RCC_GetHCLKFreq();
 
-	syncPwm.prevState = syncPwm.state;
+	syncPwmStopRunState prevState = syncPwm.state;
 	if (syncPwm.state == RUNNING)
 		TIM_SYNC_PWM_Stop();
 
@@ -433,16 +345,16 @@ double TIM_Reconfig_SyncPwm_Ch1(double freq) {
 	TIM_SYNC_PWM_SetChanDutyPhase(0, syncPwm.chanDcPhase[0].dc, syncPwm.chanDcPhase[0].phase);
 	TIM_SYNC_PWM_SetChanDutyPhase(2, syncPwm.chanDcPhase[2].dc, syncPwm.chanDcPhase[2].phase);
 
-	if (syncPwm.prevState == RUNNING)
+	if (prevState == RUNNING)
 		TIM_SYNC_PWM_Start();
 
 	return sendBack;
 }
 
-double TIM_Reconfig_SyncPwm_Ch2(double freq) {
+double TIM_SYNC_PWM_SetFreqCh2(double freq) {
 	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);
 
-	syncPwm.prevState = syncPwm.state;
+	syncPwmStopRunState prevState = syncPwm.state;
 	if (syncPwm.state == RUNNING)
 		TIM_SYNC_PWM_Stop();
 
@@ -450,7 +362,7 @@ double TIM_Reconfig_SyncPwm_Ch2(double freq) {
 	TIM_SYNC_PWM_SetChanDutyPhase(1, syncPwm.chanDcPhase[1].dc, syncPwm.chanDcPhase[1].phase);
 	TIM_SYNC_PWM_SetChanDutyPhase(3, syncPwm.chanDcPhase[3].dc, syncPwm.chanDcPhase[3].phase);
 
-	if (syncPwm.prevState == RUNNING)
+	if (prevState == RUNNING)
 		TIM_SYNC_PWM_Start();
 
 	return sendBack;
@@ -467,8 +379,6 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	syncPwm.chanDcPhase[channel].phase = phase;
 	syncPwm.chanDcPhase[channel].dc = dutyCycle;
 	float temp, period;
-
-	TIM_SYNC_PWM_StepMode_LoadStartSaveStop(false);
 
 	switch (channel) {
 	case 0:
@@ -502,14 +412,10 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	default:
 		break;
 	}
-
-	TIM_SYNC_PWM_StepMode_LoadStartSaveStop(true);
 }
 
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert)
 {
-	TIM_SYNC_PWM_StepMode_LoadStartSaveStop(false);
-
 	switch (channel) {
 	case 0:
 		if (setInvert == 0) {
@@ -552,42 +458,34 @@ void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert)
 	}
 
 	syncPwm.chanInvert[channel] = setInvert;
-	TIM_SYNC_PWM_StepMode_LoadStartSaveStop(true);
-}
-
-/* ENABLE/DIABLE channels */
-
-void TIM_SYNC_PWM_AllChansEnable(_Bool enable){
-	syncPwmStateTypeDef chanStateInternal = (enable) ? CH_ENABLE : CH_DISABLE;
-	uint32_t chanState = (enable) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
-
-	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
-	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
-	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
-	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
-
-	for(int chan = 0; chan < SYNC_PWM_CHAN_NUM; chan++){
-		syncPwm.chan[chan] = chanStateInternal;
-	}
 }
 
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
 	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
 
-	uint32_t chanState = ((_Bool) state) ? TIM_CCx_ENABLE : TIM_CCx_DISABLE;
+	uint32_t pwmModeState;
+	if(syncPwm.chan[channel] == CH_ENABLE){
+		if (syncPwm.chanInvert[channel] == CH_ENABLE) {
+			pwmModeState = LL_TIM_OCMODE_COMBINED_PWM1;
+		} else {
+			pwmModeState = LL_TIM_OCMODE_COMBINED_PWM2;
+		}
+	}else {
+		pwmModeState = LL_TIM_OCMODE_FORCED_INACTIVE;
+	}
 
 	switch (channel) {
 	case 0:
-		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, chanState);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, pwmModeState);
 		break;
 	case 1:
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, chanState);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, pwmModeState);
 		break;
 	case 2:
-		TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, chanState);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, pwmModeState);
 		break;
 	case 3:
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, chanState);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, pwmModeState);
 		break;
 	}
 }

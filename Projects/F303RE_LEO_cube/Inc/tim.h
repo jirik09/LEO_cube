@@ -218,19 +218,16 @@ void TIM_SYNC_PWM_Deinit(void);
 void TIM_SYNC_PWM_Start(void);
 void TIM_SYNC_PWM_Stop(void);
 
-void TIM_SYNC_PWM_AllChansEnable(_Bool enable);
 void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
-double TIM_Reconfig_SyncPwm_Ch1(double freq);
-double TIM_Reconfig_SyncPwm_Ch2(double freq);
+double TIM_SYNC_PWM_SetFreqCh1(double freq);
+double TIM_SYNC_PWM_SetFreqCh2(double freq);
 void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase);
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert);
 void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
-
 void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable);
-void TIM_SYNC_PWM_StepMode_LoadStartSaveStop(_Bool enable);
 
 #endif // USE_SYNC_PWM
 

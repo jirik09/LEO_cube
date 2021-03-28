@@ -115,11 +115,11 @@ void syncPwmSetFreq(uint32_t channel, double freq){
 	uint16_t passMsg;
 	switch(channel){
 	case 0:
-		syncPwm.realPwmFreqCh1 = TIM_Reconfig_SyncPwm_Ch1(freq);
+		syncPwm.realPwmFreqCh1 = TIM_SYNC_PWM_SetFreqCh1(freq);
 		passMsg = MSG_SYNCPWM_REAL_FREQ_CH1;
 		break;
 	case 1:
-		syncPwm.realPwmFreqCh2 = TIM_Reconfig_SyncPwm_Ch2(freq);
+		syncPwm.realPwmFreqCh2 = TIM_SYNC_PWM_SetFreqCh2(freq);
 		passMsg = MSG_SYNCPWM_REAL_FREQ_CH2;
 		break;
 	case 2:
@@ -146,12 +146,10 @@ void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
 }
 
 void syncPwmSetStepMode(void){
-	TIM_SYNC_PWM_Stop();
 	TIM_SYNC_PWM_StepMode_Enable();
 }
 
 void syncPwmResetStepMode(void){
-	TIM_SYNC_PWM_Stop();
 	TIM_SYNC_PWM_StepMode_Disable();
 }
 
@@ -162,7 +160,6 @@ void syncPwmOpmPeriodElapsedCallback(TIM_HandleTypeDef *htim){
 }
 
 void syncPwmSetDefault(void){
-	syncPwm.prevState = STOPPED;
 	syncPwm.state = STOPPED;
 	syncPwm.realPwmFreqCh1 = SYNC_PWM_DEF_FREQ;
 	syncPwm.realPwmFreqCh2 = SYNC_PWM_DEF_FREQ;
