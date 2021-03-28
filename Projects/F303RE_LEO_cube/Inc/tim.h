@@ -230,7 +230,7 @@ void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
 
 void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable);
-void TIM_SYNC_PWM_State_LoadStartSaveStop(_Bool enable);
+void TIM_SYNC_PWM_StepMode_LoadStartSaveStop(_Bool enable);
 
 #endif // USE_SYNC_PWM
 
