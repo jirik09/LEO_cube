@@ -291,6 +291,8 @@ void TIM_SYNC_PWM_Stop(void) {
 	LL_TIM_DisableCounter(htim1.Instance);
 	LL_TIM_DisableCounter(htim3.Instance);
 	LL_TIM_DisableCounter(htim8.Instance);
+	HAL_TIM_GenerateEvent(&htim3, TIM_EVENTSOURCE_UPDATE);
+	HAL_TIM_GenerateEvent(&htim8, TIM_EVENTSOURCE_UPDATE);
 	syncPwm.state = STOPPED;
 }
 
