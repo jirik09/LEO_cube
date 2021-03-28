@@ -40,14 +40,14 @@ typedef struct{
 	double realPwmFreqCh1;
 	double realPwmFreqCh2;
 
+	syncPwmDcPhase chanDcPhase[SYNC_PWM_CHAN_NUM];
+
 	syncPwmStateTypeDef chan[SYNC_PWM_CHAN_NUM];
 	syncPwmStateTypeDef chanInvert[SYNC_PWM_CHAN_NUM];
 	syncPwmStateTypeDef stepMode;
 
 	syncPwmStopRunState state;
 	syncPwmStopRunState prevState;
-
-	syncPwmDcPhase chanDcPhase[SYNC_PWM_CHAN_NUM];
 }syncPwmTypeDef;
 
 // Externs ===========================================================

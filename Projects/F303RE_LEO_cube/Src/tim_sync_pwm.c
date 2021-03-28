@@ -7,6 +7,7 @@
  *****************************************************************************
  */
 
+#include "math.h"
 #include "tim.h"
 #include "mcu_config.h"
 #include "sync_pwm.h"
@@ -123,8 +124,8 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
 	TIM_SlaveConfigTypeDef sSlaveConfig = { 0 };
 	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-	TIM_OC_InitTypeDef sConfigOC = { 0 };
 	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = { 0 };
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
 
 	htim8.Instance = TIM8;
 	htim8.Init.Prescaler = 1999;
@@ -282,6 +283,8 @@ void TIM_SYNC_PWM_Deinit(void) {
 void TIM_SYNC_PWM_Start(void) {
 	__HAL_TIM_SET_COUNTER(&htim3, 0);
 	__HAL_TIM_SET_COUNTER(&htim8, 0);
+	HAL_TIM_GenerateEvent(&htim3, TIM_EVENTSOURCE_UPDATE);
+	HAL_TIM_GenerateEvent(&htim8, TIM_EVENTSOURCE_UPDATE);
 	LL_TIM_EnableCounter(htim1.Instance);
 	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
 	syncPwm.state = RUNNING;
@@ -381,43 +384,55 @@ double TIM_Reconfig_SyncPwm_Ch2(double freq) {
 	return sendBack;
 }
 
-void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase) {
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase)
+{
 	float edge1 = phase / (float) 360;
 	float edge2 = edge1 + (float) dutyCycle / 100;
 
+	if(edge2 > 1)
+		edge2 = 1;
+
 	syncPwm.chanDcPhase[channel].phase = phase;
 	syncPwm.chanDcPhase[channel].dc = dutyCycle;
-	uint32_t temp, period;
+	float temp, period;
 
 	TIM_SYNC_PWM_State_LoadStartSaveStop(false);
 
 	switch (channel) {
 	case 0:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) (period * edge1);
+		temp = (uint32_t) round(period * edge1);
+		if(temp==0)
+			temp=1;
 		LL_TIM_OC_SetCompareCH1(htim3.Instance, temp);
-		temp = (uint32_t) (period * edge2);
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH2(htim3.Instance, temp);
 		break;
 	case 1:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
-		temp = (uint32_t) (period * edge1);
+		temp = (uint32_t) round(period * edge1);
+		if(temp==0)
+			temp=1;
 		LL_TIM_OC_SetCompareCH2(htim8.Instance, temp);
-		temp = (uint32_t) (period * edge2);
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH1(htim8.Instance, temp);
 		break;
 	case 2:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) (period * edge1);
+		temp = (uint32_t) round(period * edge1);
+		if(temp==0)
+			temp=1;
 		LL_TIM_OC_SetCompareCH3(htim3.Instance, temp);
-		temp = (uint32_t) (period * edge2);
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH4(htim3.Instance, temp);
 		break;
 	case 3:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
-		temp = (uint32_t) (period * edge1);
+		temp = (uint32_t) round(period * edge1);
+		if(temp==0)
+			temp=1;
 		LL_TIM_OC_SetCompareCH4(htim8.Instance, temp);
-		temp = (uint32_t) (period * edge2);
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH3(htim8.Instance, temp);
 		break;
 	default:
@@ -427,7 +442,10 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	TIM_SYNC_PWM_State_LoadStartSaveStop(true);
 }
 
-void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert) {
+void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert)
+{
+	TIM_SYNC_PWM_State_LoadStartSaveStop(false);
+
 	switch (channel) {
 	case 0:
 		if (setInvert == 0) {
@@ -468,6 +486,9 @@ void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert) {
 	default:
 		break;
 	}
+
+	syncPwm.chanInvert[channel] = setInvert;
+	TIM_SYNC_PWM_State_LoadStartSaveStop(true);
 }
 
 /* ENABLE/DIABLE channels */

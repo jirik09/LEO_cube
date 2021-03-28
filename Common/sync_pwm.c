@@ -143,7 +143,6 @@ void syncPwmSetChannelState(uint8_t channel, uint8_t state){
 
 void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
 	TIM_SYNC_PWM_SetChanInvert(channel, setInvert);
-	syncPwm.chanInvert[channel] = setInvert;
 }
 
 void syncPwmSetStepMode(void){
