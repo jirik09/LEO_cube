@@ -375,6 +375,9 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	float edge1 = phase / (float) 360;
 	float edge2 = edge1 + (float) dutyCycle / 100;
 
+	if(edge1 > 1)
+		edge1 = 1;
+
 	if(edge2 > 1)
 		edge2 = 1;
 
