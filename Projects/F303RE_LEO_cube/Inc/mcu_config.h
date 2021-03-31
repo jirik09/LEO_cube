@@ -58,8 +58,8 @@
 
 // Scope constatnts ===========================================================
 #define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
-#define MAX_SAMPLING_FREQ_12B 4000000 //smps
-#define MAX_SAMPLING_FREQ_8B 4800000 //smps
+#define MAX_SAMPLING_FREQ_12B 3600000 //smps
+#define MAX_SAMPLING_FREQ_8B 4000000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
@@ -103,14 +103,16 @@
 
 // Generator constatnts =======================================================
 #define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
-#define MAX_GENERATING_FREQ 2000000 //smps
+#define MAX_GENERATING_FREQ  2000000 //smps
+#define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
-#define MAX_GENERATOR_BUFF_SIZE 8000//2000
+#define MAX_GENERATOR_BUFF_SIZE  8000//2000
 #define	DAC_DATA_DEPTH 12
 
-#define GEN_VREF 3300
-#define GEN_VDDA 3300
-#define GEN_VREF_INT 1210
+#define GEN_RANGE_LOW  0
+#define GEN_RANGE_HIGH  3300
+#define GEN_VDDA  3300
+#define GEN_VREF_INT  1210
 
 #ifdef USE_SHIELD
 #define SHIELD_GEN_HIGH   5000 //without calibration 5000  4898-5

@@ -12,7 +12,7 @@
 #define SCOPE_H_
 
 // Constant definitions =======================================================
-#define AUTO_TRIG_WAIT_NORMAL 4
+#define AUTO_TRIG_WAIT_NORMAL 8
 #define AUTO_TRIG_WAIT_FAST 1
 #define NOISE_REDUCTION 16
 

@@ -47,6 +47,7 @@
   */
 
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
+uint8_t TIM_Getconfig(uint32_t * arr, uint32_t * psc, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq);
 uint32_t roundNumber(double num);
 
@@ -79,6 +80,7 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq);
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
 
 #endif //USE_GEN || USE_GEN_PWM

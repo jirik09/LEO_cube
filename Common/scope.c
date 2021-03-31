@@ -315,6 +315,7 @@ void scopeInit(void){
 
 	}else { //normal sampling
 		scope.settings.AdvMode = SCOPE_NORMAL_MODE;
+		scope.settings.interleaved=1;
 		TIM_Reconfig_scope(scope.settings.samplingFrequency,&realfreq);
 		ADC_set_sampling_time(realfreq);
 		scopeInitADCMode(scope.settings.AdvMode);
@@ -637,7 +638,7 @@ uint8_t scopeSetTrigChannel(uint8_t chan){
 }
 
 uint32_t scopeGetRealSmplFreq(){
-	return scope.settings.samplingFrequency;
+	return scope.settings.ADCSamplingFreq * scope.settings.interleaved;
 }
 
 
