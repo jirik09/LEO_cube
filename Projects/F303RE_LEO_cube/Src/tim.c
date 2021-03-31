@@ -211,7 +211,19 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
  */
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
 		uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed) {
+	uint32_t psc=0;
+	uint32_t arr=0;
+	uint8_t result = TIM_Getconfig(&arr, &psc, periphClock, samplingFreq, realFreq, isFreqPassed);
 
+	htim_base->Instance->ARR = arr;
+	htim_base->Instance->PSC = psc;
+	LL_TIM_GenerateEvent_UPDATE(htim_base->Instance);
+
+	return result;
+}
+
+
+uint8_t TIM_Getconfig(uint32_t * arr, uint32_t *psc, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed){
 	int32_t clkDiv;
 	uint16_t prescaler = 0;
 	uint16_t autoReloadReg = 1;
@@ -246,7 +258,7 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
 				errMinRatio = ratio;
 			}
 
-			if (ratio == 0xFFFF) { //exact combination wasnt found. we use best found
+			if (ratio == 0xFFFF) { //exact combination wasn't found. we use best found
 				div = clkDiv / errMinRatio;
 				ratio = errMinRatio;
 				break;
@@ -270,19 +282,10 @@ uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock,
 
 	if (realFreq != 0) {
 		*realFreq = periphClock / ((prescaler + 1) * (autoReloadReg + 1));
-		//		if(*realFreq>MAX_SAMPLING_FREQ && autoReloadReg<0xffff){
-		//			autoReloadReg++;
-		//			*realFreq=HAL_RCC_GetPCLK2Freq()/((prescaler+1)*(autoReloadReg+1));
-		//		}
 	}
 
-//	htim_base->Init.Period = autoReloadReg;
-//	htim_base->Init.Prescaler = prescaler;
-//	HAL_TIM_Base_Init(htim_base);
-
-	htim_base->Instance->ARR = autoReloadReg;
-	htim_base->Instance->PSC = prescaler;
-	LL_TIM_GenerateEvent_UPDATE(htim_base->Instance);
+	*arr = autoReloadReg;
+	*psc = prescaler;
 
 	return result;
 }

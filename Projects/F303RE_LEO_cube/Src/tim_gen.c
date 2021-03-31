@@ -12,6 +12,8 @@
 #include "mcu_config.h"
 #include "generator.h"
 
+#include "stm32f3xx_ll_tim.h"
+
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 
 /** @addtogroup Generator
@@ -416,6 +418,22 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}
 }
 
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq){
+	uint32_t psc=0;
+	uint32_t arr=0;
+	uint8_t result = TIM_Getconfig(&arr, &psc, HAL_RCC_GetPCLK1Freq()*2, samplingFreq, realFreq, true);
+
+	htim6.Instance->PSC = psc;
+	htim7.Instance->PSC = psc;
+
+	htim6.Instance->ARR = arr;
+	htim7.Instance->ARR = arr;
+	LL_TIM_GenerateEvent_UPDATE(htim6.Instance);
+	LL_TIM_GenerateEvent_UPDATE(htim7.Instance);
+
+	return result;
+}
+
 #ifdef USE_GEN_PWM
 
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
@@ -443,8 +461,8 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
  * @retval None
  */
 void TIMGenEnable(void){
-	HAL_TIM_Base_Start(&htim6);
-	HAL_TIM_Base_Start(&htim7);
+	__HAL_TIM_ENABLE(&htim6);
+	__HAL_TIM_ENABLE(&htim7);
 }
 
 /**
@@ -453,8 +471,8 @@ void TIMGenEnable(void){
  * @retval None
  */
 void TIMGenDisable(void){
-	HAL_TIM_Base_Stop(&htim6);
-	HAL_TIM_Base_Stop(&htim7);
+	__HAL_TIM_DISABLE(&htim6);
+	__HAL_TIM_DISABLE(&htim7);
 }
 
 /**

@@ -58,8 +58,8 @@
 
 // Scope constatnts ===========================================================
 #define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
-#define MAX_SAMPLING_FREQ_12B 4000000 //smps
-#define MAX_SAMPLING_FREQ_8B 4800000 //smps
+#define MAX_SAMPLING_FREQ_12B 3600000 //smps
+#define MAX_SAMPLING_FREQ_8B 4000000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
