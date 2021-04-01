@@ -138,7 +138,7 @@ void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, double phase){
 }
 
 void syncPwmSetChannelState(uint8_t channel, uint8_t state){
-	TIM_SYNC_PWM_ChannelState(channel, state);
+	TIM_SYNC_PWM_ChannelEnable(channel, state);
 }
 
 void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){

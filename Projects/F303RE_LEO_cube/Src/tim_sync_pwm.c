@@ -419,84 +419,53 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	}
 }
 
-void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert)
-{
-	switch (channel) {
-	case 0:
-		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_PWM1);
-		} else {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_PWM2);
-		}
-		break;
-	case 1:
-		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_PWM1);
-		} else {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, LL_TIM_OCMODE_PWM2);
-		}
-		break;
-	case 2:
-		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_PWM1);
-		} else {
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_PWM2);
-		}
-		break;
-	case 3:
-		if (setInvert == 0) {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_COMBINED_PWM2);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_PWM1);
-		} else {
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, LL_TIM_OCMODE_COMBINED_PWM1);
-			LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, LL_TIM_OCMODE_PWM2);
-		}
-		break;
-	default:
-		break;
-	}
-
-	if(syncPwm.stepMode){
-		LL_TIM_EnableCounter(htim1.Instance);
-		TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
-	}
-
-	syncPwm.chanInvert[channel] = setInvert;
+void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert){
+	syncPwm.chanInvert[channel] = (syncPwmStateTypeDef) setInvert;
+	TIM_SYNC_PWM_SetChannelState(channel);
 }
 
-void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
+void TIM_SYNC_PWM_ChannelEnable(uint8_t channel, uint8_t state) {
 	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
+	TIM_SYNC_PWM_SetChannelState(channel);
+}
 
-	uint32_t pwmModeState;
+void TIM_SYNC_PWM_SetChannelState(uint8_t channel){
+	uint32_t pwmModeStateCh1, pwmModeStateCh2;
 	if(syncPwm.chan[channel] == CH_ENABLE){
 		if (syncPwm.chanInvert[channel] == CH_ENABLE) {
-			pwmModeState = LL_TIM_OCMODE_COMBINED_PWM1;
+			pwmModeStateCh1 = LL_TIM_OCMODE_COMBINED_PWM1;
+			pwmModeStateCh2 = LL_TIM_OCMODE_PWM2;
 		} else {
-			pwmModeState = LL_TIM_OCMODE_COMBINED_PWM2;
+			pwmModeStateCh1 = LL_TIM_OCMODE_COMBINED_PWM2;
+			pwmModeStateCh2 = LL_TIM_OCMODE_PWM1;
 		}
 	}else {
-		pwmModeState = LL_TIM_OCMODE_FORCED_INACTIVE;
+		pwmModeStateCh1 = LL_TIM_OCMODE_FORCED_INACTIVE;
+		pwmModeStateCh2 = LL_TIM_OCMODE_FORCED_INACTIVE;
 	}
 
 	switch (channel) {
 	case 0:
-		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, pwmModeState);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, pwmModeStateCh2);
 		break;
 	case 1:
-		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, pwmModeState);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, pwmModeStateCh2);
 		break;
 	case 2:
-		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, pwmModeState);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, pwmModeStateCh2);
 		break;
 	case 3:
-		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, pwmModeState);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, pwmModeStateCh2);
 		break;
+	}
+
+	if(syncPwm.stepMode == CH_ENABLE){
+		LL_TIM_EnableCounter(htim1.Instance);
+		TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
 	}
 }
 

@@ -220,11 +220,13 @@ void TIM_SYNC_PWM_Deinit(void);
 void TIM_SYNC_PWM_Start(void);
 void TIM_SYNC_PWM_Stop(void);
 
-void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
 double TIM_SYNC_PWM_SetFreqCh1(double freq);
 double TIM_SYNC_PWM_SetFreqCh2(double freq);
+
 void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase);
+void TIM_SYNC_PWM_ChannelEnable(uint8_t channel, uint8_t state);
 void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert);
+void TIM_SYNC_PWM_SetChannelState(uint8_t channel);
 void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
