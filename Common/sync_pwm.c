@@ -9,6 +9,7 @@
 
 // Includes ===================================================================
 #ifdef USE_SYNC_PWM
+
 #include "cmsis_os.h"
 #include "mcu_config.h"
 #include "comms.h"
@@ -110,20 +111,29 @@ void syncPwmStop(void){
 	TIM_SYNC_PWM_Stop();
 }	
 
-/* Frequency reconfig */
-void syncPwmSetFreqCh12(double freq){
-	syncPwm.realPwmFreqCh12 = TIM_Reconfig_SyncPwm_Ch12(freq);
-	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH12;
+void syncPwmSetFreq(uint32_t channel, double freq){
+	uint16_t passMsg;
+	switch(channel){
+	case 0:
+		syncPwm.realPwmFreqCh1 = TIM_SYNC_PWM_SetFreqCh1(freq);
+		passMsg = MSG_SYNCPWM_REAL_FREQ_CH1;
+		break;
+	case 1:
+		syncPwm.realPwmFreqCh2 = TIM_SYNC_PWM_SetFreqCh2(freq);
+		passMsg = MSG_SYNCPWM_REAL_FREQ_CH2;
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	default:
+		break;
+	}
+
 	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
-void syncPwmSetFreqCh34(double freq){
-	syncPwm.realPwmFreqCh34 = TIM_Reconfig_SyncPwm_Ch34(freq);
-	uint16_t passMsg = MSG_SYNCPWM_REAL_FREQ_CH34;
-	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
-}
-
-void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, uint32_t phase){
+void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, double phase){
 	TIM_SYNC_PWM_SetChanDutyPhase(channel, dutyCycle, phase);
 }
 
@@ -131,9 +141,8 @@ void syncPwmSetChannelState(uint8_t channel, uint8_t state){
 	TIM_SYNC_PWM_ChannelState(channel, state);
 }
 
-void syncPwmSetChannelInvert(uint8_t channel, uint8_t state){
-	TIM_SYNC_PWM_SetChanInvert(channel, state);
-	syncPwm.chanInvert[channel] = state;
+void syncPwmSetChannelInvert(uint8_t channel, uint8_t setInvert){
+	TIM_SYNC_PWM_SetChanInvert(channel, setInvert);
 }
 
 void syncPwmSetStepMode(void){
@@ -144,10 +153,23 @@ void syncPwmResetStepMode(void){
 	TIM_SYNC_PWM_StepMode_Disable();
 }
 
+void syncPwmOpmPeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	uint16_t passMsg = MSG_SYNCPWM_OPM_PERIOD_ELAPSED;
+	portBASE_TYPE xHigherPriorityTaskWoken;
+	xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
+}
+
 void syncPwmSetDefault(void){
-	for(int i = 0; i < SYNC_PWM_CHAN_NUM; i++){
-		syncPwm.chan[i] = CH_ENABLE;
-		syncPwm.chanInvert[i] = CH_DISABLE;
+	syncPwm.state = STOPPED;
+	syncPwm.realPwmFreqCh1 = SYNC_PWM_DEF_FREQ;
+	syncPwm.realPwmFreqCh2 = SYNC_PWM_DEF_FREQ;
+	float phase = 0;
+	for(int chan = 0; chan < SYNC_PWM_CHAN_NUM; chan++){
+		syncPwm.chan[chan] = CH_ENABLE;
+		syncPwm.chanInvert[chan] = CH_DISABLE;
+		syncPwm.chanDcPhase[chan].phase = phase;
+		syncPwm.chanDcPhase[chan].dc = SYNC_PWM_DEF_DC;
+		phase += SYNC_PWM_PI_HALF;
 	}
 }
 
