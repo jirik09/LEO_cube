@@ -11,6 +11,7 @@
 #define GENERATOR_H_
 
 #include "stdint.h"
+#include "mcu_config.h"
 
 /** @addtogroup Generator
   * @{
@@ -20,7 +21,6 @@
   * @{
   */
 #define DEFAULT_GENERATING_FREQ 1000
-#define MAX_DAC_CHANNELS 2
 
 /** @defgroup Generator_Common_Enums Generator Common Enums for DAC and PWM.
   * @{

@@ -303,16 +303,24 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 /**
  * @brief  Arb. DAC Generator set frequency function.
  * @param  Freq: required generating frequency
- * @param  chan: channel number 1 or 2
+ * @param  chan: channel number 1 or 2 (100 to set all)
  * @retval None
  */
 uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
 	uint8_t result = GEN_TO_HIGH_FREQ;
 	uint32_t realFreq;
 	if(freq<=MAX_GENERATING_FREQ){
-		generator.generatingFrequency[chan-1] = freq;
-		result = TIM_Reconfig_gen(generator.generatingFrequency[chan-1],chan-1,&realFreq);
-		generator.realGenFrequency[chan-1] = realFreq;
+		if(chan == 100){
+			result = TIM_Reconfig_gen_all(freq,&realFreq);
+			for(uint8_t i=0;i<MAX_DAC_CHANNELS;i++){
+				generator.generatingFrequency[i] = freq;
+				generator.realGenFrequency[i] = realFreq;
+			}
+		}else{
+			generator.generatingFrequency[chan-1] = freq;
+			result = TIM_Reconfig_gen(generator.generatingFrequency[chan-1],chan-1,&realFreq);
+			generator.realGenFrequency[chan-1] = realFreq;
+		}
 	}
 	return result;
 }
