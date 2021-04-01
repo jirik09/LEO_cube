@@ -74,7 +74,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	TIM_OC_InitTypeDef sConfigOC = { 0 };
 
 	htim3.Instance = TIM3;
-	htim3.Init.Prescaler = 1999;
+	htim3.Init.Prescaler = 1;
 	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim3.Init.Period = 35999;
 	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -128,7 +128,7 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	TIM_OC_InitTypeDef sConfigOC = { 0 };
 
 	htim8.Instance = TIM8;
-	htim8.Init.Prescaler = 1999;
+	htim8.Init.Prescaler = 1;
 	htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim8.Init.Period = 35999;
 	htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -270,14 +270,14 @@ void TIM_SYNC_PWM_Deinit(void) {
 //	HAL_TIM_Base_DeInit(&htim1);
 //	HAL_TIM_Base_DeInit(&htim8);
 //	HAL_TIM_Base_DeInit(&htim3);
-//
-//	/* Reset TIM8 preipheral */
-//	__HAL_RCC_TIM1_FORCE_RESET();
-//	__HAL_RCC_TIM1_RELEASE_RESET();
-//	__HAL_RCC_TIM3_FORCE_RESET();
-//	__HAL_RCC_TIM3_RELEASE_RESET();
-//	__HAL_RCC_TIM8_FORCE_RESET();
-//	__HAL_RCC_TIM8_RELEASE_RESET();
+
+	/* Reset TIM8 preipheral */
+	__HAL_RCC_TIM1_FORCE_RESET();
+	__HAL_RCC_TIM1_RELEASE_RESET();
+	__HAL_RCC_TIM3_FORCE_RESET();
+	__HAL_RCC_TIM3_RELEASE_RESET();
+	__HAL_RCC_TIM8_FORCE_RESET();
+	__HAL_RCC_TIM8_RELEASE_RESET();
 }
 
 void TIM_SYNC_PWM_Start(void) {
@@ -460,6 +460,11 @@ void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert)
 		break;
 	default:
 		break;
+	}
+
+	if(syncPwm.stepMode){
+		LL_TIM_EnableCounter(htim1.Instance);
+		TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
 	}
 
 	syncPwm.chanInvert[channel] = setInvert;
