@@ -940,8 +940,7 @@ command parseGeneratorCmd(void){
 	uint8_t length,chan;
 	uint16_t watchDog=5000;
 	uint16_t passMsg;
-	uint32_t secondHalfOfDouble;
-	double freq;
+	uint32_t freq;
 
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
@@ -989,8 +988,7 @@ command parseGeneratorCmd(void){
 #ifdef USE_GEN_PWM
 	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
-		secondHalfOfDouble = commBufferReadUInt32();
-		freq = makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmdIn);
+		freq = cmdIn;
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 0);
 		}else{
@@ -999,8 +997,7 @@ command parseGeneratorCmd(void){
 		break;
 	case CMD_GEN_PWM_FREQ_CH2:
 		cmdIn = giveNextCmd();
-		secondHalfOfDouble = commBufferReadUInt32();
-		freq = makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmdIn);
+		freq = cmdIn;
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
 			genPwmSetFrequency(freq, 1);
 		}else{
