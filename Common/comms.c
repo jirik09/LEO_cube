@@ -366,15 +366,23 @@ void CommTask(void const *argument){
 			/* ------------------ END OF COUNTER ------------------ */
 			/* ---------------------------------------------------- */
 #ifdef USE_SYNC_PWM
-		case MSG_SYNCPWM_REAL_FREQ_CH12:
+		case MSG_SYNCPWM_REAL_FREQ_CH1:
 			commsSendString(STR_SYNC_PWM);
-			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH12);
-			commsSendDouble(syncPwm.realPwmFreqCh12);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ);
+			commsSendUint32(0);
+			commsSendDouble(syncPwm.realPwmFreqCh1);
 			break;
-		case MSG_SYNCPWM_REAL_FREQ_CH34:
+		case MSG_SYNCPWM_REAL_FREQ_CH2:
 			commsSendString(STR_SYNC_PWM);
-			commsSendString(STR_SYNC_PWM_REAL_FREQ_CH34);
-			commsSendDouble(syncPwm.realPwmFreqCh34);
+			commsSendString(STR_SYNC_PWM_REAL_FREQ);
+			commsSendUint32(1);
+			commsSendDouble(syncPwm.realPwmFreqCh2);
+			break;
+		case MSG_SYNCPWM_OPM_PERIOD_ELAPSED:
+			if(syncPwm.stepMode == CH_ENABLE){
+				commsSendString(STR_SYNC_PWM);
+				commsSendString(STR_SYNC_PWM_OPM_PERIOD_ELAPSED);
+			}
 			break;
 #endif // USE_SYNC_PWM
 		/* Send LOGIC ANALYZER data */
@@ -904,6 +912,11 @@ void sendSyncPwmConf(void)
 	commsSendString(STR_CONFIG);
 	commsSendUint32(SYNC_PWM_RESOURCES);
 
+	commsSendUint32(SYNC_PWM_CHANNELS_DEPENDENCE);
+	commsSendUint32(SYNC_PWM_DRIVE_DISAB_CHANx);
+	commsSendUint32(SYNC_PWM_DRIVE_DISAB_CHANy);
+	commsSendUint32(SYNC_PWM_FREQ_DISAB_CHANx);
+	commsSendUint32(SYNC_PWM_FREQ_DISAB_CHANy);
 	commsSendUint32(MAX_SYNC_PWM_FREQ);
 	commsSendUint32(MAX_SYNC_PWM_CHANNELS);
 
