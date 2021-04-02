@@ -441,7 +441,7 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	if(chan==0){
 		/* Whenever TIM peripheral is over-clocked and running from PLL, GetPeriphClock HAL function
 		 * does not return the correct value.. */
-		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1)*2;
+		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1);
 				//HAL_RCC_GetPCLK2Freq()*2;
 		return TIM_ReconfigPrecise(&htim1,periphClock,reqFreq);
 	}else if(chan==1){

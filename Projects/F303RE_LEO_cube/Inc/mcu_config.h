@@ -102,7 +102,7 @@
 
 
 // Generator constatnts =======================================================
-#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
 #define MAX_GENERATING_FREQ  2000000 //smps
 #define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
@@ -166,13 +166,13 @@
 
 // PWM generator constants =================================================
 #ifdef USE_GEN_PWM
+#define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define GEN_PWM_CH1_PIN							"D8__" // PA9
 #define GEN_PWM_CH2_PIN							"D5__" // PB4
 
 #define MAX_GEN_PWM_CHANNELS 	2
 
-#define GEN_PWM_CH1_TIM_PERIPH_CLOCK	  (uint32_t) 144000000
-#define GEN_PWM_CH2_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
+#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #endif //USE_GEN_PWM
 
 // Synchronized PWM generator constants ====================================

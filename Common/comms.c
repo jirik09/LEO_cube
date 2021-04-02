@@ -262,12 +262,12 @@ void CommTask(void const *argument){
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
 			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
-			commsSendDouble(generator.realPwmFreqCh1);
+			commsSendUint32(generator.realPwmFreqCh1);
 			break;
 		case MSG_GEN_PWM_REAL_FREQ_CH2:
 			commsSendString(STR_GENERATOR);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
-			commsSendDouble(generator.realPwmFreqCh2);
+			commsSendUint32(generator.realPwmFreqCh2);
 			break;
 #endif //USE_GEN_PWM
 #endif //USE_GEN || USE_GEN_PWM
@@ -860,6 +860,8 @@ void sendGenConf(){
 			break;
 		}
 	}
+
+
 }
 #endif //USE_GEN
 
@@ -872,10 +874,11 @@ void sendGenConf(){
  */
 void sendGenPwmConf(void){
 	uint8_t i;
-	commsSendString("GENP");		
+	commsSendString(STR_CONFIG);
+	commsSendString("GENP");
+	commsSendUint32(GEN_PWM_RESOURCES);
+	commsSendUint32(GEN_PWM_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
-	commsSendUint32(GEN_PWM_CH1_TIM_PERIPH_CLOCK);
-	commsSendUint32(GEN_PWM_CH2_TIM_PERIPH_CLOCK);
 	for (i=0;i<MAX_DAC_CHANNELS;i++){
 		switch(i){
 		case 0:
