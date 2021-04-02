@@ -265,12 +265,6 @@ void TIM_SYNC_PWM_Init(void) {
 }
 
 void TIM_SYNC_PWM_Deinit(void) {
-//	TIM_SYNC_PWM_Stop();
-
-//	HAL_TIM_Base_DeInit(&htim1);
-//	HAL_TIM_Base_DeInit(&htim8);
-//	HAL_TIM_Base_DeInit(&htim3);
-
 	/* Reset TIM8 preipheral */
 	__HAL_RCC_TIM1_FORCE_RESET();
 	__HAL_RCC_TIM1_RELEASE_RESET();
