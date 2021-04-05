@@ -291,17 +291,21 @@ void TIM_SYNC_PWM_Stop(void) {
 }
 
 void TIM_SYNC_PWM_StepMode_Enable(void) {
-	TIM_SYNC_PWM_Stop();
-	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	syncPwm.stepMode = CH_ENABLE;
+	if(syncPwm.stepMode == CH_DISABLE){
+		TIM_SYNC_PWM_Stop();
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		syncPwm.stepMode = CH_ENABLE;
+	}
 }
 
 void TIM_SYNC_PWM_StepMode_Disable(void) {
-	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	TIM_SYNC_PWM_Stop();
-	syncPwm.stepMode = CH_DISABLE;
+	if(syncPwm.stepMode == CH_ENABLE){
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		TIM_SYNC_PWM_Stop();
+		syncPwm.stepMode = CH_DISABLE;
+	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
