@@ -386,30 +386,30 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	switch (channel) {
 	case 0:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1);
 		LL_TIM_OC_SetCompareCH1(htim3.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH2(htim3.Instance, temp);
 		break;
 	case 1:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1);
 		LL_TIM_OC_SetCompareCH2(htim8.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH1(htim8.Instance, temp);
 		break;
 	case 2:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1);
 		LL_TIM_OC_SetCompareCH3(htim3.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH4(htim3.Instance, temp);
 		break;
 	case 3:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;
+		temp = (uint32_t) round(period * edge1);
 		LL_TIM_OC_SetCompareCH4(htim8.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2);
 		LL_TIM_OC_SetCompareCH3(htim8.Instance, temp);
 		break;
 	default:
