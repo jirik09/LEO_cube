@@ -770,7 +770,6 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 
 		if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED) {
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
-
 		} else {
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
 		}
@@ -1088,25 +1087,27 @@ double counterIcCalculateTimeBaseError(int icChannel) {
  */
 void counterGateConfig(uint16_t gateTime) {
 	counterStop();
+
 	switch (gateTime) {
 	case 100: /* min.	gate time 00.10 second */
-		TIM_ARR_PSC_Config(0.1);
+		TIM_ETR_ARR_PSC_Config(0.1);
 		break;
 	case 500: /* ----	gate time 00.50 second */
-		TIM_ARR_PSC_Config(0.5);
+		TIM_ETR_ARR_PSC_Config(0.5);
 		break;
 	case 1000: /* ----	gate time 01.00 second */
-		TIM_ARR_PSC_Config(1);
+		TIM_ETR_ARR_PSC_Config(1);
 		break;
 	case 5000: /* ----	gate time 05.00 second */
-		TIM_ARR_PSC_Config(5);
+		TIM_ETR_ARR_PSC_Config(5);
 		break;
 	case 10000: /* max. gate time 10.00 second */
-		TIM_ARR_PSC_Config(10);
+		TIM_ETR_ARR_PSC_Config(10);
 		break;
 	default:
 		break;
 	}
+
 	if (counter.paused == NO)
 		counterStart();
 }

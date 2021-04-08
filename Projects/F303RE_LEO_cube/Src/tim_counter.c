@@ -526,13 +526,18 @@ void TIM_ti_deinit(void){
  */
 void TIM_ETR_Start(void)
 {
-	HAL_TIM_Base_Start(&htim2);
-	HAL_TIM_Base_Start(&htim4);
-	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&htim2.Instance->CCR1, (uint32_t)&counter.counterEtr.buffer, 1);
+	TIM_ClearFlagsIT(&htim2);
+	TIM_ClearFlagsIT(&htim4);
+	DMA_TransferComplete(&hdma_tim2_up);
 
 	/* DMA requests enable */
 	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
 	TIM_CCxChannelCmd(htim2.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&htim2.Instance->CCR1, (uint32_t)&counter.counterEtr.buffer, 1);
+	HAL_TIM_Base_Start(&htim2);
+	HAL_TIM_Base_Start(&htim4);
+
 	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
@@ -545,9 +550,7 @@ void TIM_ETR_Start(void)
  */
 void TIM_ETR_Stop(void)
 {
-	//	HAL_TIM_Base_Stop_DMA(&htim2);
 	HAL_DMA_Abort_IT(&hdma_tim2_up);
-	/* DMA requests disable */
 	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
 
 	HAL_TIM_Base_Stop(&htim2);
@@ -1123,7 +1126,7 @@ void TIM_TI_ReconfigActiveEdges(void)
  * @params arr, psc
  * @retval none
  */
-void TIM_ARR_PSC_Config(double gateTime)
+void TIM_ETR_ARR_PSC_Config(double gateTime)
 {
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq()*2;
 
@@ -1136,9 +1139,6 @@ void TIM_ARR_PSC_Config(double gateTime)
 		__HAL_TIM_ENABLE(&htim4);
 		counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	}
-
-	/* Generate an update event to reload the Prescaler and the repetition counter immediately */
-	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 }
 
 void TIM_REF_SecondInputDisable(void){
@@ -1213,6 +1213,11 @@ uint8_t TIM_GetPrescaler(uint32_t regPrescValue)
 		break;
 	}
 	return presc;
+}
+
+
+void TIM_ClearFlagsIT(TIM_HandleTypeDef* htim_base){
+	htim_base->Instance->SR = 0;
 }
 
 /**
