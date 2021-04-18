@@ -357,7 +357,7 @@ void TIM_IC_DutyCycle_Init(void);
 void TIM_IC_DutyCycle_Deinit(void);
 void TIM_IC_DutyCycleDmaRestart(void);
 
-void TIM_REF_SecondInputDisable(void);
+void TIM_REF_InputEnableDisable(_Bool enable);
 void TIM_REF_Reconfig_cnt(uint32_t sampleCount);
 
 void TIM_TI_Clear(void);

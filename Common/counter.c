@@ -149,7 +149,7 @@ void counterSetMode(uint8_t mode) {
 	}
 
 	if (counter.paused == NO) {
-		if (mode != TI)
+		if (mode != TI && mode != REF)
 			counterSendStart();
 	}
 }
@@ -777,15 +777,15 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 		/***** Counter REF handle *****/
 	} else if (counter.state == COUNTER_REF) {
 
-		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 250) {
-			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
-			TIM_REF_SecondInputDisable();
+		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 500) {
 			counter.refWarning = COUNTER_WARNING_FIRED;
+			TIM_REF_InputEnableDisable(false);
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 
 		} else if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED && counter.counterEtr.buffer != 0) {
 			counter.counterEtr.freq = counter.counterEtr.refBuffer / (double) counter.counterEtr.buffer;
-			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			counter.refWarning = COUNTER_REF_SEND_DATA;
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 
 		} else {
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
