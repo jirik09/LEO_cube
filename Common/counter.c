@@ -777,16 +777,15 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 		/***** Counter REF handle *****/
 	} else if (counter.state == COUNTER_REF) {
 
-		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 500) {
+		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 230) {
 			counter.refWarning = COUNTER_WARNING_FIRED;
-			TIM_REF_InputEnableDisable(false);
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
-
+			counterStop();
 		} else if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED && counter.counterEtr.buffer != 0) {
 			counter.counterEtr.freq = counter.counterEtr.refBuffer / (double) counter.counterEtr.buffer;
 			counter.refWarning = COUNTER_REF_SEND_DATA;
 			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
-
+			xStartTime = xTaskGetTickCount();
 		} else {
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
 		}
