@@ -33,7 +33,7 @@ syncPwmTypeDef syncPwm;
 void SyncPwmTask(void const *argument)
 {
 	uint16_t message = 0xFFFF;
-	syncPwmMessageQueue = xQueueCreate(5, sizeof(message)/sizeof(uint8_t));
+	syncPwmMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
 	syncPwmMutex = xSemaphoreCreateRecursiveMutex();	
 
 	if(syncPwmMessageQueue == 0){
@@ -117,20 +117,24 @@ void syncPwmSetFreq(uint32_t channel, double freq){
 	case 0:
 		syncPwm.realPwmFreqCh1 = TIM_SYNC_PWM_SetFreqCh1(freq);
 		passMsg = MSG_SYNCPWM_REAL_FREQ_CH1;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case 1:
 		syncPwm.realPwmFreqCh2 = TIM_SYNC_PWM_SetFreqCh2(freq);
 		passMsg = MSG_SYNCPWM_REAL_FREQ_CH2;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case 2:
+//		syncPwm.realPwmFreqCh3 = 0; // dummy
+//		passMsg = MSG_SYNCPWM_REAL_FREQ_CH3;
 		break;
 	case 3:
+//		syncPwm.realPwmFreqCh4 = 0; // dummy
+//		passMsg = MSG_SYNCPWM_REAL_FREQ_CH4;
 		break;
 	default:
 		break;
 	}
-
-	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 }
 
 void syncPwmSetDutyAndPhase(uint32_t channel, double dutyCycle, double phase){

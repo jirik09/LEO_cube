@@ -180,14 +180,12 @@
 #ifdef USE_SYNC_PWM
 #define MAX_SYNC_PWM_FREQ						(uint32_t) 36000000
 #define MAX_SYNC_PWM_CHANNELS					(uint32_t) 4
-#define SYNC_PWM_CHANNELS_DEPENDENCE			(uint32_t) DEPENDENCE
+#define SYNC_PWM_CHANNELS_DEPENDENCE			(uint32_t) 1  // enable 1, disable 0
 
 #define SYNC_PWM_DRIVE_DISAB_CHANx				(uint32_t) 0
 #define SYNC_PWM_DRIVE_DISAB_CHANy				(uint32_t) 1
 #define SYNC_PWM_FREQ_DISAB_CHANx				(uint32_t) 2
 #define SYNC_PWM_FREQ_DISAB_CHANy				(uint32_t) 3
-
-#define DEPENDENCE      1
 
 #define SYNC_PWM_CH1_PIN						"PC6_"
 #define SYNC_PWM_CH2_PIN						"PC7_"

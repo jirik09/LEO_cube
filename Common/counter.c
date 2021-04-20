@@ -48,8 +48,7 @@ void CounterTask(void const *argument) {
 	counterMutex = xSemaphoreCreateRecursiveMutex();
 
 	if (counterMessageQueue == 0) {
-		while (1)
-			; // Queue was not created and must not be used.
+		while (1); // Queue was not created and must not be used.
 	}
 
 	counterInitETR();
@@ -127,7 +126,8 @@ void CounterTask(void const *argument) {
  * @retval None
  */
 void counterSetMode(uint8_t mode) {
-	counterSendStop();
+	//counterSendStop();
+
 	uint16_t passMsg;
 	switch (mode) {
 	case ETR:
@@ -148,10 +148,10 @@ void counterSetMode(uint8_t mode) {
 		break;
 	}
 
-	if (counter.paused == NO) {
-		if (mode != TI && mode != REF)
-			counterSendStart();
-	}
+
+	if (mode != TI)
+		counterSendStart();
+
 }
 
 uint8_t counterSetQuantity(uint8_t quant) {
@@ -229,12 +229,10 @@ void counterSendStop(void) {
 
 void counterPause(void) {
 	counter.paused = YES;
-	counterSendStop();
 }
 
 void counterUnpause(void) {
 	counter.paused = NO;
-	counterSendStart();
 }
 
 /**
@@ -443,6 +441,8 @@ uint8_t counterSetEtrGate(uint16_t gateTime) {
  * @retval None
  */
 uint8_t counterSetRefSampleCount(uint32_t sampleCount) {
+	counterStop();
+
 	uint8_t result = CNT_FEATURE_MODE_MISMATCH;
 	if (counter.state == COUNTER_REF) {
 		xSemaphoreTakeRecursive(counterMutex, portMAX_DELAY);
@@ -452,6 +452,8 @@ uint8_t counterSetRefSampleCount(uint32_t sampleCount) {
 		TIM_REF_Reconfig_cnt(sampleCount);
 		result = 0;
 	}
+	counterStart();
+
 	return result;
 }
 
@@ -503,9 +505,8 @@ uint8_t counterSetIc1Prescaler(uint16_t presc) {
 		counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 		TIM_IC1_PSC_Config(presc);
 		DMA_Restart(&hdma_tim2_ch1);
-		if (counter.paused == NO) {
-			counterSendStart();
-		}
+		counterSendStart();
+
 		result = 0;
 	}
 	return result;
@@ -523,9 +524,8 @@ uint8_t counterSetIc2Prescaler(uint16_t presc) {
 		counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 		TIM_IC2_PSC_Config(presc);
 		DMA_Restart(&hdma_tim2_ch2_ch4);
-		if (counter.paused == NO) {
-			counterSendStart();
-		}
+		counterSendStart();
+
 		result = 0;
 	}
 	return result;
@@ -1107,8 +1107,7 @@ void counterGateConfig(uint16_t gateTime) {
 		break;
 	}
 
-	if (counter.paused == NO)
-		counterStart();
+	counterStart();
 }
 
 /**
