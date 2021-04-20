@@ -140,10 +140,10 @@ void MX_TIM2_ETRorREF_Init(void)
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig);
 
-	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_UPDATE);
-
 	htim2.Instance->CCMR1 &= ~TIM_CCMR1_CC2S;
 	htim2.Instance->CCMR1 |= TIM_CCMR1_CC1S;     /* Capture/Compare 1 Selection - CC1 channel is configured as input, IC1 is mapped on TRC */
+
+	//__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_UPDATE);
 }
 
 /* TIM2 mode IC init function */
@@ -526,13 +526,18 @@ void TIM_ti_deinit(void){
  */
 void TIM_ETR_Start(void)
 {
-	HAL_TIM_Base_Start(&htim2);
-	HAL_TIM_Base_Start(&htim4);
-	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&htim2.Instance->CCR1, (uint32_t)&counter.counterEtr.buffer, 1);
+	TIM_ClearFlagsIT(&htim2);
+	TIM_ClearFlagsIT(&htim4);
+	DMA_TransferComplete(&hdma_tim2_up);
 
 	/* DMA requests enable */
-	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_CC1);
+	__HAL_TIM_ENABLE_DMA(&htim2, TIM_DMA_UPDATE);
 	TIM_CCxChannelCmd(htim2.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+	HAL_DMA_Start_IT(&hdma_tim2_up, (uint32_t)&htim2.Instance->CCR1, (uint32_t)&counter.counterEtr.buffer, 1);
+	HAL_TIM_Base_Start(&htim2);
+	HAL_TIM_Base_Start(&htim4);
+
 	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 
 	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
@@ -545,13 +550,12 @@ void TIM_ETR_Start(void)
  */
 void TIM_ETR_Stop(void)
 {
-	//	HAL_TIM_Base_Stop_DMA(&htim2);
-	HAL_DMA_Abort_IT(&hdma_tim2_up);
-	/* DMA requests disable */
-	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_CC1);
-
 	HAL_TIM_Base_Stop(&htim2);
 	HAL_TIM_Base_Stop(&htim4);
+
+	HAL_DMA_Abort_IT(&hdma_tim2_up);
+	__HAL_TIM_DISABLE_DMA(&htim2, TIM_DMA_UPDATE);
+	TIM_CCxChannelCmd(htim2.Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
 }
 
 /**
@@ -1123,7 +1127,7 @@ void TIM_TI_ReconfigActiveEdges(void)
  * @params arr, psc
  * @retval none
  */
-void TIM_ARR_PSC_Config(double gateTime)
+void TIM_ETR_ARR_PSC_Config(double gateTime)
 {
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq()*2;
 
@@ -1136,12 +1140,9 @@ void TIM_ARR_PSC_Config(double gateTime)
 		__HAL_TIM_ENABLE(&htim4);
 		counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 	}
-
-	/* Generate an update event to reload the Prescaler and the repetition counter immediately */
-	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
 }
 
-void TIM_REF_SecondInputDisable(void){
+void TIM_REF_InputEnableDisable(_Bool enable){
 	__HAL_TIM_DISABLE(&htim4);
 }
 
@@ -1213,6 +1214,11 @@ uint8_t TIM_GetPrescaler(uint32_t regPrescValue)
 		break;
 	}
 	return presc;
+}
+
+
+void TIM_ClearFlagsIT(TIM_HandleTypeDef* htim_base){
+	htim_base->Instance->SR = 0;
 }
 
 /**

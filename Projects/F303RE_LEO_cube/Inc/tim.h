@@ -339,7 +339,7 @@ void TIM_ETRP_Config(double freq);
 //void TIM_IC2PSC_Config(double freq);
 void TIM_IC1_PSC_Config(uint8_t prescVal);
 void TIM_IC2_PSC_Config(uint8_t prescVal);
-void TIM_ARR_PSC_Config(double gateTime);
+void TIM_ETR_ARR_PSC_Config(double gateTime);
 
 void TIM_IC1_RisingFalling(void);
 void TIM_IC2_RisingFalling(void);
@@ -357,7 +357,7 @@ void TIM_IC_DutyCycle_Init(void);
 void TIM_IC_DutyCycle_Deinit(void);
 void TIM_IC_DutyCycleDmaRestart(void);
 
-void TIM_REF_SecondInputDisable(void);
+void TIM_REF_InputEnableDisable(_Bool enable);
 void TIM_REF_Reconfig_cnt(uint32_t sampleCount);
 
 void TIM_TI_Clear(void);
@@ -366,6 +366,7 @@ uint8_t TIM_ETPS_GetPrescaler(void);
 uint8_t TIM_IC1PSC_GetPrescaler(void);
 uint8_t TIM_IC2PSC_GetPrescaler(void);
 uint8_t TIM_GetPrescaler(uint32_t regPrescValue);
+void TIM_ClearFlagsIT(TIM_HandleTypeDef* htim_base);
 
 bool DMA_TransferComplete(DMA_HandleTypeDef *dmah);
 void DMA_Restart(DMA_HandleTypeDef *dmah);

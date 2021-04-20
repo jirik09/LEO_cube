@@ -149,7 +149,7 @@ void counterSetMode(uint8_t mode) {
 	}
 
 	if (counter.paused == NO) {
-		if (mode != TI)
+		if (mode != TI && mode != REF)
 			counterSendStart();
 	}
 }
@@ -755,24 +755,21 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 	if (counter.state == COUNTER_ETR) {
 
 		counter.counterEtr.etrp = TIM_ETPS_GetPrescaler();
-		float gateFreq = ((double) counter.tim4PrphClk
-				/ (double) ((counter.counterEtr.arr + 1)
-						* (counter.counterEtr.psc + 1))); /* TIM4 gating frequency */
-		counter.counterEtr.freq = ((double) counter.counterEtr.buffer * gateFreq
-				* counter.counterEtr.etrp); /* Sampled frequency */
+		float gateFreq = ((double) counter.tim4PrphClk / (double) ((counter.counterEtr.arr + 1) * (counter.counterEtr.psc + 1))); /* TIM4 gating frequency */
+		counter.counterEtr.freq = ((double) counter.counterEtr.buffer * gateFreq * counter.counterEtr.etrp); /* Sampled frequency */
 		counter.qError = counterEtrCalculateQuantError(gateFreq);
 		counter.tbError = counterEtrCalculateTimeBaseError();
 		/* Configure the ETR input prescaler */
 		TIM_ETRP_Config(counter.counterEtr.freq);
 
-		if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
-			counter.counterEtr.freq = 1 / counter.counterEtr.freq;
+		if (counter.counterEtr.freq > 0) {
+			if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
+				counter.counterEtr.freq = 1 / counter.counterEtr.freq;
+			}
 		}
 
 		if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED) {
-			xQueueSendToBackFromISR(messageQueue, &passMsg,
-					&xHigherPriorityTaskWoken);
-
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 		} else {
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
 		}
@@ -780,21 +777,15 @@ void COUNTER_ETR_DMA_CpltCallback(DMA_HandleTypeDef *dmah) {
 		/***** Counter REF handle *****/
 	} else if (counter.state == COUNTER_REF) {
 
-		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED)
-				&& (xTaskGetTickCount() - xStartTime) < 250) {
-			xQueueSendToBackFromISR(messageQueue, &passMsg,
-					&xHigherPriorityTaskWoken);
-			TIM_REF_SecondInputDisable();
+		if ((counter.sampleCntChange != SAMPLE_COUNT_CHANGED) && (xTaskGetTickCount() - xStartTime) < 230) {
 			counter.refWarning = COUNTER_WARNING_FIRED;
-
-		} else if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED
-				&& counter.counterEtr.buffer != 0) {
-			counter.counterEtr.freq = counter.counterEtr.refBuffer
-					/ (double) counter.counterEtr.buffer;
-			xQueueSendToBackFromISR(messageQueue, &passMsg,
-					&xHigherPriorityTaskWoken);
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
+			counterStop();
+		} else if (counter.sampleCntChange != SAMPLE_COUNT_CHANGED && counter.counterEtr.buffer != 0) {
+			counter.counterEtr.freq = counter.counterEtr.refBuffer / (double) counter.counterEtr.buffer;
 			counter.refWarning = COUNTER_REF_SEND_DATA;
-
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
+			xStartTime = xTaskGetTickCount();
 		} else {
 			counter.sampleCntChange = SAMPLE_COUNT_NOT_CHANGED;
 		}
@@ -832,7 +823,6 @@ void counterPeriodElapsedCallback(TIM_HandleTypeDef *htim) {
  * @retval None
  * @state  VERY USED
  */
-int testChann1 = 0, testChann2 = 0, testIncomm = 0;
 void counterIcProcess(void) {
 	portBASE_TYPE xHigherPriorityTaskWoken;
 	uint16_t passMsg = MSG_CNT_SEND_DATA;
@@ -840,58 +830,66 @@ void counterIcProcess(void) {
 	if (counter.bin != BIN0) {
 		counter.bin = BIN0;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch1) && counter.icChannel1==COUNTER_IRQ_IC_PASS) {
+		if (DMA_TransferComplete(&hdma_tim2_ch1) && counter.icChannel1 == COUNTER_IRQ_IC_PASS) {
+
 			counter.counterIc.ic1psc = TIM_IC1PSC_GetPrescaler();
-			uint32_t capture1 =
-					counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize
-							- 1] - counter.counterIc.ic1buffer[0];
-			counter.counterIc.ic1freq = (double) (counter.tim2PrphClk
-					* (counter.counterIc.psc + 1) * counter.counterIc.ic1psc)
-					* ((double) (counter.counterIc.ic1BufferSize - 1)
-							/ (double) capture1);
+			uint32_t capture1 = counter.counterIc.ic1buffer[counter.counterIc.ic1BufferSize - 1] - counter.counterIc.ic1buffer[0];
+
+			if (capture1 > 0) {
+				counter.counterIc.ic1freq = (double) (counter.tim2PrphClk * (counter.counterIc.psc + 1) * counter.counterIc.ic1psc)
+						* ((double) (counter.counterIc.ic1BufferSize - 1) / (double) capture1);
+			} else {
+				counter.counterIc.ic1freq = 0;
+			}
 
 			counter.qError = counterIcCalculateQuantError(1);
 			counter.tbError = counterIcCalculateTimeBaseError(1);
-			if (counter.counterIc.quantityChan1 == QUANTITY_PERIOD) {
-				counter.counterIc.ic1freq = 1 / counter.counterIc.ic1freq;
+
+			if (counter.counterIc.ic1freq > 0) {
+				if (counter.counterIc.quantityChan1 == QUANTITY_PERIOD) {
+					counter.counterIc.ic1freq = 1 / counter.counterIc.ic1freq;
+				}
 			}
 
 			counter.icChannel1 = COUNTER_IRQ_IC;
-			xQueueSendToBackFromISR(messageQueue, &passMsg,
-					&xHigherPriorityTaskWoken);
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 		}
 
 	} else if (counter.bin != BIN1) {
 		counter.bin = BIN1;
 
-		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)  && counter.icChannel2==COUNTER_IRQ_IC_PASS) {
+		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4) && counter.icChannel2 == COUNTER_IRQ_IC_PASS) {
+
 			counter.counterIc.ic2psc = TIM_IC2PSC_GetPrescaler();
-			uint32_t capture2 =
-					counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize
-							- 1] - counter.counterIc.ic2buffer[0];
-			counter.counterIc.ic2freq = (double) (counter.tim2PrphClk
-					* (counter.counterIc.psc + 1) * counter.counterIc.ic2psc)
-					* ((double) (counter.counterIc.ic2BufferSize - 1)
-							/ (double) capture2);
+			uint32_t capture2 = counter.counterIc.ic2buffer[counter.counterIc.ic2BufferSize - 1] - counter.counterIc.ic2buffer[0];
+
+			if (capture2 > 0) {
+				counter.counterIc.ic2freq = (double) (counter.tim2PrphClk * (counter.counterIc.psc + 1) * counter.counterIc.ic2psc)
+						* ((double) (counter.counterIc.ic2BufferSize - 1) / (double) capture2);
+			} else {
+				counter.counterIc.ic2freq = 0;
+			}
 
 			counter.qError2 = counterIcCalculateQuantError(2);
 			counter.tbError2 = counterIcCalculateTimeBaseError(2);
-			if (counter.counterIc.quantityChan2 == QUANTITY_PERIOD) {
-				counter.counterIc.ic2freq = 1 / counter.counterIc.ic2freq;
+
+			if (counter.counterIc.ic2freq > 0) {
+				if (counter.counterIc.quantityChan2 == QUANTITY_PERIOD) {
+					counter.counterIc.ic2freq = 1 / counter.counterIc.ic2freq;
+				}
 			}
 
 			counter.icChannel2 = COUNTER_IRQ_IC;
-			xQueueSendToBackFromISR(messageQueue, &passMsg,
-					&xHigherPriorityTaskWoken);
+			xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 		}
 	}
 }
 
 void counterIcRestartMeas(int channel) {
 	uint16_t passMsg;
-	if(channel == 1){
+	if (channel == 1) {
 		passMsg = MSG_CNT_RESTART_IC1;
-	}else if(channel == 2){
+	} else if (channel == 2) {
 		passMsg = MSG_CNT_RESTART_IC2;
 	}
 	xQueueSendToBack(counterMessageQueue, &passMsg, portMAX_DELAY);
@@ -920,10 +918,12 @@ void counterIcDutyCycleProcess(void) {
 	if (counter.icDutyCycle == DUTY_CYCLE_CH1_ENABLED) {
 		if (DMA_TransferComplete(&hdma_tim2_ch1)) {
 			/* Calculate duty cycle (ic1freq) and pulse width(ic2freq). Frequency struct variables temporarily used. */
-			counter.counterIc.duty = (counter.counterIc.ic2buffer[0]
-					/ (double) counter.counterIc.ic1buffer[0]) * 100;
-			counter.counterIc.pulseWidth = counter.counterIc.ic2buffer[0]
-					/ (double) counter.tim2PrphClk;
+			if (counter.counterIc.ic1buffer[0] > 0)
+				counter.counterIc.duty = (counter.counterIc.ic2buffer[0] / (double) counter.counterIc.ic1buffer[0]) * 100;
+			else
+				counter.counterIc.duty = 0;
+
+			counter.counterIc.pulseWidth = counter.counterIc.ic2buffer[0] / (double) counter.tim2PrphClk;
 
 			TIM_IC_DutyCycleDmaRestart();
 
@@ -932,24 +932,25 @@ void counterIcDutyCycleProcess(void) {
 			if (counter.bin == BIN0) {
 				counter.bin = BIN1;
 			} else {
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
+				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			}
 		}
 	} else if (counter.icDutyCycle == DUTY_CYCLE_CH2_ENABLED) {
 		if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
-			counter.counterIc.duty = (counter.counterIc.ic1buffer[0]
-					/ (double) counter.counterIc.ic2buffer[0]) * 100;
-			counter.counterIc.pulseWidth = counter.counterIc.ic1buffer[0]
-					/ (double) counter.tim2PrphClk;
+
+			if (counter.counterIc.ic2buffer[0] > 0)
+				counter.counterIc.duty = (counter.counterIc.ic1buffer[0] / (double) counter.counterIc.ic2buffer[0]) * 100;
+			else
+				counter.counterIc.duty = 0;
+
+			counter.counterIc.pulseWidth = counter.counterIc.ic1buffer[0] / (double) counter.tim2PrphClk;
 
 			TIM_IC_DutyCycleDmaRestart();
 
 			if (counter.bin == BIN0) {
 				counter.bin = BIN1;
 			} else {
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
+				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			}
 		}
 	}
@@ -968,29 +969,24 @@ void counterTiProcess(void) {
 	uint16_t passMsg = MSG_CNT_SEND_DATA;
 
 	/* Check timeout. */
-	if ((xTaskGetTickCountFromISR() - xStartTime)
-			<= counter.counterIc.tiTimeout) {
+	if ((xTaskGetTickCountFromISR() - xStartTime) <= counter.counterIc.tiTimeout) {
 		/* Check the event sequence - AB or BA */
 		if (counter.abba == BIN0) {
 			/* Check DMA transfer channel 1 occured */
 			if (DMA_TransferComplete(&hdma_tim2_ch2_ch4)) {
-				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0]
-						/ (double) counter.tim2PrphClk;
+				counter.counterIc.ic1freq = counter.counterIc.ic2buffer[0] / (double) counter.tim2PrphClk;
 				TIM_TI_Stop();
 				counter.tiState = SEND_TI_DATA;
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
+				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			}
 			/* If timeout occurred stop TI counter and send alert to PC application. */
 		} else {
 			/* Check DMA transfer channel 2 occured */
 			if (DMA_TransferComplete(&hdma_tim2_ch1)) {
-				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0]
-						/ (double) counter.tim2PrphClk;
+				counter.counterIc.ic1freq = counter.counterIc.ic1buffer[0] / (double) counter.tim2PrphClk;
 				TIM_TI_Stop();
 				counter.tiState = SEND_TI_DATA;
-				xQueueSendToBackFromISR(messageQueue, &passMsg,
-						&xHigherPriorityTaskWoken);
+				xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 			}
 		}
 		counter.qError = counterIcCalculateQuantError(1);
@@ -998,8 +994,7 @@ void counterTiProcess(void) {
 	} else {
 		TIM_TI_Stop();
 		counter.tiState = TIMEOUT;
-		xQueueSendToBackFromISR(messageQueue, &passMsg,
-				&xHigherPriorityTaskWoken);
+		xQueueSendToBackFromISR(messageQueue, &passMsg, &xHigherPriorityTaskWoken);
 	}
 }
 
@@ -1007,20 +1002,26 @@ void counterTiProcess(void) {
 /* ----------------------------- Counter ERROR computations ----------------------------- */
 /* ************************************************************************************** */
 double counterEtrCalculateQuantError(float gateFreq) {
-	double qError = counter.counterEtr.etrp * gateFreq;
-	if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
-		qError = (1 / (counter.counterEtr.freq - qError)
-				- 1 / counter.counterEtr.freq);
+	double qError = 0;
+	if (counter.counterEtr.freq > 0) {
+		qError = counter.counterEtr.etrp * gateFreq;
+		if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
+			qError = (1 / (counter.counterEtr.freq - qError) - 1 / counter.counterEtr.freq);
+		}
 	}
+
 	return qError;
 }
 
 double counterEtrCalculateTimeBaseError(void) {
-	double tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
-	if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
-		tbError = (1 / (counter.counterEtr.freq - tbError)
-				- 1 / counter.counterEtr.freq);
+	double tbError = 0;
+	if (counter.counterEtr.freq > 0) {
+		tbError = counter.counterEtr.freq * NUCLEO_CRYSTAL_ERROR;
+		if (counter.counterEtr.quantity == QUANTITY_PERIOD) {
+			tbError = (1 / (counter.counterEtr.freq - tbError) - 1 / counter.counterEtr.freq);
+		}
 	}
+
 	return tbError;
 }
 
@@ -1041,11 +1042,14 @@ double counterIcCalculateQuantError(int icChannel) {
 		presc = counter.counterIc.ic2psc;
 	}
 
-	double qError = freq / (counter.tim4PrphClk - freq) * freq
-			/ (buffSize * presc);
-	if (channelQuantity == QUANTITY_PERIOD) {
-		qError = 1 / (freq - qError) - 1 / freq;
+	double qError = 0;
+	if (freq > 0) {
+		qError = freq / (counter.tim4PrphClk - freq) * freq / (buffSize * presc);
+		if (channelQuantity == QUANTITY_PERIOD) {
+			qError = 1 / (freq - qError) - 1 / freq;
+		}
 	}
+
 	return qError;
 }
 
@@ -1061,10 +1065,14 @@ double counterIcCalculateTimeBaseError(int icChannel) {
 		freq = counter.counterIc.ic2freq;
 	}
 
-	double tbError = freq * NUCLEO_CRYSTAL_ERROR;
-	if (channelQuantity == QUANTITY_PERIOD) {
-		tbError = 1 / (freq - tbError) - 1 / freq;
+	double tbError = 0;
+	if (freq > 0) {
+		tbError = freq * NUCLEO_CRYSTAL_ERROR;
+		if (channelQuantity == QUANTITY_PERIOD) {
+			tbError = 1 / (freq - tbError) - 1 / freq;
+		}
 	}
+
 	return tbError;
 }
 
@@ -1078,25 +1086,27 @@ double counterIcCalculateTimeBaseError(int icChannel) {
  */
 void counterGateConfig(uint16_t gateTime) {
 	counterStop();
+
 	switch (gateTime) {
 	case 100: /* min.	gate time 00.10 second */
-		TIM_ARR_PSC_Config(0.1);
+		TIM_ETR_ARR_PSC_Config(0.1);
 		break;
 	case 500: /* ----	gate time 00.50 second */
-		TIM_ARR_PSC_Config(0.5);
+		TIM_ETR_ARR_PSC_Config(0.5);
 		break;
 	case 1000: /* ----	gate time 01.00 second */
-		TIM_ARR_PSC_Config(1);
+		TIM_ETR_ARR_PSC_Config(1);
 		break;
 	case 5000: /* ----	gate time 05.00 second */
-		TIM_ARR_PSC_Config(5);
+		TIM_ETR_ARR_PSC_Config(5);
 		break;
 	case 10000: /* max. gate time 10.00 second */
-		TIM_ARR_PSC_Config(10);
+		TIM_ETR_ARR_PSC_Config(10);
 		break;
 	default:
 		break;
 	}
+
 	if (counter.paused == NO)
 		counterStart();
 }
@@ -1115,8 +1125,7 @@ void counterEtrRefSetDefault(void) {
 	} else {
 		counter.counterEtr.psc = 59999;
 		counter.counterEtr.arr = 59999;
-		counter.counterEtr.refBuffer = (counter.counterEtr.psc + 1)
-				* (counter.counterEtr.arr + 1);
+		counter.counterEtr.refBuffer = (counter.counterEtr.psc + 1) * (counter.counterEtr.arr + 1);
 	}
 	counter.counterEtr.etrp = 1;
 	counter.counterEtr.buffer = 0;

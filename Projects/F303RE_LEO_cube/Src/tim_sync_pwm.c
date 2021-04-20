@@ -291,17 +291,21 @@ void TIM_SYNC_PWM_Stop(void) {
 }
 
 void TIM_SYNC_PWM_StepMode_Enable(void) {
-	TIM_SYNC_PWM_Stop();
-	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	syncPwm.stepMode = CH_ENABLE;
+	if(syncPwm.stepMode == CH_DISABLE){
+		TIM_SYNC_PWM_Stop();
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		syncPwm.stepMode = CH_ENABLE;
+	}
 }
 
 void TIM_SYNC_PWM_StepMode_Disable(void) {
-	LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	TIM_SYNC_PWM_Stop();
-	syncPwm.stepMode = CH_DISABLE;
+	if(syncPwm.stepMode == CH_ENABLE){
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		TIM_SYNC_PWM_Stop();
+		syncPwm.stepMode = CH_DISABLE;
+	}
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
@@ -382,30 +386,30 @@ void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double ph
 	switch (channel) {
 	case 0:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1) + 1;
 		LL_TIM_OC_SetCompareCH1(htim3.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2) + 1;
 		LL_TIM_OC_SetCompareCH2(htim3.Instance, temp);
 		break;
 	case 1:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1) + 1;
 		LL_TIM_OC_SetCompareCH2(htim8.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2) + 1;
 		LL_TIM_OC_SetCompareCH1(htim8.Instance, temp);
 		break;
 	case 2:
 		period = LL_TIM_GetAutoReload(htim3.Instance);
-		temp = (uint32_t) round(period * edge1) + 1;;
+		temp = (uint32_t) round(period * edge1) + 1;
 		LL_TIM_OC_SetCompareCH3(htim3.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2) + 1;
 		LL_TIM_OC_SetCompareCH4(htim3.Instance, temp);
 		break;
 	case 3:
 		period = LL_TIM_GetAutoReload(htim8.Instance);
 		temp = (uint32_t) round(period * edge1) + 1;
 		LL_TIM_OC_SetCompareCH4(htim8.Instance, temp);
-		temp = (uint32_t) round(period * edge2) + 1;;
+		temp = (uint32_t) round(period * edge2) + 1;
 		LL_TIM_OC_SetCompareCH3(htim8.Instance, temp);
 		break;
 	default:
