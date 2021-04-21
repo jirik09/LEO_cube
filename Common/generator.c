@@ -98,17 +98,11 @@ void GeneratorTask(void const *argument){
 			break;
 		case MSG_GEN_DAC_MODE:  /* Set DAC mode */
 			generatorSetModeDAC();
+			setModeGenerator();
 			TIMGenInit();
 			break;
 		case MSG_GEN_DEINIT:
-			if(generator.modeState==GENERATOR_DAC){				
-				TIMGenDacDeinit();
-			}else if(generator.modeState==GENERATOR_PWM){
-#ifdef USE_GEN_PWM
-				TIMGenPwmDeinit();
-
-#endif //USE_GEN_PWM
-			}
+			generator_deinit();
 			break;
 		default:
 			break;
@@ -174,6 +168,7 @@ void generator_deinit(void){
 		break;
 	case GENERATOR_DAC:
 		TIMGenDacDeinit();
+		GEN_DAC_deinit();
 		break;
 	}
 }
@@ -434,24 +429,10 @@ void genUnsetOutputBuffer(void){
 }
 
 uint8_t genSetDAC(uint16_t chann1,uint16_t chann2){
+	//setModeVoltageSource();
 	uint8_t result=0;
-	if(generator.state==GENERATOR_IDLE){
-		for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
-			result+=genSetLength(1,i+1);
-		}
-		result+=genSetNumOfChannels(MAX_DAC_CHANNELS);
-	}
-	if(MAX_DAC_CHANNELS>0){
-		*generator.pChanMem[0]=chann1;
-		result+=genSetFrequency(100,1);
-	}
-	if(MAX_DAC_CHANNELS>1){
-		*generator.pChanMem[1]=chann2;
-		result+=genSetFrequency(100,2);
-	}
-	genStart();	
-
-
+	DACsetOutput(0,chann1);
+	DACsetOutput(1,chann2);
 	return result;
 }
 /**

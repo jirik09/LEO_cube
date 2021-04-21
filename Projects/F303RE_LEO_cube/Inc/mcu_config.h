@@ -25,6 +25,9 @@
 //#define MCU_UID (uint8_t)*((uint8_t *)0x1FFFF7AC)
 #define MCU_UID 0x1FFFF7AC
 
+#define VREF_INT (uint16_t)*((uint16_t *)0x1FFFF7BA)
+#define AVDD_DEFAULT 3300
+
 #define NUCLEO_CRYSTAL_ERROR_PPM  20
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
@@ -73,15 +76,12 @@
 #define SCOPE_CH3_PIN_STR "A3__" //must be 4 chars
 #define SCOPE_CH4_PIN_STR "PB14" //must be 4 chars
 
-#define SCOPE_VREF 3300
-#define SCOPE_VREF_INT (uint16_t)*((uint16_t *)0x1FFFF7BA)
-
 #define RANGE_1_LOW 0
-#define RANGE_1_HI SCOPE_VREF //this range is used by default to send with data
-#define RANGE_2_LOW -SCOPE_VREF
-#define RANGE_2_HI SCOPE_VREF*2
+#define RANGE_1_HI AVDD_DEFAULT //this range is used by default to send with data
+#define RANGE_2_LOW -AVDD_DEFAULT
+#define RANGE_2_HI AVDD_DEFAULT*2
 #define RANGE_3_LOW 0
-#define RANGE_3_HI SCOPE_VREF*2
+#define RANGE_3_HI AVDD_DEFAULT*2
 #define RANGE_4_LOW 0
 #define RANGE_4_HI 0
 
@@ -103,6 +103,7 @@
 
 // Generator constatnts =======================================================
 #define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
+#define DAC_RESOURCES DAC12_R
 #define MAX_GENERATING_FREQ  2000000 //smps
 #define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
@@ -110,9 +111,8 @@
 #define	DAC_DATA_DEPTH 12
 
 #define GEN_RANGE_LOW  0
-#define GEN_RANGE_HIGH  3300
-#define GEN_VDDA  3300
-#define GEN_VREF_INT  1210
+#define GEN_RANGE_HIGH  AVDD_DEFAULT
+
 
 #ifdef USE_SHIELD
 #define SHIELD_GEN_HIGH   5000 //without calibration 5000  4898-5

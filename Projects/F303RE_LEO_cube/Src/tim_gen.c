@@ -440,7 +440,6 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	uint32_t periphClock;
 	uint32_t psc=0;
 	uint32_t arr=0;
-	uint8_t result = 0;
 	uint32_t realFreq;
 	if(chan==0){
 		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1);
@@ -498,7 +497,6 @@ void TIMGenDisable(void){
  * @retval None
  */
 void TIMGenInit(void){
-	MX_DAC_Init();
 	MX_TIM6_Init();
 	MX_TIM7_Init();
 }
@@ -519,9 +517,6 @@ void TIMGenDacDeinit(void){
 
 	__HAL_RCC_TIM7_FORCE_RESET();
 	__HAL_RCC_TIM7_RELEASE_RESET();
-
-	__HAL_RCC_DAC1_FORCE_RESET();
-	__HAL_RCC_DAC1_RELEASE_RESET();
 }
 
 #ifdef USE_GEN_PWM

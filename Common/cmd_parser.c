@@ -44,6 +44,7 @@ command parseSystemCmd(void);
 command parseCommsCmd(void);
 command parseScopeCmd(void);
 command parseGeneratorCmd(void);
+command parseVoltageSourceCmd(void);
 command parseSyncPwmCmd(void);
 command parseLogAnlysCmd(void);
 command giveNextCmd(void);
@@ -116,6 +117,10 @@ void CmdParserTask(void const *argument){
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 				case CMD_GENERATOR: //parse generator command
 					tempCmd = parseGeneratorCmd();
+					printErrResponse(tempCmd);
+					break;
+				case CMD_VOLATGE_SOURCE: //parse voltagesource command
+					tempCmd = parseVoltageSourceCmd();
 					printErrResponse(tempCmd);
 					break;
 #endif //USE_GEN || USE_GEN_PWM
@@ -975,7 +980,10 @@ command parseGeneratorCmd(void){
 			}
 		}
 		break;
-
+	case CMD_DAC_VAL:
+		cmdIn = giveNextCmd();
+		error=genSetDAC((uint16_t)(cmdIn),(uint16_t)(cmdIn>>16));
+		break;
 	case CMD_GEN_SAMPLING_FREQ: //set sampling freq
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
@@ -1004,11 +1012,10 @@ command parseGeneratorCmd(void){
 			cmdIn = CMD_ERR;
 		}
 		break;
-	case CMD_GEN_PWM_DEINIT:
+#endif // USE_GEN_PWM
+	case CMD_GEN_DEINIT:
 		generator_deinit();
 		break;
-#endif // USE_GEN_PWM
-
 	case CMD_GET_REAL_FREQ: //get sampling freq
 		genSendRealSamplingFreq();
 		break;	
@@ -1055,12 +1062,6 @@ command parseGeneratorCmd(void){
 		genUnsetOutputBuffer();
 		break;	
 
-	case CMD_GEN_DAC_VAL:
-		cmdIn = giveNextCmd();
-		error=genSetDAC((uint16_t)(cmdIn),(uint16_t)(cmdIn>>16));
-		genStatusOK();
-		break;
-
 	case CMD_GEN_START: //start generating
 		genStart();
 		genStatusOK();
@@ -1099,6 +1100,41 @@ command parseGeneratorCmd(void){
 		cmdIn=CMD_END;
 	}
 	return cmdIn;
+}
+
+command parseVoltageSourceCmd(void){
+	command cmdIn=CMD_ERR;
+		uint8_t error=0;
+		uint16_t passMsg;
+
+		cmdIn = giveNextCmd();
+		switch(cmdIn){
+		case CMD_GET_CONFIG:
+			passMsg = MSG_DAC_CONFIG;
+			xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+			break;
+		case CMD_DAC_VAL:
+			cmdIn = giveNextCmd();
+			error=genSetDAC((uint16_t)(cmdIn),(uint16_t)(cmdIn>>16));
+			break;
+		case CMD_GEN_START:
+			setModeVoltageSource();
+			break;
+		case CMD_GEN_STOP:
+			GEN_DAC_deinit();
+			break;
+		case CMD_END:break;
+		default:
+			error = GEN_VOLT_INVALID_FEATURE;
+			cmdIn = CMD_ERR;
+			break;
+		}
+		if(error>0){
+			cmdIn=error;
+		}else{
+			cmdIn=CMD_END;
+		}
+		return cmdIn;
 }
 #endif //USE_GEN || USE_GEN_PWM
 
