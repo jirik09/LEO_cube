@@ -54,6 +54,9 @@ void GeneratorTask(void const *argument){
 
 	uint16_t message = 0xFFFF;
 	generatorMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
+	MX_DAC_Init();
+	MX_TIM6_Init();
+	MX_TIM7_Init();
 	generatorSetDefault();
 
 	while(1){
@@ -81,7 +84,11 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_STOP:
 			if(generator.state==GENERATOR_RUN){
 				if(generator.modeState==GENERATOR_DAC){
-					GeneratingDisable();
+					if(generator.DACMode == DAC_GEN_MODE){
+						GeneratingDisable();
+					}else{
+						GEN_DAC_deinit();
+					}
 				}else if(generator.modeState==GENERATOR_PWM){
 #ifdef USE_GEN_PWM
 					PWMGeneratingDisable();
@@ -97,18 +104,16 @@ void GeneratorTask(void const *argument){
 #endif //USE_GEN_PWM
 			break;
 		case MSG_GEN_DAC_MODE:  /* Set DAC mode */
-			generatorSetModeDAC();
+			generatorSetModeGenDAC();
+			DACSetModeGenerator();
 			TIMGenInit();
 			break;
+		case MSG_GEN_VOLTSOURCE_MODE:  /* Set Voltage source mode / actually special case of DAC mode */
+			DACSetModeVoltageSource();
+			generatorSetModeVoltSourceDAC();
+			break;
 		case MSG_GEN_DEINIT:
-			if(generator.modeState==GENERATOR_DAC){				
-				TIMGenDacDeinit();
-			}else if(generator.modeState==GENERATOR_PWM){
-#ifdef USE_GEN_PWM
-				TIMGenPwmDeinit();
-
-#endif //USE_GEN_PWM
-			}
+			generator_deinit();
 			break;
 		default:
 			break;
@@ -134,6 +139,10 @@ void genSetMode(uint8_t mode)
 		passMsg = MSG_GEN_DAC_MODE;
 		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 		break;
+	case GEN_VOLTSOURCE:
+		passMsg = MSG_GEN_VOLTSOURCE_MODE;
+		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
+		break;
 	default:
 		break;
 	}
@@ -154,10 +163,16 @@ void generatorSetModePWM(void){
  * @param  None
  * @retval None
  */
-void generatorSetModeDAC(void){
+void generatorSetModeGenDAC(void){
 	//generator_deinit();
 	//TIMGenPwmDeinit();	
 	generator.modeState = GENERATOR_DAC;
+	generator.DACMode = DAC_GEN_MODE;
+}
+
+void generatorSetModeVoltSourceDAC (void){
+	generator.modeState = GENERATOR_DAC;
+	generator.DACMode = DAC_VOLTSOURCE_MODE;
 }
 
 /**
@@ -174,37 +189,12 @@ void generator_deinit(void){
 		break;
 	case GENERATOR_DAC:
 		TIMGenDacDeinit();
+		GEN_DAC_deinit();
 		break;
 	}
 }
 
-//#ifdef USE_GEN_PWM
-///**
-// * @brief  Arb. PWM Generator frequency configurarion function.
-// * @param  pscVal:	value of PSC register sent by host
-// * @param  chan: channel number 1 or 2
-// * @retval None
-// */
-//void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan){
-//	TIM_GEN_PWM_PSC_Config(pscVal, chan);		// -1 subtraction made in PC app
-//}
 
-///**
-// * @brief  Arb. PWM Generator frequency configurarion function.
-// * @param  pscVal:	value of ARR register sent by host
-// * @param  chan: channel number 1 or 2
-// * @retval None
-// */
-//void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan){
-//	TIM_GEN_PWM_ARR_Config(arrVal, chan);		// -1 subtraction made in PC app
-//}
-//#endif //USE_GEN_PWM
-
-/**
- * @brief  Generator set Default values
- * @param  None
- * @retval None
- */
 void generatorSetDefault(void)
 {
 	generator.bufferMemory=generatorBuffer;
@@ -395,30 +385,6 @@ uint8_t genSetNumOfChannels(uint8_t chan){
 	return result;
 }
 
-
-/**
- * @brief 	Checks if scope settings doesn't exceed memory
- * @param  None
- * @retval err/ok
- */
-//uint8_t validateGenBuffUsage(){
-//	uint8_t result=1;
-//	uint32_t data_len=generator.maxOneChanSamples;
-//	if(generator.DAC_res>8){
-//		data_len=data_len*2;
-//	}
-//	data_len=data_len*generator.numOfChannles;
-//	if(data_len<=MAX_GENERATOR_BUFF_SIZE){
-//		result=0;
-//	}
-//	return result;
-//}
-
-/**
- * @brief 	Clears generator buffer
- * @param  None
- * @retval None
- */
 void clearGenBuffer(void){
 	for(uint32_t i=0;i<MAX_GENERATOR_BUFF_SIZE/2;i++){
 		generatorBuffer[i]=0;
@@ -434,24 +400,10 @@ void genUnsetOutputBuffer(void){
 }
 
 uint8_t genSetDAC(uint16_t chann1,uint16_t chann2){
+	//setModeVoltageSource();
 	uint8_t result=0;
-	if(generator.state==GENERATOR_IDLE){
-		for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
-			result+=genSetLength(1,i+1);
-		}
-		result+=genSetNumOfChannels(MAX_DAC_CHANNELS);
-	}
-	if(MAX_DAC_CHANNELS>0){
-		*generator.pChanMem[0]=chann1;
-		result+=genSetFrequency(100,1);
-	}
-	if(MAX_DAC_CHANNELS>1){
-		*generator.pChanMem[1]=chann2;
-		result+=genSetFrequency(100,2);
-	}
-	genStart();	
-
-
+	DACsetOutput(0,chann1);
+	DACsetOutput(1,chann2);
 	return result;
 }
 /**

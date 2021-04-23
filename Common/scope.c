@@ -612,6 +612,11 @@ uint8_t scopeSetNumOfChannels(uint8_t chan){
 			}
 			result=0;
 		}
+
+		if(chan < scope.triggerChannel && result == 0){
+			scopeSetTrigChannel(1);
+			result = SCOPE_TRIGGER_FORCED_TO_CH1;
+		}
 		xSemaphoreGiveRecursive(scopeMutex);
 		uint16_t passMsg = MSG_INVALIDATE;
 		xQueueSendToBack(scopeMessageQueue, &passMsg, portMAX_DELAY);
@@ -626,7 +631,7 @@ uint8_t scopeSetNumOfChannels(uint8_t chan){
  */
 uint8_t scopeSetTrigChannel(uint8_t chan){
 	uint8_t result=SCOPE_INVALID_TRIGGER_CHANNEL;
-	if(chan<=MAX_ADC_CHANNELS){
+	if(chan<=MAX_ADC_CHANNELS && chan <=scope.numOfChannles){
 		xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
 		scope.triggerChannel=chan;
 		result=0;

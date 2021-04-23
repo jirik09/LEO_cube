@@ -47,17 +47,13 @@
 	 
 	 
  
-	 
-	 
 
-//extern ADC_HandleTypeDef hadc1;
-//extern ADC_HandleTypeDef hadc2;
-//extern ADC_HandleTypeDef hadc3;
-
+void MX_Vref_Init(void);
 void MX_ADC1_Init(void);
 void MX_ADC2_Init(void);
 void MX_ADC3_Init(void);
 void MX_ADC4_Init(void);
+
 
 void MX_ADC12_Interleaved_Init(void);
 void MX_ADC34_Interleaved_Init(void);
@@ -73,6 +69,8 @@ void adcSetInputChannel(uint8_t adc, uint8_t chann);
 void adcSetDefaultInputs(void);
 void adcSetResolution (uint8_t res);
 void CalibrateADC (void);
+void MeasureRealAVDD(void);
+int32_t getRealAVDD(void);
 void ADCInitNormalMode(void);
 void ADCInitInterleavedMode(void);
 void ADCInitMultiMode(void);

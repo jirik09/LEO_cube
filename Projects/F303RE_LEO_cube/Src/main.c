@@ -100,12 +100,15 @@ int main(void)
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
+	__disable_irq();
+
 	/* Configure the system clock */
 	SystemClock_Config();
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
+	MeasureRealAVDD();
 
 	LED_On();
 #ifdef USE_SCOPE
@@ -118,11 +121,10 @@ int main(void)
 	adcSetDefaultInputs();
 #endif //USE_SCOPE
 
+	/*
 #ifdef USE_GEN
-	MX_DAC_Init();
-	MX_TIM6_Init();
-	MX_TIM7_Init();
-#endif //USE_GEN
+
+#endif //USE_GEN*/
 
 #ifdef USE_SHIELD
 	detectScopeShield();

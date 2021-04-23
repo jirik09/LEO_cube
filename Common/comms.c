@@ -25,6 +25,7 @@
 #include "usb_device.h"
 #include "usart.h"
 #include "gpio.h"
+#include "adc.h"
 
 
 /** @defgroup Comms Comms
@@ -57,6 +58,7 @@ void sendScopeConf(void);
 void sendCounterConf(void);
 void sendScopeInputs(void);
 void sendGenConf(void);
+void sendDACConf(void);
 void sendGenPwmConf(void);
 void sendSyncPwmConf(void);
 void sendLogAnlysConf(void);
@@ -71,7 +73,7 @@ void assertPins(void);
  * @{
  */
 //portTASK_FUNCTION(vPrintTask, pvParameters) {
-void LLCommTask(void const *argument){
+/*void LLCommTask(void const *argument){
 
 	portBASE_TYPE xHigherPriorityTaskWoken;
 	while(1){
@@ -87,7 +89,7 @@ void LLCommTask(void const *argument){
 		}
 		taskYIELD();
 	}
-}
+}*/
 
 /**
  * @brief  Communication task function.
@@ -453,6 +455,10 @@ void CommTask(void const *argument){
 			break;
 #endif //USE_SHIELD
 #ifdef USE_GEN
+		case MSG_DAC_CONFIG:
+			commsSendString(STR_VOLTAGE_SOURCE);
+			sendDACConf();
+			break;
 		case MSG_GEN_CONFIG:
 			commsSendString(STR_GENERATOR);
 			sendGenConf();
@@ -733,8 +739,8 @@ void sendScopeConf(){
 	commsSendUint32(MAX_INTERLEAVE_FREQ_8B);
 	commsSendUint32(MAX_SCOPE_BUFF_SIZE);
 	commsSendUint32(MAX_ADC_CHANNELS);
-	commsSendUint32(SCOPE_VREF);
-	commsSendUint32(SCOPE_VREF_INT);
+	commsSendUint32(AVDD_DEFAULT);
+	commsSendUint32(VREF_INT);
 	for (i=0;i<MAX_ADC_CHANNELS;i++){
 		switch(i){
 		case 0:
@@ -867,8 +873,7 @@ void sendGenConf(){
 	commsSendUint32(GEN_RANGE_LOW);
 	commsSendUint32(GEN_RANGE_HIGH);
 #endif
-	commsSendUint32(GEN_VDDA);
-	commsSendUint32(GEN_VREF_INT);
+	commsSendInt32(getRealAVDD());
 
 	for (i=0;i<MAX_DAC_CHANNELS;i++){
 		switch(i){
@@ -880,9 +885,43 @@ void sendGenConf(){
 			break;
 		}
 	}
-
-
 }
+
+void sendDACConf(void){
+	uint8_t i;
+	commsSendString(STR_CONFIG);
+	commsSendUint32(DAC_RESOURCES);
+	commsSendUint32(DAC_DATA_DEPTH);
+	commsSendUint32(MAX_DAC_CHANNELS);
+
+#ifdef USE_SHIELD
+	if(isScopeShieldConnected()){
+		commsSendInt32(SHIELD_GEN_LOW);
+		commsSendUint32(SHIELD_GEN_HIGH);
+	}else{
+		commsSendUint32(0);
+		commsSendUint32(GEN_VREF);
+	}
+#else
+	commsSendUint32(GEN_RANGE_LOW);
+	commsSendUint32(GEN_RANGE_HIGH);
+#endif
+	commsSendInt32(getRealAVDD());
+	commsSendUint32(AVDD_DEFAULT);
+
+	for (i=0;i<MAX_DAC_CHANNELS;i++){
+		switch(i){
+		case 0:
+			commsSendString(GEN_CH1_PIN_STR);
+			break;
+		case 1:
+			commsSendString(GEN_CH2_PIN_STR);
+			break;
+		}
+	}
+}
+
+
 #endif //USE_GEN
 
 

@@ -438,19 +438,34 @@ uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq){
 
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	uint32_t periphClock;
+	uint32_t psc=0;
+	uint32_t arr=0;
+	uint32_t realFreq;
 	if(chan==0){
-		/* Whenever TIM peripheral is over-clocked and running from PLL, GetPeriphClock HAL function
-		 * does not return the correct value.. */
 		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1);
-				//HAL_RCC_GetPCLK2Freq()*2;
-		return TIM_ReconfigPrecise(&htim1,periphClock,reqFreq);
+		arr = periphClock / reqFreq;
+		while(arr>65535){
+			arr = (arr+1)/2-1;
+			psc = (psc+1)*2-1;
+		}
+		realFreq = periphClock/(arr+1)/(psc+1);
+		htim1.Instance->PSC = psc;
+		htim1.Instance->ARR = arr;
+		LL_TIM_GenerateEvent_UPDATE(htim1.Instance);
+
 	}else if(chan==1){
 		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
-				//HAL_RCC_GetHCLKFreq();
-		return TIM_ReconfigPrecise(&htim3,periphClock,reqFreq);
-	}else{
-		return 0;
+		arr = periphClock / reqFreq;
+		while(arr>65535){
+			arr = (arr+1)/2-1;
+			psc = (psc+1)*2-1;
+		}
+		realFreq = periphClock/(arr+1)/(psc+1);
+		htim3.Instance->PSC = psc;
+		htim3.Instance->ARR = arr;
+		LL_TIM_GenerateEvent_UPDATE(htim3.Instance);
 	}
+	return realFreq;
 }
 
 #endif //USE_GEN_PWM
@@ -482,7 +497,6 @@ void TIMGenDisable(void){
  * @retval None
  */
 void TIMGenInit(void){
-	MX_DAC_Init();
 	MX_TIM6_Init();
 	MX_TIM7_Init();
 }
@@ -503,9 +517,6 @@ void TIMGenDacDeinit(void){
 
 	__HAL_RCC_TIM7_FORCE_RESET();
 	__HAL_RCC_TIM7_RELEASE_RESET();
-
-	__HAL_RCC_DAC1_FORCE_RESET();
-	__HAL_RCC_DAC1_RELEASE_RESET();
 }
 
 #ifdef USE_GEN_PWM

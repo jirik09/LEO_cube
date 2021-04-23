@@ -12,12 +12,14 @@
 // List of possible Errors ====================================================
 #define ERROR_PREFIX 'E'
 
-#define BUFFER_SIZE_ERR 58 // Buffer size exceeded located memory
+
 #define SCOPE_INVALID_FEATURE 50
 #define SCOPE_INVALID_FEATURE_PARAM 54
 #define SCOPE_UNSUPPORTED_RESOLUTION 55
 #define SCOPE_INVALID_TRIGGER_CHANNEL 56
 #define SCOPE_INVALID_SAMPLING_FREQ 57
+#define BUFFER_SIZE_ERR 58 // Buffer size exceeded located memory
+#define SCOPE_TRIGGER_FORCED_TO_CH1 59
 
 #define SCOPE_INVALID_ADC_CHANNEL 61
 
@@ -31,6 +33,7 @@
 #define GEN_FREQ_MISMATCH 108
 #define GEN_INVALID_DATA 109
 #define GEN_DAC_SET_ERROR 110
+#define GEN_VOLT_INVALID_FEATURE 115
 
 #define CNT_FEATURE_MODE_MISMATCH 130
 

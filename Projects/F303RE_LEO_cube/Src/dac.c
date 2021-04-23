@@ -60,7 +60,9 @@ void MX_DAC_Init(void)
     /**DAC Initialization 
     */
   hdac.Instance = DAC;
-  HAL_DAC_Init(&hdac);
+  if(HAL_DAC_Init(&hdac)==HAL_ERROR){
+	  for(;;);
+  }
 
     /**DAC channel OUT1 config 
     */
@@ -196,6 +198,17 @@ void DACUnsetOutputBuffer(void){
 }
 
 
+void DACsetOutput(uint8_t chann, uint16_t val){
+	if(chann==0){
+		HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, val);
+		HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
+	}
+	if(chann==1){
+		HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, val);
+		HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+	}
+}
+
 
 /**
   * @brief  Enable sampling
@@ -203,9 +216,28 @@ void DACUnsetOutputBuffer(void){
   * @retval None
   */
 void GeneratingEnable(void){
-	MX_DAC_Init();
 	DACEnableOutput();
 	TIMGenEnable();
+}
+
+void DACSetModeGenerator(void){
+	MX_DAC_Init();
+	HAL_DAC_MspInit(&hdac);
+}
+
+void DACSetModeVoltageSource(void){
+	  hdac.Instance = DAC;
+	  DAC_ChannelConfTypeDef sConfig;
+	    /**DAC channel OUT1 config
+	    */
+	  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+	  sConfig.DAC_OutputBuffer = outputBuffEn;
+	  HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1);
+
+	    /**DAC channel OUT2 config
+	    */
+	  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+	  HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2);
 }
 
 /**
@@ -217,11 +249,18 @@ void GeneratingDisable(void){
 	TIMGenDisable();
 	HAL_DAC_Stop(&hdac,DAC_CHANNEL_1);
 	HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
+	HAL_DMA_DeInit(hdac.DMA_Handle1);
+	HAL_DMA_DeInit(hdac.DMA_Handle2);
 	DACDisableOutput();	
 }
 
 void GEN_DAC_DMA_deinit(void){
 	HAL_DAC_MspDeInit(&hdac);
+}
+
+void GEN_DAC_deinit(void){
+	__HAL_RCC_DAC1_FORCE_RESET();
+	__HAL_RCC_DAC1_RELEASE_RESET();
 }
 
 /* USER CODE END 1 */
