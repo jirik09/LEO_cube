@@ -67,6 +67,9 @@ void adcSetInputChannel(uint8_t adc, uint8_t chann);
 void adcSetDefaultInputs(void);
 void adcSetResolution (uint8_t res);
 
+void MeasureRealAVDD(void);
+int32_t getRealAVDD(void);
+
 #ifdef __cplusplus
 }
 #endif

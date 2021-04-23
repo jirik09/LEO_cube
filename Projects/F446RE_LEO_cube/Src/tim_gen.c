@@ -29,7 +29,7 @@
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 
-TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim13;
 TIM_HandleTypeDef htim3;
 DMA_HandleTypeDef hdma_tim6_up;
 DMA_HandleTypeDef hdma_tim7_up;
@@ -128,7 +128,7 @@ void MX_TIM7_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM1_GEN_PWM_Init(void)
+void MX_TIM1_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -136,26 +136,26 @@ static void MX_TIM1_GEN_PWM_Init(void)
 	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
 	/* ARR = 1024 (10 bit resolution in default). F303 -> PA9 -> D8 -> Channel 1 */
-	htim1.Instance = TIM13;
-	htim1.Init.Prescaler = 0;
-	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim1.Init.Period = 1023;
-	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	htim1.Init.RepetitionCounter = 0;
-	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
-	HAL_TIM_Base_Init(&htim1);
+	htim13.Instance = TIM13;
+	htim13.Init.Prescaler = 0;
+	htim13.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim13.Init.Period = 1023;
+	htim13.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim13.Init.RepetitionCounter = 0;
+	htim13.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+	HAL_TIM_Base_Init(&htim13);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
+	HAL_TIM_ConfigClockSource(&htim13, &sClockSourceConfig);
 
-	if(HAL_TIM_PWM_Init(&htim1)!= HAL_OK)
+	if(HAL_TIM_PWM_Init(&htim13)!= HAL_OK)
 		  {
 		    Error_Handler();
 		  }
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
+	HAL_TIMEx_MasterConfigSynchronization(&htim13, &sMasterConfig);
 
 	sConfigOC.OCMode = TIM_OCMODE_PWM1;
 	sConfigOC.Pulse = 512;
@@ -164,7 +164,7 @@ static void MX_TIM1_GEN_PWM_Init(void)
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
 	sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-	HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+	HAL_TIM_PWM_ConfigChannel(&htim13, &sConfigOC, TIM_CHANNEL_1);
 
 	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
 	sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
@@ -174,9 +174,9 @@ static void MX_TIM1_GEN_PWM_Init(void)
 	sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
 	sBreakDeadTimeConfig.BreakFilter = 0;
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-	HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig);
+	HAL_TIMEx_ConfigBreakDeadTime(&htim13, &sBreakDeadTimeConfig);
 
-	HAL_TIM_Base_MspInit(&htim1);
+	HAL_TIM_Base_MspInit(&htim13);
 }
 
 /**
@@ -185,7 +185,7 @@ static void MX_TIM1_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM3_GEN_PWM_Init(void)
+void MX_TIM3_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -196,11 +196,12 @@ static void MX_TIM3_GEN_PWM_Init(void)
 	htim3.Init.Prescaler = 0;
 	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim3.Init.Period = 511;
-	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV2;
 	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
 	HAL_TIM_Base_Init(&htim3);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	sClockSourceConfig.ClockPrescaler = TIM_CLOCKDIVISION_DIV2;
 	HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
 
 	HAL_TIM_PWM_Init(&htim3);
@@ -226,7 +227,7 @@ static void MX_TIM3_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM6_GEN_PWM_Init(void)
+void MX_TIM6_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -253,7 +254,7 @@ static void MX_TIM6_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM7_GEN_PWM_Init(void)
+void MX_TIM7_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -335,7 +336,6 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
 
 	__HAL_RCC_TIM6_CLK_ENABLE();
 
@@ -359,7 +359,6 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
 
 	__HAL_RCC_TIM7_CLK_ENABLE();
 
@@ -439,6 +438,22 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}
 }
 
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq){
+	uint32_t psc=0;
+	uint32_t arr=0;
+	uint8_t result = TIM_Getconfig(&arr, &psc, HAL_RCC_GetPCLK1Freq()*2, samplingFreq, realFreq, true);
+
+	htim6.Instance->PSC = psc;
+	htim7.Instance->PSC = psc;
+
+	htim6.Instance->ARR = arr;
+	htim7.Instance->ARR = arr;
+	//LL_TIM_GenerateEvent_UPDATE(htim6.Instance);
+	//LL_TIM_GenerateEvent_UPDATE(htim7.Instance);
+
+	return result;
+}
+
 #ifdef USE_GEN_PWM
 
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
@@ -452,7 +467,7 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	}else if(chan==1){
 		periphClock = HAL_RCC_GetHCLKFreq()/2;//HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM);
 				//HAL_RCC_GetHCLKFreq();
-		return TIM_ReconfigPrecise(&htim1,periphClock,reqFreq);
+		return TIM_ReconfigPrecise(&htim13,periphClock,reqFreq);
 	}else{
 		return 0;
 	}
@@ -524,22 +539,10 @@ void TIMGenDacDeinit(void){
 void TIM_DMA_Reconfig(uint8_t chan){
 	if(chan==0){
 		HAL_DMA_Abort(&hdma_tim7_up);
-
-		////worst workaround ever - PC does count with periph clock 144MHZ while real one is 75MHz
-		for(uint16_t tmp_ct=0;tmp_ct<generator.oneChanSamples[0];tmp_ct++){
-			*(generator.pChanMem[0]+tmp_ct)=*(generator.pChanMem[0]+tmp_ct)*75/144;
-		}
-
 		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(htim3.Instance->CCR1)/*(TIM13->CCR1)*/, generator.oneChanSamples[0]);
 	}else if(chan==1){
 		HAL_DMA_Abort(&hdma_tim6_up);
-
-		////worst workaround ever - PC does count with periph clock 72MHZ while real one is 75MHz
-		for(uint16_t tmp_ct=0;tmp_ct<generator.oneChanSamples[1];tmp_ct++){
-			*(generator.pChanMem[1]+tmp_ct)=*(generator.pChanMem[1]+tmp_ct)*75/72;
-		}
-
-		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(htim1.Instance->CCR1)/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
+		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(htim13.Instance->CCR1)/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
 	}
 }
 
@@ -569,7 +572,7 @@ void PWMGeneratingEnable(void){
 		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Start(&htim7);
 		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Start(&htim13, TIM_CHANNEL_1);
 		HAL_TIM_Base_Start(&htim6);
 	}
 }
@@ -587,7 +590,7 @@ void PWMGeneratingDisable(void){
 	}else if(generator.numOfChannles>1){
 		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Stop(&htim7);
-		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Stop(&htim13, TIM_CHANNEL_1);
 		HAL_TIM_Base_Stop(&htim6);
 	}
 }

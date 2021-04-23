@@ -20,6 +20,7 @@ OBJCOPY_BIN :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Common \
 Drivers/STM32F4xx_HAL_Driver/Src \
 Inc \
 Middlewares/FreeRTOS/Source/CMSIS_RTOS \

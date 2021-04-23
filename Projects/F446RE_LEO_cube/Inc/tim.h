@@ -47,6 +47,7 @@
   */
 
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
+uint8_t TIM_Getconfig(uint32_t * arr, uint32_t *psc, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq);
 uint32_t roundNumber(double num);
 
@@ -163,11 +164,11 @@ void TIMGenDacDeinit(void);
   */
 
 /* PWM generatin timers */
-static void MX_TIM1_GEN_PWM_Init(void);
-static void MX_TIM3_GEN_PWM_Init(void);
+void MX_TIM1_GEN_PWM_Init(void);
+void MX_TIM3_GEN_PWM_Init(void);
 /* DMA update timers */
-static void MX_TIM6_GEN_PWM_Init(void);
-static void MX_TIM7_GEN_PWM_Init(void);
+void MX_TIM6_GEN_PWM_Init(void);
+void MX_TIM7_GEN_PWM_Init(void);
 
 void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);

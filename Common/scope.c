@@ -582,21 +582,20 @@ uint8_t scopeSetNumOfSamples(uint32_t smp){
 uint8_t scopeSetNumOfChannels(uint8_t chan){
 	uint8_t result=BUFFER_SIZE_ERR;
 	uint8_t chanTmp=scope.numOfChannles;
-	xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
-
-	 //workaround to exit interleave mode when more channels needed
-	if(chan>1 && scope.settings.AdvMode!=SCOPE_NORMAL_MODE){
-		scope.settings.AdvMode=SCOPE_NORMAL_MODE;
-		scope.settings.samplingFrequency=getMaxScopeSamplingFreq(scope.settings.adcRes);
-	}
-	//workaround to enter interleave mode again when one channel selected
-	if(chan==1 && scope.settings.samplingFrequency==getMaxScopeSamplingFreq(scope.settings.adcRes)){
-		scope.settings.AdvMode=SCOPE_INTERLEAVE_MODE;
-		scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
-	}
-
 
 	if(chan<=MAX_ADC_CHANNELS){
+		xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
+		 //workaround to exit interleave mode when more channels needed
+		if(chan>1 && scope.settings.AdvMode!=SCOPE_NORMAL_MODE){
+			scope.settings.AdvMode=SCOPE_NORMAL_MODE;
+			scope.settings.samplingFrequency=getMaxScopeSamplingFreq(scope.settings.adcRes);
+		}
+		//workaround to enter interleave mode again when one channel selected
+		if(chan==1 && scope.settings.samplingFrequency==getMaxScopeSamplingFreq(scope.settings.adcRes)){
+			scope.settings.AdvMode=SCOPE_INTERLEAVE_MODE;
+			scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
+		}
+
 		scope.numOfChannles=chan;
 		if(validateBuffUsage()){
 			scope.numOfChannles = chanTmp;
@@ -620,6 +619,8 @@ uint8_t scopeSetNumOfChannels(uint8_t chan){
 		xSemaphoreGiveRecursive(scopeMutex);
 		uint16_t passMsg = MSG_INVALIDATE;
 		xQueueSendToBack(scopeMessageQueue, &passMsg, portMAX_DELAY);
+	}else{
+		result = SCOPE_TOO_MANY_CHANNELS;
 	}
 	return result;
 }

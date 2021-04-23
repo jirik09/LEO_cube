@@ -873,7 +873,7 @@ void sendGenConf(){
 	commsSendUint32(GEN_RANGE_LOW);
 	commsSendUint32(GEN_RANGE_HIGH);
 #endif
-	commsSendInt32(getRealAVDD());
+	commsSendUint32(getRealAVDD());
 
 	for (i=0;i<MAX_DAC_CHANNELS;i++){
 		switch(i){
@@ -906,7 +906,7 @@ void sendDACConf(void){
 	commsSendUint32(GEN_RANGE_LOW);
 	commsSendUint32(GEN_RANGE_HIGH);
 #endif
-	commsSendInt32(getRealAVDD());
+	commsSendUint32(getRealAVDD());
 	commsSendUint32(AVDD_DEFAULT);
 
 	for (i=0;i<MAX_DAC_CHANNELS;i++){

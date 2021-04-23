@@ -19,6 +19,8 @@
 #define IDN_STRING "STM32F446-Nucleo" //max 30 chars
 #define MCU "STM32F446RE"
 
+#define MCU_UID 0x1FFF7A10
+
 #define AVDD_DEFAULT 3300
 #define VREF_INT (uint16_t)*((uint16_t *)0x1FFF7A2A)
 
@@ -37,13 +39,14 @@
 #define USB_DM_PIN_STR "PA11" //must be 4 chars
 
 // Scope constatnts ===================================================
+#define SCOPE_RESOURCES DMA1_R|ADC123_R|TIM8_R
 #define MAX_SAMPLING_FREQ_12B   2400000 //smps
 #define MAX_SAMPLING_FREQ_8B    3200000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 4800000 //smps
 #define MAX_INTERLEAVE_FREQ_8B  6400000 //smps
 #define MAX_ADC_CHANNELS 3
 
-#define MAX_SCOPE_BUFF_SIZE 60000 //in bytes
+#define MAX_SCOPE_BUFF_SIZE 50000 //in bytes
 #define SCOPE_BUFFER_MARGIN 200
 
 #define SCOPE_CH1_PIN_STR "A5__" //must be 4 chars
@@ -62,27 +65,29 @@
 #define RANGE_4_HI 0
 
 // Generator constatnts ===================================================
-
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
+#define DAC_RESOURCES DAC12_R
 #define MAX_GENERATING_FREQ 2000000 //smps
+#define GEN_TIM_PERIPH_CLOCK 150000000
 #define MAX_DAC_CHANNELS 2
-#define MAX_GENERATOR_BUFF_SIZE 2000
+#define MAX_GENERATOR_BUFF_SIZE 5000
 #define	DAC_DATA_DEPTH 12
 
-#define GEN_VDDA 3300
-#define GEN_VREF 3300
-#define GEN_VREF_INT 1200
+#define GEN_RANGE_LOW  0
+#define GEN_RANGE_HIGH  AVDD_DEFAULT
 
 #define GEN_CH1_PIN_STR "A2__" //must be 4 chars
 #define GEN_CH2_PIN_STR "D13_" //must be 4 chars
 
 // PWM generator constants =================================================
 #ifdef USE_GEN_PWM
+#define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM13_R|TIM3_R
 	#define GEN_PWM_CH1_PIN							"D5__" // PA6
 	#define GEN_PWM_CH2_PIN							"D12_" // PB4
 
 	#define MAX_GEN_PWM_CHANNELS 	2
 
-	#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 150000000
+	#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 75000000
 #endif //USE_GEN_PWM
 
 // Counter constatnts =======================================================

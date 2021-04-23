@@ -85,14 +85,17 @@ int main(void)
   /* MCU Configuration----------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+    HAL_Init();
+	__disable_irq();
 
   /* Configure the system clock */
-  SystemClock_Config();
+    SystemClock_Config();
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MeasureRealAVDD();
+
 	LED_On();
 #ifdef USE_SCOPE
 	MX_ADC1_Init();
@@ -102,11 +105,6 @@ int main(void)
 	adcSetDefaultInputs();
 #endif //USE_SCOPE
 
-#ifdef USE_GEN
-	MX_DAC_Init();
-	MX_TIM6_Init();
-	MX_TIM7_Init();
-#endif //USE_GEN
   
 
   /* USER CODE BEGIN 2 */
