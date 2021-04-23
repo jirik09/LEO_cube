@@ -11,12 +11,16 @@
 
 #include "stm32f4xx_hal.h"
 #include "firmware_version.h"
+#include "resources.h"
 //#include "usb_device.h"
 #include "math.h"
 #include "err_list.h"
 
 #define IDN_STRING "STM32F446-Nucleo" //max 30 chars
 #define MCU "STM32F446RE"
+
+#define AVDD_DEFAULT 3300
+#define VREF_INT (uint16_t)*((uint16_t *)0x1FFF7A2A)
 
 // Communication constatnts ===================================================
 #define COMM_BUFFER_SIZE 512
@@ -47,50 +51,15 @@
 #define SCOPE_CH3_PIN_STR "A3__" //must be 4 chars
 #define SCOPE_CH4_PIN_STR "----" //must be 4 chars
 
-#define SCOPE_VREF 3300
-#define SCOPE_VREF_INT (uint16_t)*((uint16_t *)0x1FFF7A2A)
 
 #define RANGE_1_LOW 0
-#define RANGE_1_HI SCOPE_VREF
-#define RANGE_2_LOW -SCOPE_VREF
-#define RANGE_2_HI SCOPE_VREF*2
+#define RANGE_1_HI AVDD_DEFAULT
+#define RANGE_2_LOW -AVDD_DEFAULT
+#define RANGE_2_HI AVDD_DEFAULT*2
 #define RANGE_3_LOW 0
 #define RANGE_3_HI 0
 #define RANGE_4_LOW 0
 #define RANGE_4_HI 0
-
-//scope channels inputs
-static const uint8_t ANALOG_DEFAULT_INPUTS[MAX_ADC_CHANNELS]={0,0,0};
-static const uint8_t ANALOG_VREF_INPUTS[MAX_ADC_CHANNELS]={6,2,1};
-
-#define ADC1_NUM_CHANNELS 7
-static const uint16_t ANALOG_PIN_ADC1[ADC1_NUM_CHANNELS] = {			GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_0,			GPIO_PIN_1,			GPIO_PIN_0,			0,					0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC1[ADC1_NUM_CHANNELS] = {			GPIOB,				GPIOC,				GPIOC,				GPIOA,				GPIOA,				0,					0};
-static const uint32_t ANALOG_CHANNEL_ADC1[ADC1_NUM_CHANNELS] = {		ADC_CHANNEL_8,		ADC_CHANNEL_11,		ADC_CHANNEL_10,		ADC_CHANNEL_1,		ADC_CHANNEL_0,	 	ADC_CHANNEL_16, 	ADC_CHANNEL_17};
-static const char* ANALOG_CHANN_ADC1_NAME[ADC1_NUM_CHANNELS] = { 		"A3", 				"A4", 				"A5", 				"A1", 				"A0", 				"Temp", 			"Vref" };
-
-#define ADC2_NUM_CHANNELS 3
-static const uint16_t ANALOG_PIN_ADC2[ADC2_NUM_CHANNELS] = {			GPIO_PIN_1,			GPIO_PIN_0,			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC2[ADC2_NUM_CHANNELS] = {			GPIOC,				GPIOC,				0};
-static const uint32_t ANALOG_CHANNEL_ADC2[ADC2_NUM_CHANNELS] = {		ADC_CHANNEL_11,		ADC_CHANNEL_10,		ADC_CHANNEL_17};
-static const char* ANALOG_CHANN_ADC2_NAME[ADC2_NUM_CHANNELS] = { 		"A4", 				"A5", 				"Vref" };
-
-#define ADC3_NUM_CHANNELS 2
-static const uint16_t ANALOG_PIN_ADC3[ADC3_NUM_CHANNELS] = {			GPIO_PIN_0,			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC3[ADC3_NUM_CHANNELS] = {			GPIOC,				0};
-static const uint32_t ANALOG_CHANNEL_ADC3[ADC3_NUM_CHANNELS] = {		ADC_CHANNEL_10,		ADC_CHANNEL_17};
-static const char* ANALOG_CHANN_ADC3_NAME[ADC3_NUM_CHANNELS] = { 		"A5", 				"Vref" };
-
-#define ADC4_NUM_CHANNELS 1
-static const uint16_t ANALOG_PIN_ADC4[ADC4_NUM_CHANNELS] = {			0};
-static GPIO_TypeDef * ANALOG_GPIO_ADC4[ADC4_NUM_CHANNELS] = {			0};
-static const uint32_t ANALOG_CHANNEL_ADC4[ADC4_NUM_CHANNELS] = {		0};
-static const char* ANALOG_CHANN_ADC4_NAME[ADC4_NUM_CHANNELS] = { 		"NA" };
-
-
-
-static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,ADC2_NUM_CHANNELS,ADC3_NUM_CHANNELS}; //number of ADC channels {ADC1,ADC2,ADC3,ADC4}
-
 
 // Generator constatnts ===================================================
 
@@ -113,8 +82,7 @@ static const uint8_t NUM_OF_ANALOG_INPUTS[MAX_ADC_CHANNELS]={ADC1_NUM_CHANNELS,A
 
 	#define MAX_GEN_PWM_CHANNELS 	2
 
-	#define GEN_PWM_CH1_TIM_PERIPH_CLOCK	  (uint32_t) 150000000
-	#define GEN_PWM_CH2_TIM_PERIPH_CLOCK	  (uint32_t) 75000000
+	#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 150000000
 #endif //USE_GEN_PWM
 
 // Counter constatnts =======================================================

@@ -46,7 +46,7 @@
 
 //extern DAC_HandleTypeDef hdac;
 
-//void MX_DAC_Init(void);
+void MX_DAC_Init(void);
 	 
 void DAC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len);
 void GeneratingEnable (void);

@@ -48,6 +48,10 @@
 #include "mcu_config.h"
 #include "scope.h"
 #include "generator.h"
+#include "counter.h"
+#include "sync_pwm.h"
+#include "logic_analyzer.h"
+
 
 /* USER CODE BEGIN Includes */
 
@@ -95,7 +99,6 @@ int main(void)
 	MX_ADC2_Init();
 	MX_ADC3_Init();
 	MX_TIM8_Init();
-	CalibrateADC();
 	adcSetDefaultInputs();
 #endif //USE_SCOPE
 

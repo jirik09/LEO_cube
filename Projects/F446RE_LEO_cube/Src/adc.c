@@ -40,6 +40,7 @@
 #include "gpio.h"
 #include "dma.h"
 #include "mcu_config.h"
+#include "adc_channels.h"
 
 /* USER CODE BEGIN 0 */
 
@@ -636,11 +637,7 @@ void adcSetResolution (uint8_t res){
 }
 
 
-void CalibrateADC (void){
-//	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-//	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-//	HAL_ADCEx_Calibration_Start(&hadc3, ADC_SINGLE_ENDED);
-}
+
 
 void ADCInitNormalMode(void){
 	__HAL_RCC_ADC_FORCE_RESET();
