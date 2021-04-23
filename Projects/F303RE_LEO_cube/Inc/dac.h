@@ -57,8 +57,8 @@ void DACUnsetOutputBuffer(void);
 void GeneratingEnable (void);
 void GeneratingDisable (void);
 
-void setModeGenerator(void);
-void setModeVoltageSource(void);
+void DACSetModeGenerator(void);
+void DACSetModeVoltageSource(void);
 
 void GEN_DAC_DMA_deinit(void);
 void GEN_DAC_deinit(void);

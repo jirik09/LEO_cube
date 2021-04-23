@@ -216,17 +216,16 @@ void DACsetOutput(uint8_t chann, uint16_t val){
   * @retval None
   */
 void GeneratingEnable(void){
-//	MX_DAC_Init();
 	DACEnableOutput();
 	TIMGenEnable();
 }
 
-void setModeGenerator(void){
+void DACSetModeGenerator(void){
 	MX_DAC_Init();
 	HAL_DAC_MspInit(&hdac);
 }
 
-void setModeVoltageSource(void){
+void DACSetModeVoltageSource(void){
 	  hdac.Instance = DAC;
 	  DAC_ChannelConfTypeDef sConfig;
 	    /**DAC channel OUT1 config

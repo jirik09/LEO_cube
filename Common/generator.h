@@ -27,14 +27,19 @@
   */
 typedef enum{
 	GEN_DAC = 0,
-	GEN_PWM
-
+	GEN_PWM,
+	GEN_VOLTSOURCE //this is actually special case of DAC mode
 }generatorMode;
 
 typedef enum{
 	GENERATOR_DAC = 0,
 	GENERATOR_PWM
 }generatorModeState;
+
+typedef enum{
+	DAC_GEN_MODE = 0,
+	DAC_VOLTSOURCE_MODE
+}generatorDACMode;
 
 typedef enum{
 	GENERATOR_IDLE = 0,
@@ -55,6 +60,7 @@ typedef struct{
 	double realPwmFreqCh2;
 	generatorState state;	
 	generatorModeState modeState;
+	generatorDACMode DACMode;
 	uint8_t numOfChannles;
 	uint16_t *pChanMem[MAX_DAC_CHANNELS];					// buffer itself
 	uint16_t oneChanSamples[MAX_DAC_CHANNELS];		// buffer size
@@ -105,7 +111,8 @@ void genReset(void);
   */
 void genSetMode(uint8_t mode);
 void generatorSetModePWM(void);
-void generatorSetModeDAC(void);
+void generatorSetModeGenDAC(void);
+void generatorSetModeVoltSourceDAC(void);
 void generator_deinit(void);
 //void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan);
 //void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan);

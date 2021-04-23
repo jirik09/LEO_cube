@@ -121,11 +121,10 @@ int main(void)
 	adcSetDefaultInputs();
 #endif //USE_SCOPE
 
+	/*
 #ifdef USE_GEN
-	MX_DAC_Init();
-	MX_TIM6_Init();
-	MX_TIM7_Init();
-#endif //USE_GEN
+
+#endif //USE_GEN*/
 
 #ifdef USE_SHIELD
 	detectScopeShield();

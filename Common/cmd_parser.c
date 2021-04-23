@@ -980,10 +980,6 @@ command parseGeneratorCmd(void){
 			}
 		}
 		break;
-	case CMD_DAC_VAL:
-		cmdIn = giveNextCmd();
-		error=genSetDAC((uint16_t)(cmdIn),(uint16_t)(cmdIn>>16));
-		break;
 	case CMD_GEN_SAMPLING_FREQ: //set sampling freq
 		cmdIn = giveNextCmd();
 		if(cmdIn != CMD_END && cmdIn != CMD_ERR){
@@ -1108,22 +1104,23 @@ command parseVoltageSourceCmd(void){
 		uint16_t passMsg;
 
 		cmdIn = giveNextCmd();
-		switch(cmdIn){
+		switch (cmdIn) {
 		case CMD_GET_CONFIG:
 			passMsg = MSG_DAC_CONFIG;
 			xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 			break;
 		case CMD_DAC_VAL:
 			cmdIn = giveNextCmd();
-			error=genSetDAC((uint16_t)(cmdIn),(uint16_t)(cmdIn>>16));
+			error = genSetDAC((uint16_t) (cmdIn), (uint16_t) (cmdIn >> 16));
 			break;
 		case CMD_GEN_START:
-			setModeVoltageSource();
+			genSetMode(GEN_VOLTSOURCE);
 			break;
 		case CMD_GEN_STOP:
-			GEN_DAC_deinit();
+			genStop();
 			break;
-		case CMD_END:break;
+		case CMD_END:
+			break;
 		default:
 			error = GEN_VOLT_INVALID_FEATURE;
 			cmdIn = CMD_ERR;
