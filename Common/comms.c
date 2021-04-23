@@ -91,8 +91,6 @@ void assertPins(void);
 	}
 }*/
 
-int testChan1 = 0, testChan2 = 0;
-int testIncom = 0;
 /**
  * @brief  Communication task function.
  * @param  Task handler, parameters pointer
@@ -371,14 +369,28 @@ void CommTask(void const *argument){
 		case MSG_SYNCPWM_REAL_FREQ_CH1:
 			commsSendString(STR_SYNC_PWM);
 			commsSendString(STR_SYNC_PWM_REAL_FREQ);
+
 			commsSendUint32(0);
-			commsSendDouble(syncPwm.realPwmFreqCh1);
+			uint32_t tempRound1 = (uint32_t)syncPwm.realPwmFreqCh1;
+			commsSendUint32(tempRound1);
+			tempRound1 = (uint32_t)((syncPwm.realPwmFreqCh1-(double)tempRound1)*1000);
+			commsSendUint32(tempRound1);
+			commsSendUint32(1000);
 			break;
 		case MSG_SYNCPWM_REAL_FREQ_CH2:
 			commsSendString(STR_SYNC_PWM);
 			commsSendString(STR_SYNC_PWM_REAL_FREQ);
+
 			commsSendUint32(1);
-			commsSendDouble(syncPwm.realPwmFreqCh2);
+			uint32_t tempRound2 = (uint32_t)syncPwm.realPwmFreqCh2;
+			commsSendUint32(tempRound2);
+			tempRound2 = (uint32_t)((syncPwm.realPwmFreqCh2-(double)tempRound2)*1000);
+			commsSendUint32(tempRound2);
+			commsSendUint32(1000);
+			break;
+		case MSG_SYNCPWM_REAL_FREQ_CH3:
+			break;
+		case MSG_SYNCPWM_REAL_FREQ_CH4:
 			break;
 		case MSG_SYNCPWM_OPM_PERIOD_ELAPSED:
 			if(syncPwm.stepMode == CH_ENABLE){

@@ -39,6 +39,8 @@ typedef struct{
 typedef struct{		
 	double realPwmFreqCh1;
 	double realPwmFreqCh2;
+	double realPwmFreqCh3;
+	double realPwmFreqCh4;
 
 	syncPwmDcPhase chanDcPhase[SYNC_PWM_CHAN_NUM];
 

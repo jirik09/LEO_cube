@@ -410,9 +410,7 @@ command parseCounterCmd(void)
 		counterUnpause();
 		break;
 	case CMD_CNT_START:
-		if(counter.paused == NO){
-			counterSendStart();
-		}
+		counterSendStart();
 		break;
 	case CMD_CNT_STOP:
 		counterSendStop();
