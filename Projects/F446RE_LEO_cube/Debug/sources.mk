@@ -1,5 +1,6 @@
 ################################################################################
 # Automatically-generated file. Do not edit!
+# Toolchain: GNU Tools for STM32 (9-2020-q2-update)
 ################################################################################
 
 ELF_SRCS := 
@@ -12,18 +13,19 @@ SIZE_OUTPUT :=
 OBJDUMP_LIST := 
 EXECUTABLES := 
 OBJS := 
+S_DEPS := 
+S_UPPER_DEPS := 
 C_DEPS := 
 OBJCOPY_BIN := 
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
-Common \
 Drivers/STM32F4xx_HAL_Driver/Src \
 Inc \
-Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS \
-Middlewares/Third_Party/FreeRTOS/Source \
-Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
-Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang \
+Middlewares/FreeRTOS/Source/CMSIS_RTOS \
+Middlewares/FreeRTOS/Source \
+Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM4F \
+Middlewares/FreeRTOS/Source/portable/MemMang \
 Src \
 Startup \
 

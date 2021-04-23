@@ -33,105 +33,19 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>Common/cmd_parser.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/cmd_parser.c</locationURI>
-		</link>
-		<link>
-			<name>Common/cmd_parser.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/cmd_parser.h</locationURI>
-		</link>
-		<link>
-			<name>Common/commands.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/commands.h</locationURI>
-		</link>
-		<link>
-			<name>Common/comms.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/comms.c</locationURI>
-		</link>
-		<link>
-			<name>Common/comms.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/comms.h</locationURI>
-		</link>
-		<link>
-			<name>Common/counter.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/counter.c</locationURI>
-		</link>
-		<link>
-			<name>Common/counter.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/counter.h</locationURI>
-		</link>
-		<link>
-			<name>Common/err_list.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/err_list.h</locationURI>
-		</link>
-		<link>
-			<name>Common/firmware_version.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/firmware_version.h</locationURI>
-		</link>
-		<link>
-			<name>Common/generator.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/generator.c</locationURI>
-		</link>
-		<link>
-			<name>Common/generator.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/generator.h</locationURI>
-		</link>
-		<link>
-			<name>Common/logic_analyzer.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/logic_analyzer.c</locationURI>
-		</link>
-		<link>
-			<name>Common/logic_analyzer.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/logic_analyzer.h</locationURI>
-		</link>
-		<link>
-			<name>Common/messages.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/messages.h</locationURI>
-		</link>
-		<link>
-			<name>Common/scope.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/scope.c</locationURI>
-		</link>
-		<link>
-			<name>Common/scope.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/scope.h</locationURI>
-		</link>
-		<link>
-			<name>Common/sync_pwm.c</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/sync_pwm.c</locationURI>
-		</link>
-		<link>
-			<name>Common/sync_pwm.h</name>
-			<type>1</type>
-			<locationURI>copy_PARENT/Common/sync_pwm.h</locationURI>
+			<name>Drivers/CMSIS</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/CMSIS</locationURI>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver</name>
 			<type>2</type>
-			<locationURI>copy_PARENT/Drivers/STM32F4xx_HAL_Driver</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/FreeRTOS</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/FreeRTOS</locationURI>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>copy_PARENT</name>
-			<value>file:/D:/GitHub/LEO_cube</value>
-		</variable>
-	</variableList>
 </projectDescription>
