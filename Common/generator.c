@@ -84,11 +84,7 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_STOP:
 			if(generator.state==GENERATOR_RUN){
 				if(generator.modeState==GENERATOR_DAC){
-					if(generator.DACMode == DAC_GEN_MODE){
-						GeneratingDisable();
-					}else{
-						GEN_DAC_deinit();
-					}
+					GeneratingDisable();
 				}else if(generator.modeState==GENERATOR_PWM){
 #ifdef USE_GEN_PWM
 					PWMGeneratingDisable();
@@ -96,6 +92,9 @@ void GeneratorTask(void const *argument){
 				}
 				generator.state=GENERATOR_IDLE;
 			}
+			break;
+		case MSG_GEN_STOP_VOLTSOURCE:
+			GEN_DAC_deinit();
 			break;
 		case MSG_GEN_PWM_MODE: /* Set PWM mode */
 #ifdef USE_GEN_PWM
@@ -171,7 +170,6 @@ void generatorSetModeGenDAC(void){
 }
 
 void generatorSetModeVoltSourceDAC (void){
-	generator.modeState = GENERATOR_DAC;
 	generator.DACMode = DAC_VOLTSOURCE_MODE;
 }
 
@@ -423,6 +421,11 @@ void genStart(void){
  */
 void genStop(void){
 	uint16_t passMsg = MSG_GEN_STOP;
+	xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
+}
+
+void genStopVoltSource(void){
+	uint16_t passMsg = MSG_GEN_STOP_VOLTSOURCE;
 	xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 }
 

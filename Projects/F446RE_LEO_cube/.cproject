@@ -183,9 +183,11 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="Middlewares|Drivers|Inc/stm32f4xx_it_old.h|Inc/stm32f4xx_hal_conf_old.h|Inc/FreeRTOSConfig_old.h|Middlewares/FreeRTOS/timers.c|Middlewares/FreeRTOS/tasks.c|Middlewares/FreeRTOS/stream_buffer.c|Middlewares/FreeRTOS/queue.c|Middlewares/FreeRTOS/port.c|Middlewares/FreeRTOS/list.c|Middlewares/FreeRTOS/heap_4.c|Middlewares/FreeRTOS/event_groups.c|Middlewares/FreeRTOS/croutine.c|Middlewares/FreeRTOS/cmsis_os.c|Src/usb_device.c|Src/usbd_cdc_if.c|Src/usbd_conf.c|Src/usbd_desc.c|Src/stm32f4xx_it_cube.c|Src/stm32f4xx_hal_msp_cube.c|Src/freertos (2).c|Src/main_cube.c|Src/main_old.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="CMSIS|Middlewares|Drivers|Inc/stm32f4xx_it_old.h|Inc/stm32f4xx_hal_conf_old.h|Inc/FreeRTOSConfig_old.h|Middlewares/FreeRTOS/timers.c|Middlewares/FreeRTOS/tasks.c|Middlewares/FreeRTOS/stream_buffer.c|Middlewares/FreeRTOS/queue.c|Middlewares/FreeRTOS/port.c|Middlewares/FreeRTOS/list.c|Middlewares/FreeRTOS/heap_4.c|Middlewares/FreeRTOS/event_groups.c|Middlewares/FreeRTOS/croutine.c|Middlewares/FreeRTOS/cmsis_os.c|Src/usb_device.c|Src/usbd_cdc_if.c|Src/usbd_conf.c|Src/usbd_desc.c|Src/stm32f4xx_it_cube.c|Src/stm32f4xx_hal_msp_cube.c|Src/freertos (2).c|Src/main_cube.c|Src/main_old.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
-                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+                        <entry excluding="CMSIS" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers/CMSIS"/>
                         						
                         <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
                         					
@@ -349,9 +351,11 @@
                     					
                     <sourceEntries>
                         						
-                        <entry excluding="Middlewares|Drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+                        <entry excluding="CMSIS|Middlewares|Drivers" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
                         						
-                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+                        <entry excluding="CMSIS" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers"/>
+                        						
+                        <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Drivers/CMSIS"/>
                         						
                         <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="Middlewares"/>
                         					

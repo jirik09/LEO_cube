@@ -81,6 +81,7 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq);
 
 #endif //USE_GEN || USE_GEN_PWM
 
@@ -119,6 +120,7 @@ void MX_TIM8_Init(void);
 void TIM8_SCOPE_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM8_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base);
 uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
+uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes);
 
 #endif //USE_SCOPE
 

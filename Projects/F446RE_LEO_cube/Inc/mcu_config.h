@@ -25,7 +25,7 @@
 #define VREF_INT (uint16_t)*((uint16_t *)0x1FFF7A2A)
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 512
+#define COMM_BUFFER_SIZE 1500
 #define COMMS_BULK_SIZE 200
 #define UART_SPEED 921600
 
@@ -125,8 +125,8 @@
 #endif //USE_SYNC_PWM
 
 //Definition of assert to check length of strings
-#define CASSERT(ex) {typedef char cassert_type[(ex)?1:-1];}
-
+#define CASSERT(ex) {char cassert[(ex)?1:-1];cassert[0] = 0;if(cassert[0] == 0){}}
+void Error_Handler(void);
 
 /* Definition of ADC and DMA for channel 1 */
 //#define ADC_CH_1_CLK_EN() __ADC1_CLK_ENABLE()

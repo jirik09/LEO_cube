@@ -61,6 +61,7 @@ void ADC_DMA_Stop(void);
 uint16_t DMA_GetCurrDataCounter(uint8_t channel);
 void ADC_set_sampling_time(uint32_t realfreq);
 void ADC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len);	
+void ADC_DMA_Reconfig_Interleave(uint8_t chan, uint32_t *buff, uint32_t len);
 void samplingEnable(void);
 void samplingDisable(void);
 void adcSetInputChannel(uint8_t adc, uint8_t chann);
@@ -69,6 +70,10 @@ void adcSetResolution (uint8_t res);
 
 void MeasureRealAVDD(void);
 int32_t getRealAVDD(void);
+
+void ADCInitNormalMode(void);
+void ADCInitInterleavedMode(void);
+void ADCInitMultiMode(void);
 
 #ifdef __cplusplus
 }
