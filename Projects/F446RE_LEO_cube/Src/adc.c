@@ -205,7 +205,7 @@ void MX_ADC123_Interleaved_Init(){
 	  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 	  HAL_ADC_Init(&hadc3);*/
 
-	  sConfig.Channel = ANALOG_CHANNEL_ADC3[ADCChannel[0]];
+	  sConfig.Channel = ANALOG_CHANNEL_ADC1[ANALOG_DEFAULT_INPUTS[0]];
 	  sConfig.Rank = 1;
 	  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
 	//  HAL_ADC_ConfigChannel(&hadc3, &sConfig);
@@ -213,15 +213,15 @@ void MX_ADC123_Interleaved_Init(){
 	  hadc2.Instance = ADC2;
 	  hadc2.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
 	  hadc2.Init.Resolution = ADCResolution;
-	  hadc2.Init.ScanConvMode = DISABLE;
-	  hadc2.Init.ContinuousConvMode = ENABLE;
+	  hadc2.Init.ScanConvMode = ENABLE;
+	  hadc2.Init.ContinuousConvMode = DISABLE;
 	  hadc2.Init.DiscontinuousConvMode = DISABLE;
 	  hadc2.Init.NbrOfDiscConversion = 0;
 	  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
 	  hadc2.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T8_TRGO;
 	  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
 	  hadc2.Init.NbrOfConversion =1;
-	  hadc2.Init.DMAContinuousRequests = DISABLE;
+	  hadc2.Init.DMAContinuousRequests = ENABLE;
 	  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
 	  HAL_ADC_Init(&hadc2);
 
@@ -234,7 +234,7 @@ void MX_ADC123_Interleaved_Init(){
 	  hadc1.Instance = ADC1;
 	  hadc1.Init.ClockPrescaler = ADC_CLOCKPRESCALER_PCLK_DIV2;
 	  hadc1.Init.Resolution = ADCResolution;
-	  hadc1.Init.ScanConvMode = DISABLE;
+	  hadc1.Init.ScanConvMode = ENABLE;
 	  hadc1.Init.ContinuousConvMode = DISABLE;
 	  hadc1.Init.DiscontinuousConvMode = DISABLE;
 	  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -506,9 +506,9 @@ void ADC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len){
 void ADC_DMA_Reconfig_Interleave(uint8_t chan, uint32_t *buff, uint32_t len){
 
 	if(buff!=NULL && len!=0){
-		HAL_ADC_Start(&hadc3);
 		HAL_ADC_Start(&hadc2);
 		HAL_ADCEx_MultiModeStart_DMA(&hadc1, buff,len);
+		//HAL_ADC_Start(&hadc1);
 	}
 
 }
@@ -592,8 +592,7 @@ void ADC_set_sampling_time(uint32_t realfreq){
 	}else {
 		ADCSamplingTime=ADC_SAMPLETIME_3CYCLES;
 	}	
-	
-	HAL_ADC_Stop_DMA(&hadc1);
+
 }
 
 /**

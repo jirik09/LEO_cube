@@ -430,9 +430,9 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	/* RCC_PERIPHCLK_TIM6 and TIM7 defines missing in order to use with HAL_RCCEx_GetPeriphCLKFreq fun */
 	uint32_t periphClock = HAL_RCC_GetHCLKFreq()/2;
 	if(chan==0){
-		return TIM_Reconfig(&htim7,periphClock,samplingFreq,realFreq,true);
-	}else if(chan==1){
 		return TIM_Reconfig(&htim6,periphClock,samplingFreq,realFreq,true);
+	}else if(chan==1){
+		return TIM_Reconfig(&htim7,periphClock,samplingFreq,realFreq,true);
 	}else{
 		return 0;
 	}

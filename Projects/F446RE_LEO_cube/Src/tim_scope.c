@@ -86,7 +86,7 @@ void TIMScopeDisable(){
 }
 
 uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq){
-	uint32_t periphClock = HAL_RCC_GetHCLKFreq();		//HAL_RCC_GetHCLKFreq();
+	uint32_t periphClock = HAL_RCC_GetHCLKFreq()/2;		//HAL_RCC_GetHCLKFreq();
 	return TIM_Reconfig(&htim_scope,periphClock,samplingFreq,realFreq, true);
 }
 
