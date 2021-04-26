@@ -517,7 +517,7 @@ uint8_t scopeSetSamplingFreq(uint32_t freq){
 		scope.settings.AdvMode = SCOPE_NORMAL_MODE;
 		result=0;
 	}else{
-		if(scope.numOfChannles==1){
+		if(scope.numOfChannles<=MAX_INTERLEAVED_CHANNELS){
 			scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
 			scope.settings.AdvMode = SCOPE_INTERLEAVE_MODE;
 		}else{

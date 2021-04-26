@@ -33,7 +33,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 
 	/***************************** SCOPE **********************************/
 #ifdef USE_SCOPE
-	if (htim_base->Instance == TIM8) {
+	if (htim_base->Instance == TIM2) {
 		TIM8_SCOPE_MspInit(htim_base);
 	}
 #endif //USE_SCOPE
@@ -131,7 +131,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 
 /***************************** SCOPE **********************************/
 #ifdef USE_SCOPE
-	if (htim_base->Instance == TIM8) {
+	if (htim_base->Instance == TIM2) {
 		TIM8_SCOPE_MspDeinit(htim_base);
 	}
 #endif //USE_SCOPE
