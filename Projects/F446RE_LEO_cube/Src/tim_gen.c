@@ -538,11 +538,11 @@ void TIMGenDacDeinit(void){
  */
 void TIM_DMA_Reconfig(uint8_t chan){
 	if(chan==0){
-		HAL_DMA_Abort(&hdma_tim7_up);
-		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(htim3.Instance->CCR1)/*(TIM13->CCR1)*/, generator.oneChanSamples[0]);
-	}else if(chan==1){
 		HAL_DMA_Abort(&hdma_tim6_up);
-		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(htim13.Instance->CCR1)/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
+		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(htim3.Instance->CCR1)/*(TIM13->CCR1)*/, generator.oneChanSamples[0]);
+	}else if(chan==1){
+		HAL_DMA_Abort(&hdma_tim7_up);
+		HAL_DMA_Start(&hdma_tim7_up, (uint32_t)generator.pChanMem[1], (uint32_t)&(htim13.Instance->CCR1)/*(TIM3->CCR1)*/, generator.oneChanSamples[1]);
 	}
 }
 
@@ -556,24 +556,24 @@ void PWMGeneratingEnable(void){
 	if(generator.numOfChannles==1){
 		/* After sole Generator initialization, PWM generator do not enter TIMGenPwmInit()
 		function and thus UDE bits are not configured. Must be set here. */
-		__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
+		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
 		if(HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1)!= HAL_OK)
 		  {
 		    Error_Handler();
 		  }
 		//HAL_TIM_PWM_Start_DMA(&htim1, TIM_CHANNEL_2, (uint32_t)generator.pChanMem[0], generator.oneChanSamples[0]);
-		if(HAL_TIM_Base_Start(&htim7)!= HAL_OK)
+		if(HAL_TIM_Base_Start(&htim6)!= HAL_OK)
 			  {
 			    Error_Handler();
 			  }
 		//HAL_TIM_Base_Start_DMA(&htim6, (uint32_t)generator.pChanMem[0], generator.oneChanSamples[0]);
 	}else if(generator.numOfChannles>1){
-		__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
-		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
-		HAL_TIM_Base_Start(&htim7);
 		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
-		HAL_TIM_PWM_Start(&htim13, TIM_CHANNEL_1);
+		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Start(&htim6);
+		__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
+		HAL_TIM_PWM_Start(&htim13, TIM_CHANNEL_1);
+		HAL_TIM_Base_Start(&htim7);
 	}
 }
 
@@ -586,12 +586,12 @@ void PWMGeneratingEnable(void){
 void PWMGeneratingDisable(void){
 	if(generator.numOfChannles==1){
 		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-		HAL_TIM_Base_Stop(&htim7);
+		HAL_TIM_Base_Stop(&htim6);
 	}else if(generator.numOfChannles>1){
 		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
-		HAL_TIM_Base_Stop(&htim7);
-		HAL_TIM_PWM_Stop(&htim13, TIM_CHANNEL_1);
 		HAL_TIM_Base_Stop(&htim6);
+		HAL_TIM_PWM_Stop(&htim13, TIM_CHANNEL_1);
+		HAL_TIM_Base_Stop(&htim7);
 	}
 }
 
