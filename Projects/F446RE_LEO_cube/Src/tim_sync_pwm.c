@@ -7,6 +7,7 @@
  *****************************************************************************
  */
 
+#include "math.h"
 #include "tim.h"
 #include "mcu_config.h"
 #include "sync_pwm.h"
@@ -26,11 +27,9 @@
  * @{
  */
 
+TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
-DMA_HandleTypeDef hdma_tim8_ch1;
-DMA_HandleTypeDef hdma_tim8_ch2;
-DMA_HandleTypeDef hdma_tim8_ch3_up;
-DMA_HandleTypeDef hdma_tim8_ch4_trig_com;
 
 /**
  * @}
@@ -46,17 +45,95 @@ DMA_HandleTypeDef hdma_tim8_ch4_trig_com;
  * @param  None
  * @retval None
  */
-static void MX_TIM8_SYNC_PWM_Init(void) {
-	TIM_ClockConfigTypeDef sClockSourceConfig;
-	TIM_MasterConfigTypeDef sMasterConfig;
-	TIM_OC_InitTypeDef sConfigOC;
-	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+void MX_TIM1_SYNC_PWM_Init(void) {
+	__HAL_RCC_TIM1_CLK_ENABLE();
+	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
+	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
-	/* TIM8 running on 72 MHz - Run 1 Hz by default. */
+	htim1.Instance = TIM1;
+	htim1.Init.Prescaler = 0;
+	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim1.Init.Period = 0;
+	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim1.Init.RepetitionCounter = 0;
+	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim1);
+
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
+
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_ENABLE;
+//	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+	HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
+}
+
+void MX_TIM3_SYNC_PWM_Init(void) {
+	__HAL_RCC_TIM3_CLK_ENABLE();
+	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
+	TIM_SlaveConfigTypeDef sSlaveConfig = { 0 };
+	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
+
+	htim3.Instance = TIM3;
+	htim3.Init.Prescaler = 1;
+	htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim3.Init.Period = 35999;
+	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim3);
+
+	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
+
+	HAL_TIM_PWM_Init(&htim3);
+
+	sSlaveConfig.SlaveMode = TIM_SLAVEMODE_TRIGGER;//TIM_SLAVEMODE_COMBINED_RESETTRIGGER;
+	sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+	HAL_TIM_SlaveConfigSynchronization(&htim3, &sSlaveConfig);
+
+	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;//or PMW1? TIM_OCMODE_COMBINED_PWM2;
+	sConfigOC.Pulse = 1;
+	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = 9000;
+	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;//or PMW1? TIM_OCMODE_COMBINED_PWM2;
+	sConfigOC.Pulse = 18000;
+	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3);
+	TIM_CCxChannelCmd(htim3.Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = 27000;
+	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_4);
+
+	HAL_NVIC_EnableIRQ(TIM3_IRQn);
+	HAL_NVIC_SetPriority(TIM3_IRQn, 9, 0);
+
+	TIM_SYNC_PWM_SetFreqCh1(syncPwm.realPwmFreqCh1);
+}
+
+void MX_TIM8_SYNC_PWM_Init(void) {
+	__HAL_RCC_TIM8_CLK_ENABLE();
+	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
+	TIM_SlaveConfigTypeDef sSlaveConfig = { 0 };
+	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = { 0 };
+	TIM_OC_InitTypeDef sConfigOC = { 0 };
+
 	htim8.Instance = TIM8;
-	htim8.Init.Prescaler = 1151; // 1151
+	htim8.Init.Prescaler = 1;
 	htim8.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim8.Init.Period = 62499; // 62499
+	htim8.Init.Period = 35999;
 	htim8.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim8.Init.RepetitionCounter = 0;
 	htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -64,28 +141,39 @@ static void MX_TIM8_SYNC_PWM_Init(void) {
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&htim8, &sClockSourceConfig);
+	HAL_TIM_PWM_Init(&htim8);
 
-	HAL_TIM_OC_Init(&htim8);
+	sSlaveConfig.SlaveMode = TIM_SLAVEMODE_TRIGGER;//TIM_SLAVEMODE_COMBINED_RESETTRIGGER;
+	sSlaveConfig.InputTrigger = TIM_TS_ITR0;
+	HAL_TIM_SlaveConfigSynchronization(&htim8, &sSlaveConfig);
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+//	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 	HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig);
 
-	sConfigOC.OCMode = TIM_OCMODE_TOGGLE;
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = 18000;
 	sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCNPolarity = TIM_OCNPOLARITY_LOW;
+	sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
 	sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
-	//	sConfigOC.Pulse = 0;
-	sConfigOC.Pulse = syncPwm.dataEdgeChan1[1];
-	HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1);
-	sConfigOC.Pulse = syncPwm.dataEdgeChan2[1];
-	HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2);
-	sConfigOC.Pulse = syncPwm.dataEdgeChan3[1];
-	HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3);
-	sConfigOC.Pulse = syncPwm.dataEdgeChan4[1];
-	HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4);
+	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_1);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;//or PMW1? TIM_OCMODE_COMBINED_PWM2;
+	sConfigOC.Pulse = 9000;
+	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_2);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;
+	sConfigOC.Pulse = 36000;
+	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_3);
+
+	sConfigOC.OCMode = TIM_OCMODE_PWM1;//or PMW1? TIM_OCMODE_COMBINED_PWM2;
+	sConfigOC.Pulse = 27000;
+	HAL_TIM_PWM_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4);
+	TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_ENABLE);
 
 	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
 	sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
@@ -94,93 +182,71 @@ static void MX_TIM8_SYNC_PWM_Init(void) {
 	sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
 	sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
 	sBreakDeadTimeConfig.BreakFilter = 0;
-
+//	sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
+//	sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
+//	sBreakDeadTimeConfig.Break2Filter = 0;
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
 	HAL_TIMEx_ConfigBreakDeadTime(&htim8, &sBreakDeadTimeConfig);
+	__HAL_TIM_MOE_ENABLE(&htim8);
+
+	HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
+	HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, 9, 0);
+
+	TIM_SYNC_PWM_SetFreqCh2(syncPwm.realPwmFreqCh2);
 }
 
-void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base) {
-	GPIO_InitTypeDef GPIO_InitStruct;
+void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
+	__HAL_RCC_TIM1_CLK_ENABLE();
+}
 
-	/* Peripheral clock enable */
-	__HAL_RCC_TIM8_CLK_ENABLE();
+void TIM3_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
+	__HAL_RCC_GPIOC_CLK_ENABLE();
+	/**TIM3 GPIO Configuration
+	 PC6     ------> TIM3_CH1
+	 PC8     ------> TIM3_CH3
+	 */
+	GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_8;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF2_TIM3;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+	__HAL_RCC_TIM3_CLK_ENABLE();
+}
+
+void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef *htim_base) {
+	GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 	/**TIM8 GPIO Configuration
-	 PC6     ------> TIM8_CH1
 	 PC7     ------> TIM8_CH2
-	 PC8     ------> TIM8_CH3
 	 PC9     ------> TIM8_CH4
 	 */
-	GPIO_InitStruct.Pin = GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 | GPIO_PIN_9;
+	GPIO_InitStruct.Pin = GPIO_PIN_7 | GPIO_PIN_9;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-	GPIO_InitStruct.Pull = GPIO_PULLUP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	GPIO_InitStruct.Alternate = GPIO_AF3_TIM8;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-	/* TIM8 DMA Init */
-	/* TIM8_CH1 Init */
-	hdma_tim8_ch1.Instance = DMA2_Stream2;
-	hdma_tim8_ch1.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma_tim8_ch1.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_tim8_ch1.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_tim8_ch1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	hdma_tim8_ch1.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-	hdma_tim8_ch1.Init.Mode = DMA_CIRCULAR;
-	hdma_tim8_ch1.Init.Priority = DMA_PRIORITY_HIGH;
-	HAL_DMA_Init(&hdma_tim8_ch1);
-	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
-	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC1], hdma_tim8_ch1);
-
-	/* TIM8_CH2 Init */
-	hdma_tim8_ch2.Instance = DMA2_Stream2;
-	hdma_tim8_ch2.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma_tim8_ch2.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_tim8_ch2.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_tim8_ch2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	hdma_tim8_ch2.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-	hdma_tim8_ch2.Init.Mode = DMA_CIRCULAR;
-	hdma_tim8_ch2.Init.Priority = DMA_PRIORITY_HIGH;
-	HAL_DMA_Init(&hdma_tim8_ch2);
-	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
-	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC2], hdma_tim8_ch2);
-
-	/* TIM8_CH3_UP Init */
-	hdma_tim8_ch3_up.Instance = DMA2_Stream2;
-	hdma_tim8_ch3_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma_tim8_ch3_up.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_tim8_ch3_up.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_tim8_ch3_up.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	hdma_tim8_ch3_up.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-	hdma_tim8_ch3_up.Init.Mode = DMA_CIRCULAR;
-	hdma_tim8_ch3_up.Init.Priority = DMA_PRIORITY_HIGH;
-	HAL_DMA_Init(&hdma_tim8_ch3_up);
-	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
-	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC3], hdma_tim8_ch3_up);
-
-	/* TIM8_CH4_TRIG_COM Init */
-	hdma_tim8_ch4_trig_com.Instance = DMA2_Stream7;
-	hdma_tim8_ch4_trig_com.Init.Direction = DMA_MEMORY_TO_PERIPH;
-	hdma_tim8_ch4_trig_com.Init.PeriphInc = DMA_PINC_DISABLE;
-	hdma_tim8_ch4_trig_com.Init.MemInc = DMA_MINC_ENABLE;
-	hdma_tim8_ch4_trig_com.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
-	hdma_tim8_ch4_trig_com.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
-	hdma_tim8_ch4_trig_com.Init.Mode = DMA_CIRCULAR;
-	hdma_tim8_ch4_trig_com.Init.Priority = DMA_PRIORITY_HIGH;
-	HAL_DMA_Init(&hdma_tim8_ch4_trig_com);
-	__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
-	__HAL_LINKDMA(htim_base, hdma[TIM_DMA_ID_CC4], hdma_tim8_ch4_trig_com);
+	__HAL_RCC_TIM8_CLK_ENABLE();
 }
 
-void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base) {
-	/* Peripheral clock disable */
-	__HAL_RCC_TIM8_CLK_DISABLE();
+void TIM1_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
+	__HAL_RCC_TIM1_CLK_DISABLE();
+}
 
-	/* TIM8 DMA DeInit */
-	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC1]);
-	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC2]);
-	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC3]);
-	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_CC4]);
+void TIM3_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
+	__HAL_RCC_TIM3_CLK_DISABLE();
+	HAL_NVIC_DisableIRQ(TIM3_IRQn);
+}
+
+void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
+	__HAL_RCC_TIM8_CLK_DISABLE();
+	HAL_NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);
 }
 
 /**
@@ -195,221 +261,213 @@ void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base) {
  * @{
  */
 
-/**
- * @brief  Initialization of Synchronized PWMs.
- * @note		TIM8.
- * @param  None
- * @retval None
- */
 void TIM_SYNC_PWM_Init(void) {
-	//	htim8.State = HAL_TIM_STATE_RESET;
+	MX_TIM1_SYNC_PWM_Init();
+	MX_TIM3_SYNC_PWM_Init();
 	MX_TIM8_SYNC_PWM_Init();
-	/* Very thanks to optimization 3, TIM Base Init function
-	 is not called from SYNC PWM Initi function. */
-//	HAL_TIM_Base_Init(&htim8);
 }
 
-/**
- * @brief  Deinit of Synchronized PWMs.
- * @note		TIM8 peripherla reset.
- * @param  None
- * @retval None
- */
 void TIM_SYNC_PWM_Deinit(void) {
-	HAL_TIM_Base_DeInit(&htim8);
-
 	/* Reset TIM8 preipheral */
+	__HAL_RCC_TIM1_FORCE_RESET();
+	__HAL_RCC_TIM1_RELEASE_RESET();
+	__HAL_RCC_TIM3_FORCE_RESET();
+	__HAL_RCC_TIM3_RELEASE_RESET();
 	__HAL_RCC_TIM8_FORCE_RESET();
 	__HAL_RCC_TIM8_RELEASE_RESET();
 }
 
-/* Set the channel to be enabled or disabled. */
-/**
- * @brief  Sets channel state.
- * @note		Channel can be disabled.
- * @param  channel: channel number 1 - 4
- * @param  state: CHAN_ENABLE or CHAN_DISABLE
- * @retval None
- */
-void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state) {
-	if (channel == 1) {
-		syncPwm.chan1 = (state == 1) ? CHAN_ENABLE : CHAN_DISABLE;
-	} else if (channel == 2) {
-		syncPwm.chan2 = (state == 1) ? CHAN_ENABLE : CHAN_DISABLE;
-	} else if (channel == 3) {
-		syncPwm.chan3 = (state == 1) ? CHAN_ENABLE : CHAN_DISABLE;
-	} else if (channel == 4) {
-		syncPwm.chan4 = (state == 1) ? CHAN_ENABLE : CHAN_DISABLE;
-	}
-}
-
-/* Start generating Output Compare signals. */
-/**
- * @brief  Starts generating synchronized PWM on the selected channels.
- * @param  None
- * @retval None
- */
 void TIM_SYNC_PWM_Start(void) {
-	if (syncPwm.chan1 == CHAN_ENABLE) {
-		htim8.Instance->CCR1 = syncPwm.dataEdgeChan1[1];
-		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC1);
-		HAL_DMA_Start(&hdma_tim8_ch1, (uint32_t) &syncPwm.dataEdgeChan1[0],
-				(uint32_t) &(htim8.Instance->CCR1), 2);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
-	}
-
-	if (syncPwm.chan2 == CHAN_ENABLE) {
-		htim8.Instance->CCR2 = syncPwm.dataEdgeChan2[1];
-		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC2);
-		HAL_DMA_Start(&hdma_tim8_ch2, (uint32_t) &syncPwm.dataEdgeChan2[0],
-				(uint32_t) &(htim8.Instance->CCR2), 2);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_ENABLE);
-	}
-
-	if (syncPwm.chan3 == CHAN_ENABLE) {
-		htim8.Instance->CCR3 = syncPwm.dataEdgeChan3[1];
-		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC3);
-		HAL_DMA_Start(&hdma_tim8_ch3_up, (uint32_t) &syncPwm.dataEdgeChan3[0],
-				(uint32_t) &(htim8.Instance->CCR3), 2);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_ENABLE);
-	}
-
-	if (syncPwm.chan4 == CHAN_ENABLE) {
-		htim8.Instance->CCR4 = syncPwm.dataEdgeChan4[1];
-		__HAL_TIM_ENABLE_DMA(&htim8, TIM_DMA_CC4);
-		HAL_DMA_Start(&hdma_tim8_ch4_trig_com,
-				(uint32_t) &syncPwm.dataEdgeChan4[0], (uint32_t) &(htim8.Instance->CCR4), 2);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_ENABLE);
-	}
-	/* Master Output Enable. */
-	__HAL_TIM_MOE_ENABLE(&htim8);
-	/* Start generating. */
-	HAL_TIM_Base_Start(&htim8);
+	LL_TIM_EnableCounter(htim1.Instance);
+	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
+	syncPwm.state = RUNNING;
 }
 
-/* Stop generating Output Compare signals. */
-/**
- * @brief  Stops generating synchronized PWM.
- * @param  None
- * @retval None
- */
 void TIM_SYNC_PWM_Stop(void) {
-	/* Disable the peripheral */
-	__HAL_TIM_DISABLE(&htim8);
-	/* Master Output Enable Disable */
-	__HAL_TIM_MOE_DISABLE(&htim8);
-
-	if (syncPwm.chan1 == CHAN_ENABLE) {
-		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC1);
-		HAL_DMA_Abort(&hdma_tim8_ch1);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
-	}
-
-	if (syncPwm.chan2 == CHAN_ENABLE) {
-		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC2);
-		HAL_DMA_Abort(&hdma_tim8_ch2);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_2, TIM_CCx_DISABLE);
-	}
-
-	if (syncPwm.chan3 == CHAN_ENABLE) {
-		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC3);
-		HAL_DMA_Abort(&hdma_tim8_ch3_up);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_3, TIM_CCx_DISABLE);
-	}
-
-	if (syncPwm.chan4 == CHAN_ENABLE) {
-		__HAL_TIM_DISABLE_DMA(&htim8, TIM_DMA_CC4);
-		HAL_DMA_Abort(&hdma_tim8_ch4_trig_com);
-		TIM_CCxChannelCmd(htim8.Instance, TIM_CHANNEL_4, TIM_CCx_DISABLE);
-	}
-
-	/* Save configuration. */
-	syncPwm.timAutoReloadReg = htim8.Instance->ARR; //TIM8->ARR;
-	syncPwm.timPrescReg = htim8.Instance->PSC;
-
-	/* There are DMA pending requests when stopped. Unfortunately
-	 cannot be cleared in another way. */
-	__HAL_RCC_TIM8_FORCE_RESET();
-	__HAL_RCC_TIM8_RELEASE_RESET();
-
-	MX_TIM8_SYNC_PWM_Init();
-
-	/* Set One Pulse Mode after reset if previously enabled. Funny thing is
-	 the peripheral does not work if CEN bit is not enabled right after OPM bit.
-	 And even funnier is it does not generate a pulse. Bloody hell! */
-	if (syncPwm.stepMode == CHAN_ENABLE) {
-		TIM_SYNC_PWM_StepMode_Enable();
-	}
-
-	/* Load previous configuration. */
-	htim8.Instance->PSC = syncPwm.timPrescReg;
-	htim8.Instance->ARR = syncPwm.timAutoReloadReg;
-	LL_TIM_GenerateEvent_UPDATE(htim8.Instance);
+	TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(false);
+	LL_TIM_DisableCounter(htim1.Instance);
+	LL_TIM_DisableCounter(htim3.Instance);
+	LL_TIM_DisableCounter(htim8.Instance);
+	HAL_TIM_GenerateEvent(&htim3, TIM_EVENTSOURCE_UPDATE);
+	HAL_TIM_GenerateEvent(&htim8, TIM_EVENTSOURCE_UPDATE);
+	syncPwm.state = STOPPED;
 }
 
-/**
- * @brief  Synch. PWM channels configuration.
- * @note		Since only one TIMer is used for generaring synchronized PWMs the value of CCR reg. must be changed on the fly (using DMA from Memory to CCR).
- * @note		Configure the required DMA for n-th channel. CCR register in time of rising edge and falling edge.
- The channel number is sent in previous message.
- * @param  ccr1st:	the value of CCR for the 1st edge
- * @param  ccr2st:	the value of CCR for the 2st edge
- * @retval None
- */
-void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd) {
-	switch (syncPwm.channelToConfig) {
-	case SYNC_PWM_CHANNEL1:
-		syncPwm.dataEdgeChan1[0] = ccr2nd;
-		syncPwm.dataEdgeChan1[1] = ccr1st;
+void TIM_SYNC_PWM_StepMode_Enable(void) {
+	if(syncPwm.stepMode == CH_DISABLE){
+		TIM_SYNC_PWM_Stop();
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
+		syncPwm.stepMode = CH_ENABLE;
+	}
+}
+
+void TIM_SYNC_PWM_StepMode_Disable(void) {
+	if(syncPwm.stepMode == CH_ENABLE){
+		LL_TIM_SetOnePulseMode(htim3.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
+		TIM_SYNC_PWM_Stop();
+		syncPwm.stepMode = CH_DISABLE;
+	}
+}
+
+/*void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+	syncPwmOpmPeriodElapsedCallback(htim);
+	TIM_SYNC_PWM_Stop();
+}*/
+
+void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base){
+	htim_base->Instance->SR = 0;
+}
+
+void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable) {
+	if(syncPwm.stepMode == CH_ENABLE){
+		if (enable) {
+			if (syncPwm.realPwmFreqCh1 < syncPwm.realPwmFreqCh2) {
+				TIM_SYNC_PWM_ClearFlagsIT(&htim3);
+				__HAL_TIM_ENABLE_IT(&htim3, TIM_DIER_UIE);
+			} else {
+				TIM_SYNC_PWM_ClearFlagsIT(&htim8);
+				__HAL_TIM_ENABLE_IT(&htim8, TIM_DIER_UIE);
+			}
+		} else {
+			__HAL_TIM_DISABLE_IT(&htim3, TIM_DIER_UIE);
+			__HAL_TIM_DISABLE_IT(&htim8, TIM_DIER_UIE);
+		}
+	}
+}
+
+double TIM_SYNC_PWM_SetFreqCh1(double freq) {
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM); // HAL_RCC_GetHCLKFreq();
+
+	syncPwmStopRunState prevState = syncPwm.state;
+	if (syncPwm.state == RUNNING)
+		TIM_SYNC_PWM_Stop();
+
+	double sendBack = TIM_ReconfigPrecise(&htim3, periphClock, freq);
+	TIM_SYNC_PWM_SetChanDutyPhase(0, syncPwm.chanDcPhase[0].dc, syncPwm.chanDcPhase[0].phase);
+	TIM_SYNC_PWM_SetChanDutyPhase(2, syncPwm.chanDcPhase[2].dc, syncPwm.chanDcPhase[2].phase);
+
+	if (prevState == RUNNING)
+		TIM_SYNC_PWM_Start();
+
+	return sendBack;
+}
+
+double TIM_SYNC_PWM_SetFreqCh2(double freq) {
+	uint32_t periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM);
+
+	syncPwmStopRunState prevState = syncPwm.state;
+	if (syncPwm.state == RUNNING)
+		TIM_SYNC_PWM_Stop();
+
+	double sendBack = TIM_ReconfigPrecise(&htim8, periphClock, freq);
+	TIM_SYNC_PWM_SetChanDutyPhase(1, syncPwm.chanDcPhase[1].dc, syncPwm.chanDcPhase[1].phase);
+	TIM_SYNC_PWM_SetChanDutyPhase(3, syncPwm.chanDcPhase[3].dc, syncPwm.chanDcPhase[3].phase);
+
+	if (prevState == RUNNING)
+		TIM_SYNC_PWM_Start();
+
+	return sendBack;
+}
+
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase)
+{
+	float edge1 = phase / (float) 360;
+	float edge2 = edge1 + (float) dutyCycle / 100;
+
+	if(edge1 > 1)
+		edge1 = 1;
+
+	if(edge2 > 1)
+		edge2 = 1;
+
+	syncPwm.chanDcPhase[channel].phase = phase;
+	syncPwm.chanDcPhase[channel].dc = dutyCycle;
+	float temp, period;
+
+	switch (channel) {
+	case 0:
+		period = LL_TIM_GetAutoReload(htim3.Instance);
+		temp = (uint32_t) round(period * edge1) + 1;
+		LL_TIM_OC_SetCompareCH1(htim3.Instance, temp);
+		temp = (uint32_t) round(period * edge2) + 1;
+		LL_TIM_OC_SetCompareCH2(htim3.Instance, temp);
 		break;
-	case SYNC_PWM_CHANNEL2:
-		syncPwm.dataEdgeChan2[0] = ccr2nd;
-		syncPwm.dataEdgeChan2[1] = ccr1st;
+	case 1:
+		period = LL_TIM_GetAutoReload(htim8.Instance);
+		temp = (uint32_t) round(period * edge1) + 1;
+		LL_TIM_OC_SetCompareCH2(htim8.Instance, temp);
+		temp = (uint32_t) round(period * edge2) + 1;
+		LL_TIM_OC_SetCompareCH1(htim8.Instance, temp);
 		break;
-	case SYNC_PWM_CHANNEL3:
-		syncPwm.dataEdgeChan3[0] = ccr2nd;
-		syncPwm.dataEdgeChan3[1] = ccr1st;
+	case 2:
+		period = LL_TIM_GetAutoReload(htim3.Instance);
+		temp = (uint32_t) round(period * edge1) + 1;
+		LL_TIM_OC_SetCompareCH3(htim3.Instance, temp);
+		temp = (uint32_t) round(period * edge2) + 1;
+		LL_TIM_OC_SetCompareCH4(htim3.Instance, temp);
 		break;
-	case SYNC_PWM_CHANNEL4:
-		syncPwm.dataEdgeChan4[0] = ccr2nd;
-		syncPwm.dataEdgeChan4[1] = ccr1st;
+	case 3:
+		period = LL_TIM_GetAutoReload(htim8.Instance);
+		temp = (uint32_t) round(period * edge1) + 1;
+		LL_TIM_OC_SetCompareCH4(htim8.Instance, temp);
+		temp = (uint32_t) round(period * edge2) + 1;
+		LL_TIM_OC_SetCompareCH3(htim8.Instance, temp);
 		break;
 	default:
 		break;
 	}
 }
 
-/**
- * @brief  Enable Step mode for Synch. PWMs.
- * @note		Only one period of PWM is generated. Disable continuous mode.
- * @param  None
- * @retval None
- */
-void TIM_SYNC_PWM_StepMode_Enable(void) {
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_SINGLE);
-	syncPwm.stepMode = CHAN_ENABLE;
+void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert){
+	syncPwm.chanInvert[channel] = (syncPwmStateTypeDef) setInvert;
+	TIM_SYNC_PWM_SetChannelState(channel);
 }
 
-/**
- * @brief  Disable Step mode for Synch. PWMs.
- * @note		Disable one PWM period generation. Enable continuous mode.
- * @param  None
- * @retval None
- */
-void TIM_SYNC_PWM_StepMode_Disable(void) {
-	LL_TIM_SetOnePulseMode(htim8.Instance, LL_TIM_ONEPULSEMODE_REPETITIVE);
-	syncPwm.stepMode = CHAN_DISABLE;
+void TIM_SYNC_PWM_ChannelEnable(uint8_t channel, uint8_t state) {
+	syncPwm.chan[channel] = (syncPwmStateTypeDef) state;
+	TIM_SYNC_PWM_SetChannelState(channel);
 }
 
-/**
- * @brief  Reconfiguration of PWM frequency.
- * @note		ARR & PSC calculated by host.
- * @params arrPsc: ARR and PSC register of TIM8
- * @retval None
- */
-double TIM_Reconfig_SyncPwm(double freq) {
-	uint32_t periphClock = SYNC_PWM_TIM_PERIPH_CLOCK;//HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM);  // HAL_RCC_GetHCLKFreq();
-	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
+void TIM_SYNC_PWM_SetChannelState(uint8_t channel){
+	uint32_t pwmModeStateCh1, pwmModeStateCh2;
+	if(syncPwm.chan[channel] == CH_ENABLE){
+		if (syncPwm.chanInvert[channel] == CH_ENABLE) {
+			pwmModeStateCh1 = LL_TIM_OCMODE_PWM1;
+			pwmModeStateCh2 = LL_TIM_OCMODE_PWM2;
+		} else {
+			pwmModeStateCh1 = LL_TIM_OCMODE_PWM2;
+			pwmModeStateCh2 = LL_TIM_OCMODE_PWM1;
+		}
+	}else {
+		pwmModeStateCh1 = LL_TIM_OCMODE_FORCED_INACTIVE;
+		pwmModeStateCh2 = LL_TIM_OCMODE_FORCED_INACTIVE;
+	}
+
+	switch (channel) {
+	case 0:
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH1, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH2, pwmModeStateCh2);
+		break;
+	case 1:
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH2, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH1, pwmModeStateCh2);
+		break;
+	case 2:
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH3, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim3.Instance, LL_TIM_CHANNEL_CH4, pwmModeStateCh2);
+		break;
+	case 3:
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH4, pwmModeStateCh1);
+		LL_TIM_OC_SetMode(htim8.Instance, LL_TIM_CHANNEL_CH3, pwmModeStateCh2);
+		break;
+	}
+
+	if(syncPwm.stepMode == CH_ENABLE){
+		LL_TIM_EnableCounter(htim1.Instance);
+		TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
+	}
 }
 
 /**

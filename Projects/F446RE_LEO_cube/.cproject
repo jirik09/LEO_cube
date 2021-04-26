@@ -88,6 +88,8 @@
                                     <listOptionValue builtIn="false" value="USE_GEN_PWM"/>
                                     									
                                     <listOptionValue builtIn="false" value="NOUSE_SYNC_PWM"/>
+                                    									
+                                    <listOptionValue builtIn="false" value="NOUSE_COUNTER"/>
                                     								
                                 </option>
                                 								

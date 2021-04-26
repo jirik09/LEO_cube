@@ -116,25 +116,35 @@ int main(void)
 	osThreadDef(CMD_PARSER_TASK, CmdParserTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
 	osThreadDef(USER_TASK, StartThread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(COMM_TASK, CommTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
-	#ifdef USE_SCOPE
+#ifdef USE_SCOPE
 	osThreadDef(SCOPE_TASK, ScopeTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
 	osThreadDef(SCOPE_TRIG_TASK, ScopeTriggerTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
-	#endif //USE_SCOPE
-	
-	#ifdef USE_GEN
+#endif //USE_SCOPE
+
+#ifdef USE_GEN
 	osThreadDef(GENERATOR_TASK, GeneratorTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
-	#endif //USE_GEN
+#endif //USE_GEN
+
+#ifdef USE_SYNC_PWM
+	osThreadDef(SYNC_PWM_TASK, SyncPwmTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
+#endif //USE_SYNC_PWM
+	
 	osThreadCreate (osThread(CMD_PARSER_TASK), NULL);
 	osThreadCreate (osThread(USER_TASK), NULL);
 	osThreadCreate (osThread(COMM_TASK), NULL);
-	#ifdef USE_SCOPE
+#ifdef USE_SCOPE
 	osThreadCreate (osThread(SCOPE_TASK), NULL);
 	osThreadCreate (osThread(SCOPE_TRIG_TASK), NULL);
-	#endif //USE_SCOPE
+#endif //USE_SCOPE
 	
-	#ifdef USE_GEN
+#ifdef USE_GEN
 	osThreadCreate (osThread(GENERATOR_TASK), NULL);
-	#endif //USE_GEN
+#endif //USE_GEN
+
+#ifdef USE_SYNC_PWM
+	osThreadCreate (osThread(SYNC_PWM_TASK), NULL);
+#endif //USE_SYNC_PWM
+
 	LED_Off();
   /* Start scheduler */
   osKernelStart();
@@ -223,6 +233,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
  }
  /* USER CODE BEGIN Callback 1 */
 
+#ifdef USE_SYNC_PWM
+ if (htim->Instance == TIM3 || htim->Instance == TIM8|| htim->Instance == TIM1) {
+	syncPwmOpmPeriodElapsedCallback(htim);
+	TIM_SYNC_PWM_Stop();
+ }
+#endif
  /* USER CODE END Callback 1 */
 }
 

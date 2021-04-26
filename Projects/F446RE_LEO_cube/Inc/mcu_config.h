@@ -115,30 +115,25 @@
 #endif //USE_COUNTER
 
 // Synchronized PWM generator constants ====================================
+#define SYNC_PWM_RESOURCES TIM1_R|TIM3_R|TIM8_R
 #ifdef USE_SYNC_PWM
-	#define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 37500000
-	#define MAX_SYNC_PWM_FREQ						(uint32_t) 100000
-	#define MAX_SYNC_PWM_CHANNELS				(uint32_t) 4
+#define MAX_SYNC_PWM_FREQ						(uint32_t) 75000000
+#define MAX_SYNC_PWM_CHANNELS					(uint32_t) 4
+#define SYNC_PWM_CHANNELS_DEPENDENCE			(uint32_t) 0  // enable 1, disable 0
 
-	#define SYNC_PWM_CH1_PIN						"PC6_"
-	#define SYNC_PWM_CH2_PIN						"PC7_"
-	#define SYNC_PWM_CH3_PIN						"PC8_"
-	#define SYNC_PWM_CH4_PIN						"PC9_"
+#define SYNC_PWM_DRIVE_DISAB_CHANx				(uint32_t) 0
+#define SYNC_PWM_DRIVE_DISAB_CHANy				(uint32_t) 1
+#define SYNC_PWM_FREQ_DISAB_CHANx				(uint32_t) 2
+#define SYNC_PWM_FREQ_DISAB_CHANy				(uint32_t) 3
+
+#define SYNC_PWM_CH1_PIN						"PC6_"
+#define SYNC_PWM_CH2_PIN						"PC7_"
+#define SYNC_PWM_CH3_PIN						"PC8_"
+#define SYNC_PWM_CH4_PIN						"PC9_"
 #endif //USE_SYNC_PWM
-
 //Definition of assert to check length of strings
 #define CASSERT(ex) {char cassert[(ex)?1:-1];cassert[0] = 0;if(cassert[0] == 0){}}
 void Error_Handler(void);
 
-/* Definition of ADC and DMA for channel 1 */
-//#define ADC_CH_1_CLK_EN() __ADC1_CLK_ENABLE()
-//#define ADC_CH_1_CLK_DIS() __ADC1_CLK_DISABLE()
-//#define GPIO_ADC_CH_1_CLK_EN() __GPIOC_CLK_ENABLE()
-//#define ADC_CH_1  ADC1 //
-//#define ADC_GPIO_CH_1  GPIOC
-//#define ADC_PIN_CH_1  GPIO_PIN_1
-//#define ADC_CHANNEL_CH_1  ADC_CHANNEL_11 //
-//#define ADC_DMA_CHANNEL_CH_1  DMA_CHANNEL_0 //
-//#define ADC_DMA_STREAM_CH_1  DMA2_Stream0 //
 
 #endif /* STM32F4_CONFIG_H_ */
