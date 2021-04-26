@@ -66,7 +66,7 @@ typedef struct{
 	uint16_t pretrigger;						//65535 is 100%
 	uint8_t interleaved;          //number of ADC in interleave mode (fast mode)
 	uint8_t ADCmux;            // number of channels muxed by one ADC (multichannel) TODO
-	uint8_t AdvMode;
+	scopeMode AdvMode;
 	uint16_t adcRes;
 	uint16_t adcLevels;
 }scopeSettings;

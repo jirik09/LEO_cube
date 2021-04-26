@@ -47,6 +47,7 @@
   */
 
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
+uint8_t TIM_Getconfig(uint32_t * arr, uint32_t *psc, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq);
 uint32_t roundNumber(double num);
 
@@ -80,6 +81,7 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq);
 
 #endif //USE_GEN || USE_GEN_PWM
 
@@ -92,6 +94,9 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
   */
 
 #ifdef USE_SYNC_PWM
+
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim8;
 
   #define __STEP_MODE_ENABLE()  		TIM8->CR1 |= TIM_CR1_OPM
 	#define __STEP_MODE_DISABLE()  		TIM8->CR1 &= ~TIM_CR1_OPM
@@ -118,6 +123,7 @@ void MX_TIM8_Init(void);
 void TIM8_SCOPE_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM8_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base);
 uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
+uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes);
 
 #endif //USE_SCOPE
 
@@ -163,11 +169,11 @@ void TIMGenDacDeinit(void);
   */
 
 /* PWM generatin timers */
-static void MX_TIM1_GEN_PWM_Init(void);
-static void MX_TIM3_GEN_PWM_Init(void);
+void MX_TIM1_GEN_PWM_Init(void);
+void MX_TIM3_GEN_PWM_Init(void);
 /* DMA update timers */
-static void MX_TIM6_GEN_PWM_Init(void);
-static void MX_TIM7_GEN_PWM_Init(void);
+void MX_TIM6_GEN_PWM_Init(void);
+void MX_TIM7_GEN_PWM_Init(void);
 
 void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
@@ -199,8 +205,14 @@ void PWMGeneratingDisable(void);
 
 #ifdef USE_SYNC_PWM
 
-static void MX_TIM8_SYNC_PWM_Init(void);
+void MX_TIM1_SYNC_PWM_Init(void);
+void MX_TIM3_SYNC_PWM_Init(void);
+void MX_TIM8_SYNC_PWM_Init(void);
+void TIM1_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM3_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM1_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM3_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 void TIM_SYNC_PWM_Init(void);
@@ -208,12 +220,18 @@ void TIM_SYNC_PWM_Deinit(void);
 void TIM_SYNC_PWM_Start(void);
 void TIM_SYNC_PWM_Stop(void);
 
-void TIM_SYNC_PWM_ChannelState(uint8_t channel, uint8_t state);
-void TIM_SYNC_PWM_DMA_ChanConfig(uint16_t ccr1st, uint16_t ccr2nd);
-double TIM_Reconfig_SyncPwm(double freq);
+double TIM_SYNC_PWM_SetFreqCh1(double freq);
+double TIM_SYNC_PWM_SetFreqCh2(double freq);
+
+void TIM_SYNC_PWM_SetChanDutyPhase(uint32_t channel, double dutyCycle, double phase);
+void TIM_SYNC_PWM_ChannelEnable(uint8_t channel, uint8_t state);
+void TIM_SYNC_PWM_SetChanInvert(uint8_t channel, uint8_t setInvert);
+void TIM_SYNC_PWM_SetChannelState(uint8_t channel);
+void TIM_SYNC_PWM_ClearFlagsIT(TIM_HandleTypeDef* htim_base);
 
 void TIM_SYNC_PWM_StepMode_Enable(void);
 void TIM_SYNC_PWM_StepMode_Disable(void);
+void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable);
 
 #endif // USE_SYNC_PWM
 

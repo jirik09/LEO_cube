@@ -37,6 +37,7 @@
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
 #include "comms_hal.h"
+#include "tim.h"
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -105,6 +106,16 @@ void USART2_IRQHandler(void)
 
   /* USER CODE END USART2_IRQn 1 */
 }
+
+#ifdef USE_SYNC_PWM
+void TIM3_IRQHandler(void){
+	HAL_TIM_IRQHandler(&htim3);
+}
+
+void TIM8_UP_TIM13_IRQHandler(void){
+	HAL_TIM_IRQHandler(&htim8);
+}
+#endif //USE_SYNC_PWM
 
 
 #ifdef USE_COUNTER

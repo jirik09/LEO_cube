@@ -1115,7 +1115,7 @@ command parseVoltageSourceCmd(void){
 			genSetMode(GEN_VOLTSOURCE);
 			break;
 		case CMD_GEN_STOP:
-			genStop();
+			genStopVoltSource();
 			break;
 		case CMD_END:
 			break;

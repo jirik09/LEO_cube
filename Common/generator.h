@@ -101,6 +101,7 @@ void genSetOutputBuffer(void);
 void genUnsetOutputBuffer(void);
 void genStart(void);
 void genStop(void);
+void genStopVoltSource(void);
 void genReset(void);
 /**
   * @}
