@@ -60,6 +60,7 @@ void sendScopeInputs(void);
 void sendGenConf(void);
 void sendDACConf(void);
 void sendGenPwmConf(void);
+void sendGenPatternConf(void);
 void sendSyncPwmConf(void);
 void sendLogAnlysConf(void);
 void sendShieldPresence(void);
@@ -470,6 +471,12 @@ void CommTask(void const *argument){
 			sendGenPwmConf();
 			break;
 #endif //USE_GEN_PWM
+#ifdef USE_GEN_PATTERN
+		case MSG_GEN_PATTERN_CONFIG:
+			commsSendString(STR_GENERATOR);
+			sendGenPatternConf();
+			break;
+#endif //USE_GEN_PATTERN
 #ifdef USE_SYNC_PWM
 		case MSG_SYNCPWM_CONFIG:
 			commsSendString(STR_SYNC_PWM);
@@ -950,6 +957,14 @@ void sendGenPwmConf(void){
 	}
 }
 #endif //USE_GEN_PWM
+
+
+#ifdef USE_GEN_PATTERN
+void sendGenPatternConf(void){
+	commsSendString(STR_CONFIG);
+	commsSendString("GENT");
+}
+#endif //USE_GEN_PATTERN
 
 
 #ifdef USE_SYNC_PWM

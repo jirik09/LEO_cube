@@ -139,7 +139,7 @@ uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes);
   * @{
   */
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 #ifdef USE_GEN
 
 void TIMGenEnable(void);
@@ -154,6 +154,7 @@ void TIM7_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base);
 
 void TIMGenInit(void);
 void TIMGenPwmDeinit(void);
+void TIMGenPatternDeinit(void);
 void TIMGenDacDeinit(void);
 
 #endif //USE_GEN
@@ -184,7 +185,7 @@ void TIM3_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM6_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 
-void TIM_DMA_Reconfig(uint8_t chan);
+void DMA_GEN_PWM_Reconfig(uint8_t chan);
 void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan);
 void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan);
 
@@ -193,6 +194,17 @@ void PWMGeneratingEnable(void);
 void PWMGeneratingDisable(void);
 
 #endif //USE_GEN_PWM
+
+
+#ifdef USE_GEN_PATTERN
+
+void TIMGenPatternInit(void);
+void DMAGenPatternInit(TIM_HandleTypeDef* htim_base);
+void DMA_GEN_PATTERN_Reconfig(void);
+
+#endif //USE_GEN_PATTERN
+
+
 #endif //USE_GEN || USE_GEN_PWM
 
 /**

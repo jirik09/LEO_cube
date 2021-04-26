@@ -9,12 +9,13 @@
 
 #include "tim.h"
 #include "dac.h"
+#include "gpio.h"
 #include "mcu_config.h"
 #include "generator.h"
 
 #include "stm32f3xx_ll_tim.h"
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 
 /** @addtogroup Generator
  * @{
@@ -43,8 +44,6 @@ DMA_HandleTypeDef hdma_tim7_up;
 /** @defgroup Arbitrary_Generator_Timer_Init_Functions Arbitrary Generator Timer Initialization Functions
  * @{
  */
-
-#ifdef USE_GEN
 
 /**
  * @brief  TIM6 Configuration.
@@ -107,8 +106,6 @@ void MX_TIM7_Init(void)
 	/*##-2- Enable TIM peripheral counter ######################################*/
 	//HAL_TIM_Base_Start(&htim6);
 }
-
-#endif //USE_GEN
 
 #ifdef USE_GEN_PWM
 
@@ -527,7 +524,7 @@ void TIMGenDacDeinit(void){
  * @param  chan: channel number 0 or 1 (TIM6 or TIM7)
  * @retval None
  */
-void TIM_DMA_Reconfig(uint8_t chan){
+void DMA_GEN_PWM_Reconfig(uint8_t chan){
 	if(chan==0){
 		HAL_DMA_Abort(&hdma_tim6_up);
 		HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(htim1.Instance->CCR2)/*(TIM1->CCR2)*/, generator.oneChanSamples[0]);
@@ -598,21 +595,57 @@ void TIMGenPwmInit(void){
  * @retval None
  */
 void TIMGenPwmDeinit(void){
-	/* Reset TIM peripherals */
 	__HAL_RCC_TIM6_FORCE_RESET();
 	__HAL_RCC_TIM6_RELEASE_RESET();
-
 	__HAL_RCC_TIM7_FORCE_RESET();
 	__HAL_RCC_TIM7_RELEASE_RESET();
-
 	__HAL_RCC_TIM1_FORCE_RESET();
 	__HAL_RCC_TIM1_RELEASE_RESET();
-
 	__HAL_RCC_TIM3_FORCE_RESET();
 	__HAL_RCC_TIM3_RELEASE_RESET();
 }
 
 #endif //USE_GEN_PWM
+
+
+#ifdef USE_GEN_PATTERN
+
+void TIMGenPatternInit(void){
+	MX_TIM6_Init();
+	DMAGenPatternInit(&htim6);
+}
+
+void DMAGenPatternInit(TIM_HandleTypeDef* htim_base){
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	hdma_tim6_up.Instance = DMA2_Channel3;
+	hdma_tim6_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
+	hdma_tim6_up.Init.PeriphInc = DMA_PINC_DISABLE;
+	hdma_tim6_up.Init.MemInc = DMA_MINC_ENABLE;
+	hdma_tim6_up.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+	hdma_tim6_up.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
+	hdma_tim6_up.Init.Mode = DMA_CIRCULAR;
+	hdma_tim6_up.Init.Priority = DMA_PRIORITY_HIGH;
+	HAL_DMA_Init(&hdma_tim6_up);
+
+    __HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim6_up);
+    __HAL_TIM_ENABLE_DMA(htim_base, TIM_DMA_UPDATE);
+}
+
+void DMA_GEN_PATTERN_Reconfig(void){
+	HAL_DMA_Abort(&hdma_tim6_up);
+	HAL_DMA_Start(&hdma_tim6_up, (uint32_t)generator.pChanMem[0], (uint32_t)&(GEN_PATTERN_GPIO_Port->ODR), generator.oneChanSamples[0]);
+}
+
+void TIMGenPatternDeinit(void){
+	__HAL_RCC_TIM6_FORCE_RESET();
+	__HAL_RCC_TIM6_RELEASE_RESET();
+	__HAL_RCC_TIM7_FORCE_RESET();
+	__HAL_RCC_TIM7_RELEASE_RESET();
+    //HAL_DMA_DeInit(htim6->hdma[TIM_DMA_ID_UPDATE]);
+}
+
+#endif // USE_GEN_PATTERN
 
 /**
  * @}

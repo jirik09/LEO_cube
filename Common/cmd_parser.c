@@ -954,6 +954,8 @@ command parseGeneratorCmd(void){
 				genSetMode(GEN_PWM);
 			}else if(cmdIn == CMD_MODE_DAC){
 				genSetMode(GEN_DAC);
+			}else if(cmdIn == CMD_MODE_PATTERN){
+				genSetMode(GEN_PATTERN);
 			}
 		}
 		break;
@@ -1079,6 +1081,12 @@ command parseGeneratorCmd(void){
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 #endif // USE_GEN_PWM
+#ifdef USE_GEN_PATTERN
+	case CMD_GET_PATTERN_CONFIG:
+		passMsg = MSG_GEN_PATTERN_CONFIG;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+		break;
+#endif // USE_GEN_PATTERN
 	case CMD_GENERATOR:
 		break;	
 

@@ -6,7 +6,7 @@
   * @brief   This file contains definitions and prototypes of oscilloscope functions
   ***************************************************************************** 
 */ 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 #ifndef GENERATOR_H_
 #define GENERATOR_H_
 
@@ -28,12 +28,14 @@
 typedef enum{
 	GEN_DAC = 0,
 	GEN_PWM,
+	GEN_PATTERN,
 	GEN_VOLTSOURCE //this is actually special case of DAC mode
 }generatorMode;
 
 typedef enum{
 	GENERATOR_DAC = 0,
-	GENERATOR_PWM
+	GENERATOR_PWM,
+	GENERATOR_PATTERN
 }generatorModeState;
 
 typedef enum{
@@ -66,9 +68,6 @@ typedef struct{
 	uint16_t oneChanSamples[MAX_DAC_CHANNELS];		// buffer size
 	uint32_t maxOneChanSamples;
 	uint16_t DAC_res;
-	/* PWM generator part of struct */
-//	uint16_t genPwmArr[MAX_DAC_CHANNELS];	
-//	uint16_t genPwmPsc[MAX_DAC_CHANNELS];	
 }generatorTypeDef;
 /**
   * @}
@@ -111,9 +110,6 @@ void genReset(void);
   * @{
   */
 void genSetMode(uint8_t mode);
-void generatorSetModePWM(void);
-void generatorSetModeGenDAC(void);
-void generatorSetModeVoltSourceDAC(void);
 void generator_deinit(void);
 //void genSetPwmFrequencyPSC(uint32_t pscVal, uint8_t chan);
 //void genSetPwmFrequencyARR(uint32_t arrVal, uint8_t chan);

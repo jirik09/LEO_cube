@@ -8,13 +8,14 @@
  */
 
 // Includes ===================================================================
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 #include "cmsis_os.h"
 #include "mcu_config.h"
 #include "comms.h"
 #include "generator.h"
 #include "dac.h"
 #include "tim.h"
+#include "gpio.h"
 #include "messages.h"
 
 /** @defgroup Generator Generator
@@ -73,10 +74,8 @@ void GeneratorTask(void const *argument){
 					genInit();
 					GeneratingEnable();
 				}else if(generator.modeState==GENERATOR_PWM){
-#ifdef USE_GEN_PWM
 					genPwmInit();
 					PWMGeneratingEnable();
-#endif //USE_GEN_PWM
 				}
 				generator.state=GENERATOR_RUN;
 			}
@@ -86,9 +85,7 @@ void GeneratorTask(void const *argument){
 				if(generator.modeState==GENERATOR_DAC){
 					GeneratingDisable();
 				}else if(generator.modeState==GENERATOR_PWM){
-#ifdef USE_GEN_PWM
 					PWMGeneratingDisable();
-#endif //USE_GEN_PWM
 				}
 				generator.state=GENERATOR_IDLE;
 			}
@@ -96,20 +93,24 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_STOP_VOLTSOURCE:
 			GEN_DAC_deinit();
 			break;
-		case MSG_GEN_PWM_MODE: /* Set PWM mode */
-#ifdef USE_GEN_PWM
-			generatorSetModePWM();
-			TIMGenPwmInit();
-#endif //USE_GEN_PWM
-			break;
 		case MSG_GEN_DAC_MODE:  /* Set DAC mode */
-			generatorSetModeGenDAC();
 			DACSetModeGenerator();
 			TIMGenInit();
+			generator.DACMode = DAC_GEN_MODE;
+			generator.modeState = GENERATOR_DAC;
 			break;
 		case MSG_GEN_VOLTSOURCE_MODE:  /* Set Voltage source mode / actually special case of DAC mode */
 			DACSetModeVoltageSource();
-			generatorSetModeVoltSourceDAC();
+			generator.DACMode = DAC_VOLTSOURCE_MODE;
+			break;
+		case MSG_GEN_PWM_MODE:
+			TIMGenPwmInit();
+			generator.modeState = GENERATOR_PWM;
+			break;
+		case MSG_GEN_PATTERN_MODE:
+			GPIOGenPatternInit();
+			TIMGenPatternInit();
+			generator.modeState = GENERATOR_PATTERN;
 			break;
 		case MSG_GEN_DEINIT:
 			generator_deinit();
@@ -142,35 +143,13 @@ void genSetMode(uint8_t mode)
 		passMsg = MSG_GEN_VOLTSOURCE_MODE;
 		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
 		break;
+	case GEN_PATTERN:
+		passMsg = MSG_GEN_PATTERN_MODE;
+		xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
+		break;
 	default:
 		break;
 	}
-}
-
-/**
- * @brief  Sets generator mode to PWM.
- * @param  None
- * @retval None
- */
-void generatorSetModePWM(void){
-	//generator_deinit();
-	generator.modeState = GENERATOR_PWM;
-}
-
-/**
- * @brief  Sets generator mode to DAC.
- * @param  None
- * @retval None
- */
-void generatorSetModeGenDAC(void){
-	//generator_deinit();
-	//TIMGenPwmDeinit();	
-	generator.modeState = GENERATOR_DAC;
-	generator.DACMode = DAC_GEN_MODE;
-}
-
-void generatorSetModeVoltSourceDAC (void){
-	generator.DACMode = DAC_VOLTSOURCE_MODE;
 }
 
 /**
@@ -181,13 +160,14 @@ void generatorSetModeVoltSourceDAC (void){
 void generator_deinit(void){
 	switch(generator.modeState){
 	case GENERATOR_PWM:
-#ifdef USE_GEN_PWM
 		TIMGenPwmDeinit();
-#endif //USE_GEN_PWM
 		break;
 	case GENERATOR_DAC:
 		TIMGenDacDeinit();
 		GEN_DAC_deinit();
+		break;
+	case GENERATOR_PATTERN:
+		TIMGenPatternDeinit();
 		break;
 	}
 }
@@ -237,7 +217,7 @@ void genPwmInit(void)
 	for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
 		TIM_Reconfig_gen(generator.generatingFrequency[i],i,0);
 		if(generator.numOfChannles>i){
-			TIM_DMA_Reconfig(i);			
+			DMA_GEN_PWM_Reconfig(i);
 		}
 	}
 }
@@ -262,8 +242,17 @@ double genPwmGetRealFreqCh1(void){
 	return generator.realPwmFreqCh1;
 }
 
+#endif //USE_GEN_PWM
 
-#endif //USE_GEN_PWM	
+
+#ifdef USE_GEN_PATTERN
+
+void genPatternInit(void){
+	TIM_Reconfig_gen(generator.generatingFrequency[0], 0, 0);
+	DMA_GEN_PATTERN_Reconfig();
+}
+
+#endif //USE_GEN_PATTERN
 
 /**
  * @brief  Common Generator set data length function.
