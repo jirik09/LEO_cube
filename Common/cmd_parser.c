@@ -960,15 +960,15 @@ command parseGeneratorSignalCmd(void){
 	cmdIn = giveNextCmd();
 
 	switch (cmdIn) {
+	case CMD_GET_CONFIG:
+		passMsg = MSG_GEN_SIGNAL_CONFIG;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+		break;
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
 			genSetMode(GEN_DAC);
 		}
-		break;
-	case CMD_GET_CONFIG:
-		passMsg = MSG_GEN_SIGNAL_CONFIG;
-		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	default:
 		cmdIn = parseGenCommonCmd(cmdIn);
@@ -1025,15 +1025,15 @@ command parseGeneratorPwmCmd(void){
 	cmdIn = giveNextCmd();
 
 	switch(cmdIn){
+	case CMD_GET_CONFIG:
+		passMsg = MSG_GEN_PWM_CONFIG;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+		break;
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
 			genSetMode(GEN_PWM);
 		}
-		break;
-	case CMD_GET_PWM_CONFIG:
-		passMsg = MSG_GEN_PWM_CONFIG;
-		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case CMD_GEN_PWM_FREQ_CH1:
 		cmdIn = giveNextCmd();
@@ -1072,15 +1072,15 @@ command parseGeneratorPatternCmd(void){
 	cmdIn = giveNextCmd();
 
 	switch(cmdIn){
+	case CMD_GET_CONFIG:
+		passMsg = MSG_GEN_PATTERN_CONFIG;
+		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+		break;
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
 			genSetMode(GEN_PATTERN);
 		}
-		break;
-	case CMD_GET_PATTERN_CONFIG:
-		passMsg = MSG_GEN_PATTERN_CONFIG;
-		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	default:
 		cmdIn = parseGenCommonCmd(cmdIn);
