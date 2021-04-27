@@ -6,7 +6,7 @@
   * @brief   This file contains definitions and prototypes of oscilloscope functions
   ***************************************************************************** 
 */ 
-#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 #ifndef GENERATOR_H_
 #define GENERATOR_H_
 
@@ -47,6 +47,7 @@ typedef enum{
 	GENERATOR_IDLE = 0,
 	GENERATOR_RUN
 }generatorState;
+
 /**
   * @}
   */
@@ -62,6 +63,7 @@ typedef struct{
 	double realPwmFreqCh2;
 	generatorState state;	
 	generatorModeState modeState;
+	char *genTypeMessage;
 	generatorDACMode DACMode;
 	uint8_t numOfChannles;
 	uint16_t *pChanMem[MAX_DAC_CHANNELS];					// buffer itself
@@ -120,7 +122,7 @@ void generator_deinit(void);
 
 #endif /* GENERATOR_H_ */
 
-#endif // USE_GEN || USE_GEN_PWM
+#endif // USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
 
 /**
   * @}

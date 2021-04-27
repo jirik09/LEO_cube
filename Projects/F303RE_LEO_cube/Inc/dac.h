@@ -33,7 +33,7 @@
   ******************************************************************************
   */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifdef USE_GEN
+#ifdef USE_GEN_SIGNAL
 #ifndef __DAC_H
 #define __DAC_H
 
@@ -78,5 +78,5 @@ extern DMA_HandleTypeDef hdma_dac1_ch2;
 /**
   * @}
   */
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

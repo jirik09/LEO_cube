@@ -77,13 +77,13 @@ uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
   * @{
   */
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
 
 uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
 uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq);
 double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
 
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 /**
   * @}
@@ -139,8 +139,8 @@ uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes);
   * @{
   */
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
-#ifdef USE_GEN
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#ifdef USE_GEN_SIGNAL
 
 void TIMGenEnable(void);
 void TIMGenDisable(void);
@@ -157,7 +157,7 @@ void TIMGenPwmDeinit(void);
 void TIMGenPatternDeinit(void);
 void TIMGenDacDeinit(void);
 
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
 /**
   * @}
@@ -205,7 +205,7 @@ void DMA_GEN_PATTERN_Reconfig(void);
 #endif //USE_GEN_PATTERN
 
 
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 /**
   * @}

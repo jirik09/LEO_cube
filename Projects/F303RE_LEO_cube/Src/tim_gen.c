@@ -15,7 +15,7 @@
 
 #include "stm32f3xx_ll_tim.h"
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 
 /** @addtogroup Generator
  * @{
@@ -261,7 +261,7 @@ void MX_TIM7_GEN_PWM_Init(void)
 
 #endif //USE_GEN_PWM
 
-#ifdef USE_GEN
+#ifdef USE_GEN_SIGNAL
 
 void TIM6_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base)
 {
@@ -283,7 +283,7 @@ void TIM7_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base)
 	__HAL_RCC_TIM7_CLK_DISABLE();
 }
 
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
 #ifdef USE_GEN_PWM
 
@@ -659,4 +659,4 @@ void TIMGenPatternDeinit(void){
  * @}
  */
 
-#endif // USE_GEN || USE_GEN_PWM
+#endif // USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN

@@ -35,7 +35,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#ifdef USE_GEN
+#ifdef USE_GEN_SIGNAL
 #include "dac.h"
 #include "gpio.h"
 #include "tim.h"
@@ -272,5 +272,5 @@ void GEN_DAC_deinit(void){
 /**
   * @}
   */
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

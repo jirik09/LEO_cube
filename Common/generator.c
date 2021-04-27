@@ -8,7 +8,7 @@
  */
 
 // Includes ===================================================================
-#if defined(USE_GEN) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 #include "cmsis_os.h"
 #include "mcu_config.h"
 #include "comms.h"
@@ -17,6 +17,7 @@
 #include "tim.h"
 #include "gpio.h"
 #include "messages.h"
+#include "commands.h"
 
 /** @defgroup Generator Generator
  * @{
@@ -98,6 +99,7 @@ void GeneratorTask(void const *argument){
 			TIMGenInit();
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_DAC;
+			generator.genTypeMessage = STR_GEN_SIGNAL;
 			break;
 		case MSG_GEN_VOLTSOURCE_MODE:  /* Set Voltage source mode / actually special case of DAC mode */
 			DACSetModeVoltageSource();
@@ -106,11 +108,13 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_PWM_MODE:
 			TIMGenPwmInit();
 			generator.modeState = GENERATOR_PWM;
+			generator.genTypeMessage = STR_GEN_PWM;
 			break;
 		case MSG_GEN_PATTERN_MODE:
 			GPIOGenPatternInit();
 			TIMGenPatternInit();
 			generator.modeState = GENERATOR_PATTERN;
+			generator.genTypeMessage = STR_GEN_PATTERN;
 			break;
 		case MSG_GEN_DEINIT:
 			generator_deinit();
@@ -432,7 +436,7 @@ void genReset(void){
  * @}
  */
 
-#endif // USE_GEN || USE_GEN_PWM
+#endif // USE_GEN_SIGNAL || USE_GEN_PWM
 
 /**
  * @}

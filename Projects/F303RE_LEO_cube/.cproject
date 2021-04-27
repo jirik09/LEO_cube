@@ -103,7 +103,7 @@
                                     									
                                     <listOptionValue builtIn="false" value="USE_LOG_ANLYS"/>
                                     									
-                                    <listOptionValue builtIn="false" value="USE_GEN"/>
+                                    <listOptionValue builtIn="false" value="USE_GEN_SIGNAL"/>
                                     									
                                     <listOptionValue builtIn="false" value="USE_GEN_PWM"/>
                                     									

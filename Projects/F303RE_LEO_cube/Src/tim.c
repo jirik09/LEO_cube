@@ -41,15 +41,15 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/**************************** GEN DAC ***********************************/
 	/* Note: PC app must send the mode first even if only one 
 	 generator is implemented in device */
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-#ifdef USE_GEN
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
+#ifdef USE_GEN_SIGNAL
 	/* DAC generator mode TIM decision */
 	if (htim_base->Instance == TIM6) {
 		TIM6_GEN_DAC_MspInit(htim_base);
 	}else if (htim_base->Instance == TIM7) {
 		TIM7_GEN_DAC_MspInit(htim_base);
 	}
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
 	/***************************** GEN PWM ***********************************/
 #ifdef USE_GEN_PWM
@@ -66,7 +66,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 		}
 	}
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 	/***************************** SYNC PWM ********************************/
 #ifdef USE_SYNC_PWM
@@ -136,8 +136,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 #endif //USE_SCOPE
 
 /**************************** GEN DAC  *********************************/
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-#ifdef USE_GEN
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
+#ifdef USE_GEN_SIGNAL
 	if (generator.modeState == GENERATOR_DAC) {
 		if (htim_base->Instance == TIM6) {
 			TIM6_GEN_DAC_MspDeinit(htim_base);
@@ -145,7 +145,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 			TIM7_GEN_DAC_MspDeinit(htim_base);
 		}
 	}
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
 /**************************** GEN PWM  *********************************/
 #ifdef USE_GEN_PWM
@@ -161,7 +161,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 		}
 	}
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 /**************************** SYNC PWM  *********************************/
 #ifdef USE_SYNC_PWM
