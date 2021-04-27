@@ -77,6 +77,22 @@ SECTIONS
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >FLASH
+  
+  /*--- New CCMRAM linker section definition ---*/
+  _siccmram = LOADADDR(.ccmram);
+  /* CCMRAM section */
+  .ccmram :
+  {
+  . = ALIGN(4);
+  _sccmram = .; /* define a global symbols at ccmram start */
+  *(.ccmram)
+  *(.ccmram*)
+  *cmd_parser.o(.text .text*)
+  *scope.o(.text .text*)
+  . = ALIGN(4);
+  _eccmram = .; /* define a global symbols at ccmram end */
+  } >CCMRAM AT> FLASH
+  /*--- End of CCMRAM linker section definition ---*/
 
   /* The program code and other data into "FLASH" Rom type memory */
   .text :
