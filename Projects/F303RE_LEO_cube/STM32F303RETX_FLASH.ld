@@ -86,9 +86,9 @@ SECTIONS
   . = ALIGN(4);
   _sccmram = .; /* define a global symbols at ccmram start */
   *(.ccmram)
-  *(.ccmram*)
+  *(.ccmram*)  
   *cmd_parser.o(.text .text*)
-  *scope.o(.text .text*)
+  *comms.o(.text .text*)
   . = ALIGN(4);
   _eccmram = .; /* define a global symbols at ccmram end */
   } >CCMRAM AT> FLASH
