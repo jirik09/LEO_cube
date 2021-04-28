@@ -44,10 +44,11 @@
 
 extern UART_HandleTypeDef huart2;
 uint8_t isXferComplete(void);
-uint16_t GetDMAIndex(void);
 void MX_UART_Init(void);
-uint8_t UARTsendChar(char chr)  __attribute__((section(".ccmram")));
-uint8_t UARTsendBuff(char *chr, uint32_t len)  __attribute__((section(".ccmram")));
+
+uint16_t GetDMAIndex(void) MEMORY_SECTION;
+uint8_t UARTsendChar(char chr) MEMORY_SECTION;
+uint8_t UARTsendBuff(char *chr, uint32_t len) MEMORY_SECTION;
 
 #ifdef __cplusplus
 }

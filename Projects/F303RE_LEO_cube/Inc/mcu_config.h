@@ -17,6 +17,9 @@
 #include "math.h"
 #include "err_list.h"
 
+/* If RAM used keep MEMORY_SECTION blank */
+#define MEMORY_SECTION __attribute__((section(".ccmram")));
+
 #define IDN_STRING "Nucleo-F303RE" //max 30 chars
 #define SHIELD_STRING " + Shield LEO V0.1"
 #define SHIELD_STRING_2 " + Shield LEO V0.2"
@@ -32,7 +35,7 @@
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 1500
+#define COMM_BUFFER_SIZE 1200
 //#define COMM_TX_BUFFER_SIZE 256
 #define COMMS_BULK_SIZE 200
 //#define UART_SPEED 115200
