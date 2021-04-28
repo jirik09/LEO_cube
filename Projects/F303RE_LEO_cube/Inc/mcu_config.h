@@ -32,7 +32,7 @@
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 1500
+#define COMM_BUFFER_SIZE 1000
 //#define COMM_TX_BUFFER_SIZE 256
 #define COMMS_BULK_SIZE 200
 //#define UART_SPEED 115200
@@ -66,10 +66,11 @@
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
+#define MAX_INTERLEAVED_CHANNELS 1
 
 
 #define MAX_SCOPE_BUFF_SIZE 30000//40000 //in bytes
-#define SCOPE_BUFFER_MARGIN 100
+#define SCOPE_BUFFER_MARGIN 1000
 
 #define SCOPE_CH1_PIN_STR "A5__" //must be 4 chars
 #define SCOPE_CH2_PIN_STR "A4__" //must be 4 chars
@@ -107,7 +108,7 @@
 #define MAX_GENERATING_FREQ  2000000 //smps
 #define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
-#define MAX_GENERATOR_BUFF_SIZE  8000//2000
+#define MAX_GENERATOR_BUFF_SIZE  10000//2000
 #define	DAC_DATA_DEPTH 12
 
 #define GEN_RANGE_LOW  0
