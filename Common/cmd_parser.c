@@ -955,6 +955,7 @@ command parseLogAnlysCmd(void){
 #ifdef USE_GEN_SIGNAL
 command parseGeneratorSignalCmd(void){
 	command cmdIn=CMD_ERR;
+	uint8_t error=0;
 	uint16_t passMsg;
 
 	cmdIn = giveNextCmd();
@@ -971,10 +972,10 @@ command parseGeneratorSignalCmd(void){
 		}
 		break;
 	default:
-		cmdIn = parseGenCommonCmd(cmdIn);
+		error = parseGenCommonCmd(cmdIn);
 		break;
 	}
-
+	cmdIn = (error > 0) ? error : CMD_END;
 	return cmdIn;
 }
 
@@ -1019,6 +1020,7 @@ command parseVoltageSourceCmd(void){
 #ifdef USE_GEN_PWM
 command parseGeneratorPwmCmd(void){
 	command cmdIn=CMD_ERR;
+	uint8_t error=0;
 	uint16_t passMsg;
 	uint32_t freq;
 
@@ -1054,10 +1056,11 @@ command parseGeneratorPwmCmd(void){
 		}
 		break;
 	default:
-		cmdIn = parseGenCommonCmd(cmdIn);
+		error = parseGenCommonCmd(cmdIn);
 		break;
 	}
 
+	cmdIn = (error > 0) ? error : CMD_END;
 	return cmdIn;
 }
 #endif //USE_GEN_PWM
@@ -1067,6 +1070,7 @@ command parseGeneratorPwmCmd(void){
 #ifdef USE_GEN_PATTERN
 command parseGeneratorPatternCmd(void){
 	command cmdIn=CMD_ERR;
+	uint8_t error=0;
 	uint16_t passMsg;
 
 	cmdIn = giveNextCmd();
@@ -1083,10 +1087,10 @@ command parseGeneratorPatternCmd(void){
 		}
 		break;
 	default:
-		cmdIn = parseGenCommonCmd(cmdIn);
+		error = parseGenCommonCmd(cmdIn);
 		break;
 	}
-
+	cmdIn = (error > 0) ? error : CMD_END;
 	return cmdIn;
 }
 #endif //USE_GEN_PATTERN
@@ -1094,7 +1098,7 @@ command parseGeneratorPatternCmd(void){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 command parseGenCommonCmd(command cmd){
-	command cmdIn=CMD_ERR;
+	command cmdIn=cmd;
 	uint8_t error=0;
 	uint16_t index;
 	uint8_t length,chan;

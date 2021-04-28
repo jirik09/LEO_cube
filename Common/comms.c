@@ -941,11 +941,26 @@ void sendDACConf(void){
 void sendGenPwmConf(void){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
-	commsSendString("GENP");
 	commsSendUint32(GEN_PWM_RESOURCES);
 	commsSendUint32(GEN_PWM_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
-	for (i=0;i<MAX_DAC_CHANNELS;i++){
+	commsSendUint32(MAX_GENERATING_FREQ);
+	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
+	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
+
+#ifdef USE_SHIELD
+	if(isScopeShieldConnected()){
+		commsSendInt32(SHIELD_GEN_LOW);
+		commsSendUint32(SHIELD_GEN_HIGH);
+	}else{
+		commsSendUint32(0);
+		commsSendUint32(GEN_VREF);
+	}
+#else
+	commsSendUint32(GEN_RANGE_LOW);
+	commsSendUint32(GEN_RANGE_HIGH);
+#endif
+	for (i=0;i<MAX_GEN_PWM_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(GEN_PWM_CH1_PIN);
