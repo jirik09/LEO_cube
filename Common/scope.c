@@ -37,6 +37,7 @@ xQueueHandle scopeMessageQueue;
 uint8_t scopeBuffer[MAX_SCOPE_BUFF_SIZE+MAX_ADC_CHANNELS*SCOPE_BUFFER_MARGIN]; 
 uint8_t blindBuffer[MAX_ADC_CHANNELS];
 static uint32_t triggerIndex;
+static int16_t triggerShift;
 static uint16_t triggerLevel;
 static uint32_t samplesToStop=0;
 static uint32_t samplesToStart=0;
@@ -187,6 +188,7 @@ void ScopeTriggerTask(void const *argument) {
 					samplesTaken = 0;
 					scope.state = SCOPE_SAMPLING;
 					triggerIndex = actualIndex;
+					triggerShift = samplesPassed(writingIndex, lastWritingIndex);
 					passMsg = MSG_SCOPE_TRIGGER;
 					xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 				}else if((scope.settings.triggerMode == TRIG_AUTO && samplesTaken > (scope.settings.samplesToSend * AUTO_TRIG_WAIT_NORMAL))
@@ -205,29 +207,34 @@ void ScopeTriggerTask(void const *argument) {
 
 
 				//sampling is done
-				if(scope.state == SCOPE_SAMPLING && samplesTaken >= samplesToStop){
+				if(samplesTaken >= samplesToStop){
 					samplingDisable();
 
 					//finding exact trigger position because not every samples are chcecked 
 					if (autoTrigged==0){//scope.settings.triggerMode != TRIG_AUTO && scope.settings.triggerMode != TRIG_AUTO_FAST){
+						triggerShift += samplesTaken-samplesToStop + samplesPassed(writingIndex, lastWritingIndex) - (scope.oneChanSamples-scope.settings.samplesToSend);
 						if(scope.settings.adcRes>8){
 							if(scope.settings.triggerEdge == EDGE_RISING){
-								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel){
+								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}else{
-								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel){
+								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}
 						}else{							
 							if(scope.settings.triggerEdge == EDGE_RISING){
-								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel){
+								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}else{
-								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel){
+								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}
 						}
