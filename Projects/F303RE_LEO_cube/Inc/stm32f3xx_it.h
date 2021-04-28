@@ -41,14 +41,20 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
+#include "mcu_config.h"
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
-void SysTick_Handler(void);
 void OTG_FS_IRQHandler(void);
-void USART2_IRQHandler(void);
+
+void SysTick_Handler(void) MEMORY_SECTION;
+void USART2_IRQHandler(void) MEMORY_SECTION;
+void DMA1_Channel2_IRQHandler(void) MEMORY_SECTION;
+void DMA1_Channel7_IRQHandler(void) MEMORY_SECTION;
+void TIM4_IRQHandler(void) MEMORY_SECTION;
 
 
 #ifdef __cplusplus

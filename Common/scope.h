@@ -24,6 +24,7 @@
 #define SCOPE_DEFAULT_TRIG_EDGE EDGE_RISING
 #define SCOPE_DEFAULT_ADC_RES 12
 
+#define MAX_INTERLEAVED_CHANNELS 2
 // Types definitions ==========================================================
 
 typedef enum{
@@ -93,8 +94,8 @@ extern uint8_t scopeBuffer[MAX_SCOPE_BUFF_SIZE+MAX_ADC_CHANNELS*SCOPE_BUFFER_MAR
 void ScopeTask(void const *argument);
 void ScopeTriggerTask(void const *argument);
 
-void scopeInit(void); 
-void scopeSetDefault(void); 
+void scopeInit(void);
+void scopeSetDefault(void);
 void updateTrigger(void);
 void scopeStartMeasure(void);
 void scopeSetSettings(scopeSettings *psSettings);
