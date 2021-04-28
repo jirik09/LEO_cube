@@ -32,7 +32,7 @@
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 700
+#define COMM_BUFFER_SIZE 1000
 //#define COMM_TX_BUFFER_SIZE 256
 #define COMMS_BULK_SIZE 200
 //#define UART_SPEED 115200
