@@ -56,24 +56,17 @@ void MX_TIM6_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
-	/*##-1- Configure the TIM peripheral #######################################*/
-	/* Time base configuration */
 	htim6.Instance = TIM6;
-
 	htim6.Init.Period = 0x7FF;
 	htim6.Init.Prescaler = 0;
 	htim6.Init.ClockDivision = 0;
 	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
 	HAL_TIM_Base_Init(&htim6);
 
-	/* TIM6 TRGO selection */
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 
 	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
-
-	/*##-2- Enable TIM peripheral counter ######################################*/
-	//HAL_TIM_Base_Start(&htim6);
 }
 
 /**
@@ -87,24 +80,17 @@ void MX_TIM7_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
-	/*##-1- Configure the TIM peripheral #######################################*/
-	/* Time base configuration */
 	htim7.Instance = TIM7;
-
 	htim7.Init.Period = 0x7FF;
 	htim7.Init.Prescaler = 0;
 	htim7.Init.ClockDivision = 0;
 	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
 	HAL_TIM_Base_Init(&htim7);
 
-	/* TIM6 TRGO selection */
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
 
 	HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
-
-	/*##-2- Enable TIM peripheral counter ######################################*/
-	//HAL_TIM_Base_Start(&htim6);
 }
 
 #ifdef USE_GEN_PWM
@@ -130,12 +116,11 @@ void MX_TIM1_GEN_PWM_Init(void)
 	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim1.Init.RepetitionCounter = 0;
 	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+	//HAL_TIM_PWM_Init(&htim1);
 	HAL_TIM_Base_Init(&htim1);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
-
-	HAL_TIM_PWM_Init(&htim1);
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
@@ -164,7 +149,7 @@ void MX_TIM1_GEN_PWM_Init(void)
 	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
 	HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig);
 
-	HAL_TIM_Base_MspInit(&htim1);
+	//HAL_TIM_Base_MspInit(&htim1);
 }
 
 /**
@@ -187,11 +172,10 @@ void MX_TIM3_GEN_PWM_Init(void)
 	htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
 	htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
 	HAL_TIM_Base_Init(&htim3);
+	//HAL_TIM_PWM_Init(&htim3);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
-
-	HAL_TIM_PWM_Init(&htim3);
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
@@ -203,7 +187,7 @@ void MX_TIM3_GEN_PWM_Init(void)
 	sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
 	HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
 
-	HAL_TIM_Base_MspInit(&htim3);
+	//HAL_TIM_Base_MspInit(&htim3);
 }
 
 /**
@@ -216,21 +200,22 @@ void MX_TIM3_GEN_PWM_Init(void)
  */
 void MX_TIM6_GEN_PWM_Init(void)
 {
-	TIM_MasterConfigTypeDef sMasterConfig;
+	MX_TIM6_Init();
 
-	htim6.Instance = TIM6;
-	htim6.Init.Prescaler = 0;
-	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim6.Init.Period = 0x7FF;
-	htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-	HAL_TIM_Base_Init(&htim6);
+//	TIM_MasterConfigTypeDef sMasterConfig;
+//
+//	htim6.Instance = TIM6;
+//	htim6.Init.Prescaler = 0;
+//	htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
+//	htim6.Init.Period = 0x7FF;
+//	htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+//	HAL_TIM_Base_Init(&htim6);
+//
+//	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+//	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+//	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
 
-	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
-	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
-
-	TIM6_GEN_PWM_MspInit(&htim6);
-
+	//TIM6_GEN_PWM_MspInit(&htim6);
 }
 
 /**
@@ -243,20 +228,22 @@ void MX_TIM6_GEN_PWM_Init(void)
  */
 void MX_TIM7_GEN_PWM_Init(void)
 {
-	TIM_MasterConfigTypeDef sMasterConfig;
+	MX_TIM7_Init();
 
-	htim7.Instance = TIM7;
-	htim7.Init.Prescaler = 0;
-	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim7.Init.Period = 0x7FF;
-	htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-	HAL_TIM_Base_Init(&htim7);
+//	TIM_MasterConfigTypeDef sMasterConfig;
+//
+//	htim7.Instance = TIM7;
+//	htim7.Init.Prescaler = 0;
+//	htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+//	htim7.Init.Period = 0x7FF;
+//	htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+//	HAL_TIM_Base_Init(&htim7);
+//
+//	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+//	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+//	HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
 
-	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
-	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
-
-	TIM7_GEN_PWM_MspInit(&htim7);
+	//TIM7_GEN_PWM_MspInit(&htim7);
 }
 
 #endif //USE_GEN_PWM

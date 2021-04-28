@@ -84,7 +84,7 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
 
-	HAL_TIM_PWM_Init(&htim3);
+	//HAL_TIM_PWM_Init(&htim3);
 
 	sSlaveConfig.SlaveMode = TIM_SLAVEMODE_COMBINED_RESETTRIGGER;
 	sSlaveConfig.InputTrigger = TIM_TS_ITR0;

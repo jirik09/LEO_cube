@@ -94,27 +94,28 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_STOP_VOLTSOURCE:
 			GEN_DAC_deinit();
 			break;
+
 		case MSG_GEN_DAC_MODE:  /* Set DAC mode */
-			DACSetModeGenerator();
-			TIMGenInit();
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_DAC;
 			generator.genTypeMessage = STR_GEN_SIGNAL;
+			DACSetModeGenerator();
+			TIMGenInit();
 			break;
 		case MSG_GEN_VOLTSOURCE_MODE:  /* Set Voltage source mode / actually special case of DAC mode */
-			DACSetModeVoltageSource();
 			generator.DACMode = DAC_VOLTSOURCE_MODE;
+			DACSetModeVoltageSource();
 			break;
 		case MSG_GEN_PWM_MODE:
-			TIMGenPwmInit();
 			generator.modeState = GENERATOR_PWM;
 			generator.genTypeMessage = STR_GEN_PWM;
+			TIMGenPwmInit();
 			break;
 		case MSG_GEN_PATTERN_MODE:
-			GPIOGenPatternInit();
-			TIMGenPatternInit();
 			generator.modeState = GENERATOR_PATTERN;
 			generator.genTypeMessage = STR_GEN_PATTERN;
+			GPIOGenPatternInit();
+			TIMGenPatternInit();
 			break;
 		case MSG_GEN_DEINIT:
 			generator_deinit();

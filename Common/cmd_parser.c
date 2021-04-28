@@ -53,7 +53,7 @@ command parseGeneratorPwmCmd(void);
 command parseGeneratorPatternCmd(void);
 command parseVoltageSourceCmd(void);
 
-command parseGenCommonCmd(command cmd);
+command parseGenCommonCmd(command cmdIn);
 
 double getDouble(command cmd);
 void printErrResponse(command cmd);
@@ -1097,8 +1097,7 @@ command parseGeneratorPatternCmd(void){
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-command parseGenCommonCmd(command cmd){
-	command cmdIn=cmd;
+command parseGenCommonCmd(command cmdIn){
 	uint8_t error=0;
 	uint16_t index;
 	uint8_t length,chan;
