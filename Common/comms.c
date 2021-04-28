@@ -506,6 +506,10 @@ void CommTask(void const *argument){
 			commsSendString(STR_SYSTEM);
 			commsSendString(STR_ACK);
 			break;
+		case MSG_ERR:
+			commsSendString(STR_SYSTEM);
+			commsSendString(STR_ERR);
+			break;
 #ifdef USE_SCOPE
 		case MSG_SCOPE_TRIGGER:
 			commsSendString(STR_SCOPE);

@@ -204,9 +204,9 @@ void genInit(void)
 		TIM_Reconfig_gen(generator.generatingFrequency[i],i,0);
 		if(generator.numOfChannles>i){
 			DAC_DMA_Reconfig(i,(uint32_t *)generator.pChanMem[i], generator.oneChanSamples[i]);
-		}else{
+		}/*else{
 			DAC_DMA_Reconfig(i,NULL,0);
-		}
+		}*/
 	}	
 }
 

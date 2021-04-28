@@ -84,7 +84,8 @@ enum messages{
 	MSG_COMMS_TRY_PARSE,
 	MSG_COMMS_FLUSH,
 	MSG_INVALIDATE,
-	MSG_ACK
+	MSG_ACK,
+	MSG_ERR
 };
 
 #endif /* MESSAGES_H_ */

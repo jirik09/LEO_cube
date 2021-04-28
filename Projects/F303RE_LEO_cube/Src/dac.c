@@ -249,8 +249,8 @@ void GeneratingDisable(void){
 	TIMGenDisable();
 	HAL_DAC_Stop(&hdac,DAC_CHANNEL_1);
 	HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-	HAL_DMA_DeInit(hdac.DMA_Handle1);
-	HAL_DMA_DeInit(hdac.DMA_Handle2);
+	//HAL_DMA_DeInit(hdac.DMA_Handle1);
+	//HAL_DMA_DeInit(hdac.DMA_Handle2);
 	DACDisableOutput();	
 }
 
