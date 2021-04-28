@@ -33,7 +33,8 @@ typedef enum{
 }generatorMode;
 
 typedef enum{
-	GENERATOR_DAC = 0,
+	NONE = 0,
+	GENERATOR_DAC,
 	GENERATOR_PWM,
 	GENERATOR_PATTERN
 }generatorModeState;

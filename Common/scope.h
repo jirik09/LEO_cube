@@ -24,8 +24,6 @@
 #define SCOPE_DEFAULT_TRIG_EDGE EDGE_RISING
 #define SCOPE_DEFAULT_ADC_RES 12
 
-#define MAX_INTERLEAVED_CHANNELS 2
-
 // Types definitions ==========================================================
 
 typedef enum{

@@ -946,6 +946,7 @@ void sendGenPwmConf(void){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
 	commsSendUint32(GEN_PWM_RESOURCES);
+	commsSendUint32(DAC_DATA_DEPTH);
 	commsSendUint32(GEN_PWM_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
 	commsSendUint32(MAX_GENERATING_FREQ);

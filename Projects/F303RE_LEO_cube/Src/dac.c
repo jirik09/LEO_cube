@@ -60,9 +60,7 @@ void MX_DAC_Init(void)
     /**DAC Initialization 
     */
   hdac.Instance = DAC;
-  if(HAL_DAC_Init(&hdac)==HAL_ERROR){
-	  for(;;);
-  }
+  HAL_DAC_Init(&hdac);
 
     /**DAC channel OUT1 config 
     */

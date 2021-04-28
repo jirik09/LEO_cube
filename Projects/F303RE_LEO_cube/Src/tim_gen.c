@@ -440,7 +440,7 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 	uint32_t realFreq;
 	if(chan==0){
 		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1);
-		arr = periphClock / reqFreq;
+		arr = (periphClock / reqFreq)-1;
 		while(arr>65535){
 			arr = (arr+1)/2-1;
 			psc = (psc+1)*2-1;
@@ -452,7 +452,7 @@ double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan){
 
 	}else if(chan==1){
 		periphClock = HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
-		arr = periphClock / reqFreq;
+		arr = (periphClock / reqFreq)-1;
 		while(arr>65535){
 			arr = (arr+1)/2-1;
 			psc = (psc+1)*2-1;

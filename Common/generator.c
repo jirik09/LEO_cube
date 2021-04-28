@@ -56,9 +56,9 @@ void GeneratorTask(void const *argument){
 
 	uint16_t message = 0xFFFF;
 	generatorMessageQueue = xQueueCreate(30, sizeof(message)/sizeof(uint8_t));
-	MX_DAC_Init();
-	MX_TIM6_Init();
-	MX_TIM7_Init();
+	//MX_DAC_Init();
+	//MX_TIM6_Init();
+	//MX_TIM7_Init();
 	generatorSetDefault();
 
 	while(1){
@@ -172,6 +172,8 @@ void generator_deinit(void){
 		break;
 	case GENERATOR_PATTERN:
 		TIMGenPatternDeinit();
+		break;
+	case NONE:
 		break;
 	}
 }
