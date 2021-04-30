@@ -179,3 +179,4 @@ void syncPwmSetDefault(void){
 
 #endif //USE_SYNC_PWM
 
+/****************************** END MY FRIEND ******************************/

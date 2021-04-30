@@ -44,24 +44,21 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
-//extern DAC_HandleTypeDef hdac;
-
 void MX_DAC_Init(void);
-	 
-void DAC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len);
-void DACsetOutput(uint8_t chann, uint16_t val);
-void DACDisableOutput(void);
-void DACEnableOutput(void);
-void DACSetOutputBuffer(void);
-void DACUnsetOutputBuffer(void);
-void GeneratingEnable (void);
-void GeneratingDisable (void);
 
-void DACSetModeGenerator(void);
-void DACSetModeVoltageSource(void);
+void DAC_SetMode_SignalGenerator(void);
+void DAC_SetMode_VoltageSource(void);
 
-void GEN_DAC_DMA_deinit(void);
-void GEN_DAC_deinit(void);
+void DAC_SetOutput(uint8_t chann, uint16_t val);
+void DAC_Output_Enable(void);
+void DAC_Output_Disable(void);
+void DAC_OutputBuffer_Enable(void);
+void DAC_OutputBuffer_Disable(void);
+
+void DAC_Disable(void);
+void DAC_Deinit(void);
+void DAC_DmaDeinit(void);
+void DAC_DmaReconfig(uint8_t chan, uint32_t *buff, uint32_t len);
 	 
 extern DMA_HandleTypeDef hdma_dac1_ch1;
 extern DMA_HandleTypeDef hdma_dac1_ch2;

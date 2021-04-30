@@ -67,24 +67,6 @@ uint8_t isScopeShieldConnected(void);
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
 
-
-#ifdef USE_GEN_PATTERN
-
-#define GEN_PATTERN_CLOCK_Pin GPIO_PIN_2
-#define GEN_PATTERN_CH1_Pin GPIO_PIN_3
-#define GEN_PATTERN_CH2_Pin GPIO_PIN_4
-#define GEN_PATTERN_CH3_Pin GPIO_PIN_5
-#define GEN_PATTERN_CH4_Pin GPIO_PIN_6
-#define GEN_PATTERN_CH5_Pin GPIO_PIN_7
-#define GEN_PATTERN_CH6_Pin GPIO_PIN_8
-#define GEN_PATTERN_CH7_Pin GPIO_PIN_9
-#define GEN_PATTERN_GPIO_Port GPIOC
-#define GEN_PATTERN_CLOCK_ENABLE() __HAL_RCC_GPIOC_CLK_ENABLE()
-
-void GPIOGenPatternInit(void);
-
-#endif //USE_GEN_PATTERN
-
 #ifdef __cplusplus
 }
 #endif

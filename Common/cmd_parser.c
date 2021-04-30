@@ -968,7 +968,7 @@ command parseGeneratorSignalCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
-			genSetMode(GEN_DAC);
+			genSetMode(GEN_SIGNAL);
 		}
 		break;
 	default:
