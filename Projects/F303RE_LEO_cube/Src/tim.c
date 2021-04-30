@@ -26,7 +26,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** SCOPE **********************************/
 #ifdef USE_SCOPE
 	if (htim_base->Instance == TIM15) {
-		TIM15_SCOPE_MspInit(htim_base);
+		TIM15_SCOPE_MspInit(htim_base); return;
 	}
 #endif //USE_SCOPE
 
@@ -38,9 +38,9 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/* DAC generator mode TIM decision */
 	if (generator.modeState == GENERATOR_SIGNAL) {
 		if (htim_base->Instance == TIM6) {
-			TIM6_GEN_SIGNAL_MspInit(htim_base);
+			TIM6_GEN_SIGNAL_MspInit(htim_base); return;
 		}else if (htim_base->Instance == TIM7) {
-			TIM7_GEN_SIGNAL_MspInit(htim_base);
+			TIM7_GEN_SIGNAL_MspInit(htim_base); return;
 		}
 	}
 #endif //USE_GEN_SIGNAL
@@ -50,13 +50,13 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/* PWM generator mode TIM decision */
 	if (generator.modeState == GENERATOR_PWM) {
 		if (htim_base->Instance == TIM1) {
-			TIM1_GEN_PWM_MspInit(htim_base);
+			TIM1_GEN_PWM_MspInit(htim_base); return;
 		}else if (htim_base->Instance == TIM3) {
-			TIM3_GEN_PWM_MspInit(htim_base);
+			TIM3_GEN_PWM_MspInit(htim_base); return;
 		}else if (htim_base->Instance == TIM6) {
-			TIM6_GEN_PWM_MspInit(htim_base);
+			TIM6_GEN_PWM_MspInit(htim_base); return;
 		}else if (htim_base->Instance == TIM7) {
-			TIM7_GEN_PWM_MspInit(htim_base);
+			TIM7_GEN_PWM_MspInit(htim_base); return;
 		}
 	}
 #endif //USE_GEN_PWM
@@ -64,7 +64,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** GEN PATTERN ***********************************/
 #ifdef USE_GEN_PATTERN
 	if (generator.modeState == GENERATOR_PATTERN) {
-		TIM6_GEN_PATTERN_MspInit(htim_base);
+		TIM6_GEN_PATTERN_MspInit(htim_base); return;
 	}
 #endif //USE_GEN_PATTERN
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
@@ -72,11 +72,11 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** SYNC PWM ********************************/
 #ifdef USE_SYNC_PWM
 	if (htim_base->Instance == TIM1) {
-		TIM1_SYNC_PWM_MspInit(htim_base);
+		TIM1_SYNC_PWM_MspInit(htim_base); return;
 	}else if (htim_base->Instance == TIM8) {
-		TIM8_SYNC_PWM_MspInit(htim_base);
+		TIM8_SYNC_PWM_MspInit(htim_base); return;
 	}else if (htim_base->Instance == TIM3) {
-		TIM3_SYNC_PWM_MspInit(htim_base);
+		TIM3_SYNC_PWM_MspInit(htim_base); return;
 	}
 
 #endif //USE_SYNC_PWM¨
@@ -85,11 +85,11 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 #ifdef USE_LOG_ANLYS
 	if (htim_base->Instance == TIM1) {
 		if (logAnlys.enable == LOGA_ENABLED) {
-			TIM1_LOG_ANLYS_MspInit(htim_base);
+			TIM1_LOG_ANLYS_MspInit(htim_base); return;
 		}
 	}else if(htim_base->Instance == TIM4) {
 		if (logAnlys.enable == LOGA_ENABLED) {
-			TIM4_LOG_ANLYS_MspInit(htim_base);
+			TIM4_LOG_ANLYS_MspInit(htim_base); return;
 		}
 	}
 #endif //USE_LOG_ANLYS
@@ -98,15 +98,15 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 #ifdef USE_COUNTER
 	if (htim_base->Instance == TIM2) {
 		if (counter.state == COUNTER_ETR || counter.state == COUNTER_REF) {
-			TIM2_CNT_ETRorREF_MspInit(htim_base);
+			TIM2_CNT_ETRorREF_MspInit(htim_base); return;
 		} else if (counter.state == COUNTER_IC || counter.state == COUNTER_TI) {
-			TIM2_CNT_ICorTI_MspInit(htim_base);
+			TIM2_CNT_ICorTI_MspInit(htim_base); return;
 		}
 	}else if (htim_base->Instance == TIM4) {
 #ifdef USE_LOG_ANLYS
 		if (logAnlys.enable == LOGA_DISABLED) {
 #endif //USE_LOG_ANLYS
-			TIM4_CNT_REForICorTI_MspInit(htim_base);
+			TIM4_CNT_REForICorTI_MspInit(htim_base); return;
 #ifdef USE_LOG_ANLYS
 		}
 #endif //USE_LOG_ANLYS
@@ -124,7 +124,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** SCOPE **********************************/
 #ifdef USE_SCOPE
 	if (htim_base->Instance == TIM15) {
-		TIM15_SCOPE_MspDeinit(htim_base);
+		TIM15_SCOPE_MspDeinit(htim_base); return;
 	}
 #endif //USE_SCOPE
 
@@ -133,9 +133,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 #ifdef USE_GEN_SIGNAL
 	if (generator.modeState == GENERATOR_SIGNAL) {
 		if (htim_base->Instance == TIM6) {
-			TIM6_GEN_SIGNAL_MspDeinit(htim_base);
+			TIM6_GEN_SIGNAL_MspDeinit(htim_base); return;
 		}else if (htim_base->Instance == TIM7) {
-			TIM7_GEN_SIGNAL_MspDeinit(htim_base);
+			TIM7_GEN_SIGNAL_MspDeinit(htim_base); return;
 		}
 	}
 #endif //USE_GEN_SIGNAL
@@ -144,13 +144,13 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 #ifdef USE_GEN_PWM
 	if (generator.modeState == GENERATOR_PWM) {
 		if (htim_base->Instance == TIM1) {
-			TIM1_GEN_PWM_MspDeinit(htim_base);
+			TIM1_GEN_PWM_MspDeinit(htim_base); return;
 		}else if (htim_base->Instance == TIM3) {
-			TIM3_GEN_PWM_MspDeinit(htim_base);
+			TIM3_GEN_PWM_MspDeinit(htim_base); return;
 		}else if (htim_base->Instance == TIM6) {
-			TIM6_GEN_PWM_MspDeinit(htim_base);
+			TIM6_GEN_PWM_MspDeinit(htim_base); return;
 		}else if (htim_base->Instance == TIM7) {
-			TIM7_GEN_PWM_MspDeinit(htim_base);
+			TIM7_GEN_PWM_MspDeinit(htim_base); return;
 		}
 	}
 #endif //USE_GEN_PWM
@@ -158,7 +158,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** GEN PATTERN ***********************************/
 #ifdef USE_GEN_PATTERN
 	if (generator.modeState == GENERATOR_PATTERN) {
-		TIM6_GEN_PATTERN_MspDeinit(htim_base);
+		TIM6_GEN_PATTERN_MspDeinit(htim_base); return;
 	}
 #endif //USE_GEN_PATTERN
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
@@ -166,21 +166,21 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	/**************************** SYNC PWM  *********************************/
 #ifdef USE_SYNC_PWM
 	if (htim_base->Instance == TIM1) {
-		TIM1_SYNC_PWM_MspDeinit(htim_base);
+		TIM1_SYNC_PWM_MspDeinit(htim_base); return;
 	}else if (htim_base->Instance == TIM3) {
-		TIM3_SYNC_PWM_MspDeinit(htim_base);
+		TIM3_SYNC_PWM_MspDeinit(htim_base); return;
 	}else if (htim_base->Instance == TIM8) {
-		TIM8_SYNC_PWM_MspDeinit(htim_base);
+		TIM8_SYNC_PWM_MspDeinit(htim_base); return;
 	}
 #endif //USE_SYNC_PWM
 
 	/**************************** LOG ANLYS  *********************************/
 #ifdef USE_LOG_ANLYS
 	if (htim_base->Instance == TIM1) {
-		TIM1_LOG_ANLYS_MspDeinit(htim_base);
+		TIM1_LOG_ANLYS_MspDeinit(htim_base); return;
 	}else if (htim_base->Instance == TIM4) {
 		if (logAnlys.enable == LOGA_ENABLED) {
-			TIM4_LOG_ANLYS_MspDeinit(htim_base);
+			TIM4_LOG_ANLYS_MspDeinit(htim_base); return;
 		}
 	}
 #endif //USE_LOG_ANLYS
@@ -188,9 +188,9 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** COUNTER  *********************************/
 #ifdef USE_COUNTER
 	if (htim_base->Instance == TIM2) {
-		TIM2_CNT_MspDeinit(htim_base);
+		TIM2_CNT_MspDeinit(htim_base); return;
 	}else if (htim_base->Instance == TIM4) {
-		TIM4_CNT_MspDeinit(htim_base);
+		TIM4_CNT_MspDeinit(htim_base); return;
 	}
 #endif //USE_COUNTER
 }

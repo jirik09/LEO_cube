@@ -36,7 +36,6 @@ void MX_TIM6_Init(void){
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-
 	HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig);
 }
 
@@ -53,7 +52,6 @@ void MX_TIM7_Init(void){
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-
 	HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig);
 }
 
@@ -87,7 +85,6 @@ void MX_TIM1_GEN_PWM_Init(void){
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;
-	//TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
 	/* ARR = 1024 (10 bit resolution in default). F303 -> PA9 -> D8 -> Channel 1 */
 	htim1.Instance = TIM1;
@@ -115,19 +112,6 @@ void MX_TIM1_GEN_PWM_Init(void){
 	sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
 	sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 	HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2);
-
-//	sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
-//	sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
-//	sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-//	sBreakDeadTimeConfig.DeadTime = 0;
-//	sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
-//	sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
-//	sBreakDeadTimeConfig.BreakFilter = 0;
-//	sBreakDeadTimeConfig.Break2State = TIM_BREAK2_DISABLE;
-//	sBreakDeadTimeConfig.Break2Polarity = TIM_BREAK2POLARITY_HIGH;
-//	sBreakDeadTimeConfig.Break2Filter = 0;
-//	sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
-//	HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig);
 }
 
 /* TIM3 generates PWM on a given channel */
@@ -163,6 +147,7 @@ void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	__HAL_RCC_TIM1_CLK_ENABLE();
+	__HAL_RCC_GPIOA_CLK_ENABLE();
 
 	/** TIM1 GPIO Configuration
 		PA9 --> TIM1_CH2*/
@@ -178,6 +163,7 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	__HAL_RCC_TIM3_CLK_ENABLE();
+	__HAL_RCC_GPIOB_CLK_ENABLE();
 
 	/** TIM3 GPIO Configuration
 		PB4 --> TIM3_CH1 */
@@ -191,6 +177,7 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 
 void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM6_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	hdma_tim6_up.Instance = DMA1_Channel3;
 	hdma_tim6_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
@@ -208,6 +195,7 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 
 void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM7_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	hdma_tim7_up.Instance = DMA1_Channel4;   // DMA2_Channel4
 	hdma_tim7_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
@@ -398,14 +386,10 @@ void TIM_GenPwm_Deinit(void){
 }
 
 void TIM_GenPwm_Start(void){
-	if(generator.numOfChannles==1){
-		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-		HAL_TIM_Base_Start(&htim6);
-	}else if(generator.numOfChannles>1){
-		__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-		HAL_TIM_Base_Start(&htim6);
+	__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_Base_Start(&htim6);
+	if(generator.numOfChannles>1){
 		__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
 		HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Start(&htim7);
@@ -413,12 +397,9 @@ void TIM_GenPwm_Start(void){
 }
 
 void TIM_GenPwm_Stop(void){
-	if(generator.numOfChannles==1){
-		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-		HAL_TIM_Base_Stop(&htim6);
-	}else if(generator.numOfChannles>1){
-		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-		HAL_TIM_Base_Stop(&htim6);
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+	HAL_TIM_Base_Stop(&htim6);
+	if(generator.numOfChannles>1){
 		HAL_TIM_PWM_Stop(&htim3, TIM_CHANNEL_1);
 		HAL_TIM_Base_Stop(&htim7);
 	}
