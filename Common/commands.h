@@ -12,10 +12,14 @@
 // Types definitions ==========================================================
 typedef uint32_t command;
 
+
+
 #define STR_SYSTEM "SYST"
 #define STR_SCOPE "OSCP"
 #define STR_COUNTER "CNT_"
-#define STR_GENERATOR "GEN_"
+#define STR_GEN_SIGNAL  "GENS"
+#define STR_GEN_PWM     "GENP"
+#define STR_GEN_PATTERN "GENT"
 #define STR_VOLTAGE_SOURCE "VOUT"
 #define STR_LOGIC_ANLYS "LAN_"
 #define STR_SYNC_PWM "SPWM"
@@ -108,7 +112,9 @@ typedef uint32_t command;
 #define CMD_IS_SHIELD 						SWAP_UINT32(0x53485f3f)			//	SH_?
 #define CMD_RESET_DEVICE 						SWAP_UINT32(0x52455321)			//	RES!
 #define CMD_SCOPE 						SWAP_UINT32(0x4f534350)			//	OSCP
-#define CMD_GENERATOR 						SWAP_UINT32(0x47454e5f)			//	GEN_
+#define CMD_GEN_SIGNAL 						SWAP_UINT32(0x47454e53)			//	GENS
+#define CMD_GEN_PWM 						SWAP_UINT32(0x47454e50)			//	GENP
+#define CMD_GEN_PATTERN 						SWAP_UINT32(0x47454e54)     //	GENT
 #define CMD_VOLATGE_SOURCE 						SWAP_UINT32(0x564f5554)			//	VOUT
 #define CMD_SYNC_PWM 						SWAP_UINT32(0x5350574d)			//	SPWM
 #define CMD_LOG_ANLYS 						SWAP_UINT32(0x4c4f4741)			//	LOGA
@@ -183,6 +189,7 @@ typedef uint32_t command;
 #define CMD_MODE_PWM 						SWAP_UINT32(0x50574d5f)			//	PWM_
 #define CMD_MODE_VOLT 						SWAP_UINT32(0x564f4c54)			//	VOLT
 #define CMD_MODE_DAC 						SWAP_UINT32(0x4441435f)			//	DAC_
+#define CMD_MODE_PATTERN					SWAP_UINT32(0x50415454)			//	PATT
 #define CMD_GEN_DATA 						SWAP_UINT32(0x44415441)			//	DATA
 #define CMD_GEN_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
 #define CMD_GEN_OUTBUFF_ON 						SWAP_UINT32(0x425f4f4e)			//	B_ON
@@ -194,6 +201,7 @@ typedef uint32_t command;
 #define CMD_GEN_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
 #define CMD_GEN_RESET 						SWAP_UINT32(0x52534554)			//	RSET
 #define CMD_GET_PWM_CONFIG 						SWAP_UINT32(0x5043463f)			//	PCF?
+#define CMD_GET_PATTERN_CONFIG					SWAP_UINT32(0x5443463f)			// TCF?
 //#define CMD_GEN_PWM_DEINIT 	 					SWAP_UINT32(0x47504449)			//	GPDI
 #define CMD_GEN_DEINIT 						SWAP_UINT32(0x44494e49)			//	DINI
 //#define CMD_GEN_PWM_FREQ_PSC 						SWAP_UINT32(0x46505750)			//	FPWP

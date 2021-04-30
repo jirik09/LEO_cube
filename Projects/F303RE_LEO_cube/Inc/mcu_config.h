@@ -179,6 +179,18 @@
 #define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #endif //USE_GEN_PWM
 
+#ifdef USE_GEN_PATTERN
+#define GEN_PATTERN_RESOURCES DMA2_R|TIM6_R
+#define GEN_PATTERN_CLOCK_PIN	"PC2_"
+#define GEN_PATTERN_CH1_PIN		"PC3_"
+#define GEN_PATTERN_CH2_PIN		"PC4_"
+#define GEN_PATTERN_CH3_PIN		"PC5_"
+#define GEN_PATTERN_CH4_PIN		"PC6_"
+#define GEN_PATTERN_CH5_PIN		"PC7_"
+#define GEN_PATTERN_CH6_PIN		"PC8_"
+#define GEN_PATTERN_CH7_PIN		"PC9_"
+#endif //USE_GEN_PATTERN
+
 // Synchronized PWM generator constants ====================================
 #define SYNC_PWM_RESOURCES TIM1_R|TIM3_R|TIM8_R
 #ifdef USE_SYNC_PWM

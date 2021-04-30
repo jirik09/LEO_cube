@@ -1,120 +1,44 @@
 /**
-  ******************************************************************************
-  * @file		tim.h
-  * @date   18/01/2015 10:00:31
-  * @brief	This file provides code for the configuration
-  *         of the TIM instances.
-  ******************************************************************************
-  *
-  * COPYRIGHT(c) 2015 STMicroelectronics
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file		tim.h
+ * @date   18/01/2015 10:00:31
+ * @brief	This file provides code for the configuration
+ *         of the TIM instances.
+ ******************************************************************************
+ */
+
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __tim_H
 #define __tim_H
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
-	 
-/** @addtogroup Timers
-  * @{
-  */
+
+typedef enum{
+	false = 0,
+	true = 1
+} bool;
 
 uint8_t TIM_Reconfig(TIM_HandleTypeDef* htim_base, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 uint8_t TIM_Getconfig(uint32_t * arr, uint32_t * psc, uint32_t periphClock, uint32_t samplingFreq, uint32_t* realFreq, _Bool isFreqPassed);
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq);
 uint32_t roundNumber(double num);
 
-/** @addtogroup Scope
-  * @{
-  */
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 
-/** @defgroup Scope_TIM_Prototypes Scope Timers Function Prototypes.
-  * @{
-  */
+void MX_TIM6_Init(void);
+void MX_TIM7_Init(void);
+uint8_t TIM_DataTransfer_FreqReconfig(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
+uint8_t TIM_DataTransfer_FreqReconfigAll(uint32_t samplingFreq,uint32_t* realFreq);
 
-#ifdef USE_SCOPE
-
-uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
-
-#endif //USE_SCOPE
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */	 
-
-/** @defgroup Arbitrary_DAC_PWM_TIM_Prototypes Arbitrary DAC and PWM Timers Function Prototypes
-  * @{
-  */
-
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-
-uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq);
-uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq,uint32_t* realFreq);
-double TIM_Reconfig_GenPwm(double reqFreq, uint8_t chan);
-
-#endif //USE_GEN || USE_GEN_PWM
-
-/**
-  * @}
-  */	 
-
-/** @defgroup Synch_PWM_TIM_Prototypes Synchronized PWM Timers Function Prototypes.
-  * @{
-  */	
-
-#ifdef USE_SYNC_PWM
-
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim8;
-
-  #define __STEP_MODE_ENABLE()  		TIM8->CR1 |= TIM_CR1_OPM
-	#define __STEP_MODE_DISABLE()  		TIM8->CR1 &= ~TIM_CR1_OPM
-
-#endif //USE_SYNC_PWM
-
-/**
-  * @}
-  */	
-
-/** @addtogroup Scope
-  * @{
-  */	
-
-/** @addtogroup Scope_TIM_Prototypes Scope Timers Function Prototypes
-  * @{
-  */
-
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_SCOPE
 
 void TIMScopeEnable(void);
@@ -124,56 +48,31 @@ void TIM15_SCOPE_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM15_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base);
 uint32_t getMaxScopeSamplingFreq(uint8_t ADCRes);
 uint32_t getMaxScopeSamplingFreqInterleaved(uint8_t ADCRes);
+uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq);
 
 #endif //USE_SCOPE
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#ifdef USE_GEN_SIGNAL
 
-/**
-  * @}
-  */	
+void TIM6_GEN_SIGNAL_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_SIGNAL_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM6_GEN_SIGNAL_MspDeinit(TIM_HandleTypeDef* htim_base);
+void TIM7_GEN_SIGNAL_MspDeinit(TIM_HandleTypeDef* htim_base);
 
-/**
-  * @}
-  */		
+void TIM_GenSignal_Init(void);
+void TIM_GenSignal_Deinit(void);
+void TIM_GenSignal_Start(void);
+void TIM_GenSignal_Stop(void);
 
-/** @addtogroup Arbitrary_DAC_PWM_TIM_Prototypes
-  * @{
-  */
-
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-#ifdef USE_GEN
-
-void TIMGenEnable(void);
-void TIMGenDisable(void);
-void MX_TIM6_Init(void);
-void MX_TIM7_Init(void);
-
-void TIM6_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM7_GEN_DAC_MspInit(TIM_HandleTypeDef* htim_base);
-void TIM6_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base);
-void TIM7_GEN_DAC_MspDeinit(TIM_HandleTypeDef* htim_base);
-
-void TIMGenInit(void);
-void TIMGenPwmDeinit(void);
-void TIMGenDacDeinit(void);
-
-#endif //USE_GEN
-
-/**
-  * @}
-  */
-
+#endif //USE_GEN_SIGNAL
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_GEN_PWM
 
-/** @defgroup Arbitrary_PWM_TIM_Prototypes Arbitrary PWM Timers Function Prototypes
-  * @{
-  */
-
-/* PWM generatin timers */
 void MX_TIM1_GEN_PWM_Init(void);
 void MX_TIM3_GEN_PWM_Init(void);
-/* DMA update timers */
-void MX_TIM6_GEN_PWM_Init(void);
-void MX_TIM7_GEN_PWM_Init(void);
 
 void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
@@ -184,26 +83,50 @@ void TIM3_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM6_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 
-void TIM_DMA_Reconfig(uint8_t chan);
-void TIM_GEN_PWM_PSC_Config(uint16_t pscVal, uint8_t chan);
-void TIM_GEN_PWM_ARR_Config(uint16_t arrVal, uint8_t chan);
-
-void TIMGenPwmInit(void);
-void PWMGeneratingEnable(void);
-void PWMGeneratingDisable(void);
+void TIM_GenPwm_Init(void);
+void TIM_GenPwm_Deinit(void);
+void TIM_GenPwm_Start(void);
+void TIM_GenPwm_Stop(void);
+void TIM_GenPwm_DmaReconfig(uint8_t chan);
+double TIM_GenPwm_FreqReconfig(double reqFreq, uint8_t chan);
 
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef USE_GEN_PATTERN
 
-/**
-  * @}
-  */
+#define GEN_PATTERN_CLOCK_Pin GPIO_PIN_2
+#define GEN_PATTERN_CH1_Pin GPIO_PIN_3
+#define GEN_PATTERN_CH2_Pin GPIO_PIN_4
+#define GEN_PATTERN_CH3_Pin GPIO_PIN_5
+#define GEN_PATTERN_CH4_Pin GPIO_PIN_6
+#define GEN_PATTERN_CH5_Pin GPIO_PIN_7
+#define GEN_PATTERN_CH6_Pin GPIO_PIN_8
+#define GEN_PATTERN_CH7_Pin GPIO_PIN_9
+#define GEN_PATTERN_GPIO_Port GPIOC
+#define __GEN_PATTERN_CLOCK_ENABLE() __HAL_RCC_GPIOC_CLK_ENABLE()
+#define __GEN_PATTERN_CLOCK_DISABLE() __HAL_RCC_GPIOC_CLK_DISABLE()
 
-/** @addtogroup Synch_PWM_TIM_Prototypes
-  * @{
-  */
+void TIM6_GEN_PATTERN_MspInit(TIM_HandleTypeDef* htim_base);
+void TIM6_GEN_PATTERN_MspDeinit(TIM_HandleTypeDef* htim_base);
 
+void TIM_GenPattern_Init(void);
+void TIM_GenPattern_Deinit(void);
+void TIM_GenPattern_Start(void);
+void TIM_GenPattern_Stop(void);
+void TIM_GenPattern_DmaReconfig(void);
+
+#endif //USE_GEN_PATTERN
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_SYNC_PWM
+
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim8;
+
+#define __STEP_MODE_ENABLE()  		TIM8->CR1 |= TIM_CR1_OPM
+#define __STEP_MODE_DISABLE()  		TIM8->CR1 &= ~TIM_CR1_OPM
 
 void MX_TIM1_SYNC_PWM_Init(void);
 void MX_TIM3_SYNC_PWM_Init(void);
@@ -234,15 +157,8 @@ void TIM_SYNC_PWM_StepMode_Disable(void);
 void TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(_Bool enable);
 
 #endif // USE_SYNC_PWM
-
-/**
-  * @}
-  */
-
-/** @addtogroup Logic_Analyzer_TIM_Prototypes
-  * @{
-  */
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_LOG_ANLYS
 
 extern DMA_HandleTypeDef hdma_tim4_up;
@@ -275,20 +191,8 @@ void LOG_ANLYS_TriggerEventOccured(void);
 void TIM_SamplingStop(void);
 
 #endif //USE_LOG_ANLYS
-
-/**
-  * @}
-  */
-
-/** @defgroup Counter_TIM_Prototypes Counter Timers Function Prototypes
-  * @{
-  */
-
-typedef enum{
-	false = 0,
-	true = 1
-} bool;
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_COUNTER
 
 extern TIM_HandleTypeDef htim2;
@@ -377,17 +281,11 @@ void COUNTER_IC1_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
 void COUNTER_IC2_DMA_CpltCallback(DMA_HandleTypeDef *dmah);
 
 #endif // USE_COUNTER
-/**
-  * @}
-  */
-	 
-/**
-  * @}
-  */	 
-	 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef __cplusplus
 }
 #endif
 #endif /*__ tim_H */
 
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+/****************************** END MY FRIEND ******************************/

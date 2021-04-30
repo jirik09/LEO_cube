@@ -57,9 +57,10 @@ void sendCommsConf(void);
 void sendScopeConf(void);
 void sendCounterConf(void);
 void sendScopeInputs(void);
-void sendGenConf(void);
-void sendDACConf(void);
+void sendGenSignalConf(void);
 void sendGenPwmConf(void);
+void sendGenPatternConf(void);
+void sendDACConf(void);
 void sendSyncPwmConf(void);
 void sendLogAnlysConf(void);
 void sendShieldPresence(void);
@@ -130,14 +131,14 @@ void CommTask(void const *argument){
 	uint32_t oneChanMemSize;
 #endif //USE_SCOPE
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
 	//uint8_t header_gen[12]="GEN_xCH_Fxxx";
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
-#if defined(USE_GEN) || defined(USE_SCOPE)
+#if defined(USE_GEN_SIGNAL) || defined(USE_SCOPE)
 	uint8_t i;
 	uint32_t j;
-#endif //USE_GEN || USE_SCOPE
+#endif //USE_GEN_SIGNAL || USE_SCOPE
 
 	while(1){	
 		xQueueReceive (messageQueue, &message, portMAX_DELAY);
@@ -247,30 +248,31 @@ void CommTask(void const *argument){
 			break;
 #endif //USE_SCOPE
 			//send generating frequency
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#ifdef USE_GEN_SIGNAL
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1:
-			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_SIGNAL);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1);
 			commsSendUint32(genGetRealSmplFreq(1));
 			break;
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2:
-			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_SIGNAL);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2);
 			commsSendUint32(genGetRealSmplFreq(2));
 			break;
+#endif //USE_GEN_SIGNAL
+
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
-			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_PWM);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
 			commsSendUint32(generator.realPwmFreqCh1);
 			break;
 		case MSG_GEN_PWM_REAL_FREQ_CH2:
-			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_PWM);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
 			commsSendUint32(generator.realPwmFreqCh2);
 			break;
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
 			/* ---------------------------------------------------- */
 			/********************* COUNTER DATA *********************/
 			/* ---------------------------------------------------- */
@@ -399,7 +401,7 @@ void CommTask(void const *argument){
 			}
 			break;
 #endif // USE_SYNC_PWM
-		/* Send LOGIC ANALYZER data */
+			/* Send LOGIC ANALYZER data */
 #ifdef USE_LOG_ANLYS
 		case MSG_LOGAN_SEND_DATA:
 			commsSendString(STR_LOGIC_ANLYS);
@@ -454,22 +456,28 @@ void CommTask(void const *argument){
 			sendShieldPresence();
 			break;
 #endif //USE_SHIELD
-#ifdef USE_GEN
+#ifdef USE_GEN_SIGNAL
 		case MSG_DAC_CONFIG:
 			commsSendString(STR_VOLTAGE_SOURCE);
 			sendDACConf();
 			break;
-		case MSG_GEN_CONFIG:
-			commsSendString(STR_GENERATOR);
-			sendGenConf();
+		case MSG_GEN_SIGNAL_CONFIG:
+			commsSendString(STR_GEN_SIGNAL);
+			sendGenSignalConf();
 			break;
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_CONFIG:
-			commsSendString(STR_GENERATOR);
+			commsSendString(STR_GEN_PWM);
 			sendGenPwmConf();
 			break;
 #endif //USE_GEN_PWM
+#ifdef USE_GEN_PATTERN
+		case MSG_GEN_PATTERN_CONFIG:
+			commsSendString(STR_GEN_PATTERN);
+			sendGenPatternConf();
+			break;
+#endif //USE_GEN_PATTERN
 #ifdef USE_SYNC_PWM
 		case MSG_SYNCPWM_CONFIG:
 			commsSendString(STR_SYNC_PWM);
@@ -482,18 +490,18 @@ void CommTask(void const *argument){
 			sendLogAnlysConf();
 			break;
 #endif //USE_LOG_ANLYS
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_NEXT:	/* Gen send next data block */
-			commsSendString(STR_GENERATOR);
+			commsSendString(generator.genTypeMessage);
 			commsSendString(STR_GEN_NEXT);
 			break;
-#endif //USE_GEN || USE_GEN_PWM
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_OK:	/* Gen send OK status */
-			commsSendString(STR_GENERATOR);
+			commsSendString(generator.genTypeMessage);
 			commsSendString(STR_GEN_OK);
 			break;
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 		case MSG_ACK:
 			commsSendString(STR_SYSTEM);
 			commsSendString(STR_ACK);
@@ -666,6 +674,8 @@ uint16_t getBytesAvailable(){
 	}
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * @brief  Send System configuration.
  * @param  None
@@ -727,6 +737,7 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_SCOPE
 /**
@@ -764,6 +775,7 @@ void sendScopeConf(){
 }
 #endif //USE_SCOPE
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_COUNTER
 /**
@@ -796,6 +808,7 @@ void sendCounterConf(){
 }
 #endif //USE_COUNTER
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_SCOPE
 /**
@@ -848,14 +861,10 @@ void sendScopeInputs(){
 }
 #endif //USE_SCOPE
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef USE_GEN
-/**
- * @brief  Send Arb. DAC Generator configuration.
- * @param  None
- * @retval None
- */
-void sendGenConf(){
+#ifdef USE_GEN_SIGNAL
+void sendGenSignalConf(){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
 	commsSendUint32(GENERATOR_RESOURCES);
@@ -890,6 +899,8 @@ void sendGenConf(){
 		}
 	}
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 void sendDACConf(void){
 	uint8_t i;
@@ -926,23 +937,35 @@ void sendDACConf(void){
 }
 
 
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_GEN_PWM
-/**
- * @brief  Send Arb. PWM Generator configuration.
- * @param  None
- * @retval None
- */
 void sendGenPwmConf(void){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
-	commsSendString("GENP");
 	commsSendUint32(GEN_PWM_RESOURCES);
+	commsSendUint32(DAC_DATA_DEPTH);
 	commsSendUint32(GEN_PWM_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
-	for (i=0;i<MAX_DAC_CHANNELS;i++){
+	commsSendUint32(MAX_GENERATING_FREQ);
+	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
+	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
+
+#ifdef USE_SHIELD
+	if(isScopeShieldConnected()){
+		commsSendInt32(SHIELD_GEN_LOW);
+		commsSendUint32(SHIELD_GEN_HIGH);
+	}else{
+		commsSendUint32(0);
+		commsSendUint32(GEN_VREF);
+	}
+#else
+	commsSendUint32(GEN_RANGE_LOW);
+	commsSendUint32(GEN_RANGE_HIGH);
+#endif
+	for (i=0;i<MAX_GEN_PWM_CHANNELS;i++){
 		switch(i){
 		case 0:
 			commsSendString(GEN_PWM_CH1_PIN);
@@ -955,6 +978,24 @@ void sendGenPwmConf(void){
 }
 #endif //USE_GEN_PWM
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+#ifdef USE_GEN_PATTERN
+void sendGenPatternConf(void){
+	commsSendString(STR_CONFIG);
+	commsSendString("GENT");
+	commsSendString(GEN_PATTERN_CLOCK_PIN);
+	commsSendString(GEN_PATTERN_CH1_PIN);
+	commsSendString(GEN_PATTERN_CH2_PIN);
+	commsSendString(GEN_PATTERN_CH3_PIN);
+	commsSendString(GEN_PATTERN_CH4_PIN);
+	commsSendString(GEN_PATTERN_CH5_PIN);
+	commsSendString(GEN_PATTERN_CH6_PIN);
+	commsSendString(GEN_PATTERN_CH7_PIN);
+}
+#endif //USE_GEN_PATTERN
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_SYNC_PWM
 /**
@@ -993,6 +1034,8 @@ void sendSyncPwmConf(void)
 	}
 }
 #endif //USE_SYNC_PWM
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_LOG_ANLYS
 void sendLogAnlysConf(void)
@@ -1035,6 +1078,7 @@ void sendLogAnlysConf(void)
 }
 #endif //USE_LOG_ANLYS
 
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_SHIELD
 /**

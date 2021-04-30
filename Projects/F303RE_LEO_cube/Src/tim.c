@@ -15,14 +15,6 @@
 #include "mcu_config.h"
 #include "stm32f3xx_ll_tim.h"
 
-/** @defgroup Timers Timers
- * @{
- */
-
-/** @defgroup Common_GPIOs_DMAs_TIM_Inits Common GPIOs & DMAs Initialization Function.
- * @{
- */
-
 /**             
  * @brief  This function configures GPIOs and DMAs used by the functionalities.
  * @note   Called from Timers initialization functions.
@@ -41,15 +33,17 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/**************************** GEN DAC ***********************************/
 	/* Note: PC app must send the mode first even if only one 
 	 generator is implemented in device */
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-#ifdef USE_GEN
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#ifdef USE_GEN_SIGNAL
 	/* DAC generator mode TIM decision */
-	if (htim_base->Instance == TIM6) {
-		TIM6_GEN_DAC_MspInit(htim_base);
-	}else if (htim_base->Instance == TIM7) {
-		TIM7_GEN_DAC_MspInit(htim_base);
+	if (generator.modeState == GENERATOR_SIGNAL) {
+		if (htim_base->Instance == TIM6) {
+			TIM6_GEN_SIGNAL_MspInit(htim_base);
+		}else if (htim_base->Instance == TIM7) {
+			TIM7_GEN_SIGNAL_MspInit(htim_base);
+		}
 	}
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
 	/***************************** GEN PWM ***********************************/
 #ifdef USE_GEN_PWM
@@ -66,7 +60,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 		}
 	}
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
+
+	/***************************** GEN PATTERN ***********************************/
+#ifdef USE_GEN_PATTERN
+	if (generator.modeState == GENERATOR_PATTERN) {
+		TIM6_GEN_PATTERN_MspInit(htim_base);
+	}
+#endif //USE_GEN_PATTERN
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
 
 	/***************************** SYNC PWM ********************************/
 #ifdef USE_SYNC_PWM
@@ -113,14 +114,6 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 #endif //USE_COUNTER
 }
 
-/**
- * @}
- */
-
-/** @defgroup Common_GPIOs_DMAs_TIM_Deinits Common GPIOs & DMAs Deinitialization Function.
- * @{
- */
-
 /**             
  * @brief  This function deinitializes GPIOs and DMAs used by the functionalities.
  * @param  htim_base: pointer to timer's handler
@@ -128,26 +121,26 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
  */
 void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 
-/***************************** SCOPE **********************************/
+	/***************************** SCOPE **********************************/
 #ifdef USE_SCOPE
 	if (htim_base->Instance == TIM15) {
 		TIM15_SCOPE_MspDeinit(htim_base);
 	}
 #endif //USE_SCOPE
 
-/**************************** GEN DAC  *********************************/
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
-#ifdef USE_GEN
-	if (generator.modeState == GENERATOR_DAC) {
+	/**************************** GEN DAC  *********************************/
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
+#ifdef USE_GEN_SIGNAL
+	if (generator.modeState == GENERATOR_SIGNAL) {
 		if (htim_base->Instance == TIM6) {
-			TIM6_GEN_DAC_MspDeinit(htim_base);
+			TIM6_GEN_SIGNAL_MspDeinit(htim_base);
 		}else if (htim_base->Instance == TIM7) {
-			TIM7_GEN_DAC_MspDeinit(htim_base);
+			TIM7_GEN_SIGNAL_MspDeinit(htim_base);
 		}
 	}
-#endif //USE_GEN
+#endif //USE_GEN_SIGNAL
 
-/**************************** GEN PWM  *********************************/
+	/**************************** GEN PWM  *********************************/
 #ifdef USE_GEN_PWM
 	if (generator.modeState == GENERATOR_PWM) {
 		if (htim_base->Instance == TIM1) {
@@ -161,9 +154,16 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 		}
 	}
 #endif //USE_GEN_PWM
-#endif //USE_GEN || USE_GEN_PWM
 
-/**************************** SYNC PWM  *********************************/
+	/***************************** GEN PATTERN ***********************************/
+#ifdef USE_GEN_PATTERN
+	if (generator.modeState == GENERATOR_PATTERN) {
+		TIM6_GEN_PATTERN_MspDeinit(htim_base);
+	}
+#endif //USE_GEN_PATTERN
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
+
+	/**************************** SYNC PWM  *********************************/
 #ifdef USE_SYNC_PWM
 	if (htim_base->Instance == TIM1) {
 		TIM1_SYNC_PWM_MspDeinit(htim_base);
@@ -174,7 +174,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	}
 #endif //USE_SYNC_PWM
 
-/**************************** LOG ANLYS  *********************************/
+	/**************************** LOG ANLYS  *********************************/
 #ifdef USE_LOG_ANLYS
 	if (htim_base->Instance == TIM1) {
 		TIM1_LOG_ANLYS_MspDeinit(htim_base);
@@ -185,7 +185,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	}
 #endif //USE_LOG_ANLYS
 
-/***************************** COUNTER  *********************************/
+	/***************************** COUNTER  *********************************/
 #ifdef USE_COUNTER
 	if (htim_base->Instance == TIM2) {
 		TIM2_CNT_MspDeinit(htim_base);
@@ -194,14 +194,6 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	}
 #endif //USE_COUNTER
 }
-
-/**
- * @}
- */
-
-/** @defgroup Common_Timer_Functions Common Timer Functions.
- * @{
- */
 
 /**             
  * @brief  Common Timer reconfiguration function.
@@ -296,44 +288,44 @@ uint8_t TIM_Getconfig(uint32_t * arr, uint32_t *psc, uint32_t periphClock, uint3
  */
 double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, double reqFreq) {
 
-//	uint32_t arr, psc = 0;
-//	uint32_t clkDiv;
-//	double realFreq;
-//
-//	clkDiv = roundNumber((double)periphClock / reqFreq);
-//
-//	if(clkDiv <= 0xFFFF){
-//		arr = clkDiv;
-//		psc = 1;
-//	}else{
-//		for( ; psc==0; clkDiv--){
-//			for(uint32_t pscTmp = 0xFFFF; pscTmp > 1; pscTmp--){
-//				if((clkDiv % pscTmp) == 0){
-//					if((clkDiv / pscTmp) <= 0xFFFF){
-//						psc = pscTmp;
-//						break;
-//					}
-//				}
-//			}
-//			if(psc != 0){
-//				if(clkDiv / psc <= 0xFFFF){
-//					break;
-//				}
-//			}
-//		}
-//		arr = clkDiv / psc;
-//		if(arr < psc){
-//			uint32_t swapVar = arr;
-//			arr = psc;
-//			psc = swapVar;
-//		}
-//	}
-//
-//	realFreq = periphClock / (double)(arr * psc);
-//	htim_base->Instance->ARR = (arr - 1);
-//	htim_base->Instance->PSC = (psc - 1);
-//
-//	return realFreq;
+	//	uint32_t arr, psc = 0;
+	//	uint32_t clkDiv;
+	//	double realFreq;
+	//
+	//	clkDiv = roundNumber((double)periphClock / reqFreq);
+	//
+	//	if(clkDiv <= 0xFFFF){
+	//		arr = clkDiv;
+	//		psc = 1;
+	//	}else{
+	//		for( ; psc==0; clkDiv--){
+	//			for(uint32_t pscTmp = 0xFFFF; pscTmp > 1; pscTmp--){
+	//				if((clkDiv % pscTmp) == 0){
+	//					if((clkDiv / pscTmp) <= 0xFFFF){
+	//						psc = pscTmp;
+	//						break;
+	//					}
+	//				}
+	//			}
+	//			if(psc != 0){
+	//				if(clkDiv / psc <= 0xFFFF){
+	//					break;
+	//				}
+	//			}
+	//		}
+	//		arr = clkDiv / psc;
+	//		if(arr < psc){
+	//			uint32_t swapVar = arr;
+	//			arr = psc;
+	//			psc = swapVar;
+	//		}
+	//	}
+	//
+	//	realFreq = periphClock / (double)(arr * psc);
+	//	htim_base->Instance->ARR = (arr - 1);
+	//	htim_base->Instance->PSC = (psc - 1);
+	//
+	//	return realFreq;
 
 	int32_t clkDiv;
 	uint16_t prescaler = 0;
@@ -403,17 +395,8 @@ double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, d
  */
 uint32_t roundNumber(double num)
 {
-     uint32_t rounded = (uint32_t)(num + 0.5);
-     return rounded;
+	uint32_t rounded = (uint32_t)(num + 0.5);
+	return rounded;
 }
-
-
-/**
- * @}
- */
-
-/**
- * @}
- */
 
 /*********** END MY FRIEND ***********/

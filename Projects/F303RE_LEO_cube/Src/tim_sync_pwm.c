@@ -7,37 +7,17 @@
  *****************************************************************************
  */
 
+#ifdef USE_SYNC_PWM
+
 #include "math.h"
 #include "tim.h"
 #include "mcu_config.h"
 #include "sync_pwm.h"
 #include "stm32f3xx_ll_tim.h"
 
-#ifdef USE_SYNC_PWM
-
-/** @addtogroup Synch_PWM Synchronized PWM
- * @{
- */
-
-/** @defgroup Synch_PWM_Timers Synchronized PWM Timers
- * @{
- */
-
-/** @defgroup Synch_PWM_Timer_Variables Synchronized PWM Timer Variables
- * @{
- */
-
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
-
-/**
- * @}
- */
-
-/** @defgroup Synch_PWM_Timer_Init_Functions Synchronized PWM Timer Initialization Functions
- * @{
- */
 
 /**
  * @brief  TIM8 Configuration.
@@ -83,8 +63,6 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
 	HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig);
-
-	HAL_TIM_PWM_Init(&htim3);
 
 	sSlaveConfig.SlaveMode = TIM_SLAVEMODE_COMBINED_RESETTRIGGER;
 	sSlaveConfig.InputTrigger = TIM_TS_ITR0;
@@ -246,17 +224,9 @@ void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef *htim_base) {
 	HAL_NVIC_DisableIRQ(TIM8_UP_IRQn);
 }
 
-/**
- * @}
- */
-
 /* ************************************************************************************** */
 /* ---------------------------- SYNCHRONIZED PWM FUNCTIONS ------------------------------ */
 /* ************************************************************************************** */
-
-/** @defgroup Synchronized_PWM_TIM_Functions Synchronized PWM TIMers Functions.
- * @{
- */
 
 void TIM_SYNC_PWM_Init(void) {
 	MX_TIM1_SYNC_PWM_Init();
@@ -466,17 +436,5 @@ void TIM_SYNC_PWM_SetChannelState(uint8_t channel){
 		TIM_SYNC_PWM_StepMode_EnableInterruptOnSlowTimer(true);
 	}
 }
-
-/**
- * @}
- */
-
-/**
- * @}
- */
-
-/**
- * @}
- */
 
 #endif //USE_SYNC_PWM
