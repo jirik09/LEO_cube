@@ -17,6 +17,9 @@
 #include "math.h"
 #include "err_list.h"
 
+/* If RAM used keep MEMORY_SECTION blank */
+#define MEMORY_SECTION __attribute__((section(".ccmram")));
+
 #define IDN_STRING "Nucleo-F303RE" //max 30 chars
 #define SHIELD_STRING " + Shield LEO V0.1"
 #define SHIELD_STRING_2 " + Shield LEO V0.2"
@@ -25,11 +28,14 @@
 //#define MCU_UID (uint8_t)*((uint8_t *)0x1FFFF7AC)
 #define MCU_UID 0x1FFFF7AC
 
+#define VREF_INT (uint16_t)*((uint16_t *)0x1FFFF7BA)
+#define AVDD_DEFAULT 3300
+
 #define NUCLEO_CRYSTAL_ERROR_PPM  20
 #define NUCLEO_CRYSTAL_ERROR	 (20.0 / 1000000)
 
 // Communication constatnts ===================================================
-#define COMM_BUFFER_SIZE 1500
+#define COMM_BUFFER_SIZE 1200
 //#define COMM_TX_BUFFER_SIZE 256
 #define COMMS_BULK_SIZE 200
 //#define UART_SPEED 115200
@@ -58,30 +64,28 @@
 
 // Scope constatnts ===========================================================
 #define SCOPE_RESOURCES DMA1_R|ADC12_R|ADC34_R|TIM15_R
-#define MAX_SAMPLING_FREQ_12B 4000000 //smps
-#define MAX_SAMPLING_FREQ_8B 4800000 //smps
+#define MAX_SAMPLING_FREQ_12B 3600000 //smps
+#define MAX_SAMPLING_FREQ_8B 4000000 //smps
 #define MAX_INTERLEAVE_FREQ_12B 6000000 //smps
 #define MAX_INTERLEAVE_FREQ_8B 7200000 //smps
 #define MAX_ADC_CHANNELS 4
+#define MAX_INTERLEAVED_CHANNELS 1
 
 
 #define MAX_SCOPE_BUFF_SIZE 30000//40000 //in bytes
-#define SCOPE_BUFFER_MARGIN 100
+#define SCOPE_BUFFER_MARGIN 1000
 
 #define SCOPE_CH1_PIN_STR "A5__" //must be 4 chars
 #define SCOPE_CH2_PIN_STR "A4__" //must be 4 chars
 #define SCOPE_CH3_PIN_STR "A3__" //must be 4 chars
 #define SCOPE_CH4_PIN_STR "PB14" //must be 4 chars
 
-#define SCOPE_VREF 3300
-#define SCOPE_VREF_INT (uint16_t)*((uint16_t *)0x1FFFF7BA)
-
 #define RANGE_1_LOW 0
-#define RANGE_1_HI SCOPE_VREF //this range is used by default to send with data
-#define RANGE_2_LOW -SCOPE_VREF
-#define RANGE_2_HI SCOPE_VREF*2
+#define RANGE_1_HI AVDD_DEFAULT //this range is used by default to send with data
+#define RANGE_2_LOW -AVDD_DEFAULT
+#define RANGE_2_HI AVDD_DEFAULT*2
 #define RANGE_3_LOW 0
-#define RANGE_3_HI SCOPE_VREF*2
+#define RANGE_3_HI AVDD_DEFAULT*2
 #define RANGE_4_LOW 0
 #define RANGE_4_HI 0
 
@@ -102,15 +106,17 @@
 
 
 // Generator constatnts =======================================================
-#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
-#define MAX_GENERATING_FREQ 2000000 //smps
+#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
+#define DAC_RESOURCES DAC12_R
+#define MAX_GENERATING_FREQ  2000000 //smps
+#define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
-#define MAX_GENERATOR_BUFF_SIZE 8000//2000
+#define MAX_GENERATOR_BUFF_SIZE  10000//2000
 #define	DAC_DATA_DEPTH 12
 
-#define GEN_VREF 3300
-#define GEN_VDDA 3300
-#define GEN_VREF_INT 1210
+#define GEN_RANGE_LOW  0
+#define GEN_RANGE_HIGH  AVDD_DEFAULT
+
 
 #ifdef USE_SHIELD
 #define SHIELD_GEN_HIGH   5000 //without calibration 5000  4898-5
@@ -164,21 +170,38 @@
 
 // PWM generator constants =================================================
 #ifdef USE_GEN_PWM
+#define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define GEN_PWM_CH1_PIN							"D8__" // PA9
 #define GEN_PWM_CH2_PIN							"D5__" // PB4
 
 #define MAX_GEN_PWM_CHANNELS 	2
 
-#define GEN_PWM_CH1_TIM_PERIPH_CLOCK	  (uint32_t) 144000000
-#define GEN_PWM_CH2_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
+#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #endif //USE_GEN_PWM
+
+#ifdef USE_GEN_PATTERN
+#define GEN_PATTERN_RESOURCES DMA2_R|TIM6_R
+#define GEN_PATTERN_CLOCK_PIN	"PC2_"
+#define GEN_PATTERN_CH1_PIN		"PC3_"
+#define GEN_PATTERN_CH2_PIN		"PC4_"
+#define GEN_PATTERN_CH3_PIN		"PC5_"
+#define GEN_PATTERN_CH4_PIN		"PC6_"
+#define GEN_PATTERN_CH5_PIN		"PC7_"
+#define GEN_PATTERN_CH6_PIN		"PC8_"
+#define GEN_PATTERN_CH7_PIN		"PC9_"
+#endif //USE_GEN_PATTERN
 
 // Synchronized PWM generator constants ====================================
 #define SYNC_PWM_RESOURCES TIM1_R|TIM3_R|TIM8_R
 #ifdef USE_SYNC_PWM
-#define SYNC_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
-#define MAX_SYNC_PWM_FREQ						(uint32_t) 100000
-#define MAX_SYNC_PWM_CHANNELS				(uint32_t) 4
+#define MAX_SYNC_PWM_FREQ						(uint32_t) 36000000
+#define MAX_SYNC_PWM_CHANNELS					(uint32_t) 4
+#define SYNC_PWM_CHANNELS_DEPENDENCE			(uint32_t) 1  // enable 1, disable 0
+
+#define SYNC_PWM_DRIVE_DISAB_CHANx				(uint32_t) 0
+#define SYNC_PWM_DRIVE_DISAB_CHANy				(uint32_t) 1
+#define SYNC_PWM_FREQ_DISAB_CHANx				(uint32_t) 2
+#define SYNC_PWM_FREQ_DISAB_CHANy				(uint32_t) 3
 
 #define SYNC_PWM_CH1_PIN						"PC6_"
 #define SYNC_PWM_CH2_PIN						"PC7_"

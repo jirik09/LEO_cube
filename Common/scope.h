@@ -12,7 +12,7 @@
 #define SCOPE_H_
 
 // Constant definitions =======================================================
-#define AUTO_TRIG_WAIT_NORMAL 4
+#define AUTO_TRIG_WAIT_NORMAL 8
 #define AUTO_TRIG_WAIT_FAST 1
 #define NOISE_REDUCTION 16
 
@@ -66,7 +66,7 @@ typedef struct{
 	uint16_t pretrigger;						//65535 is 100%
 	uint8_t interleaved;          //number of ADC in interleave mode (fast mode)
 	uint8_t ADCmux;            // number of channels muxed by one ADC (multichannel) TODO
-	uint8_t AdvMode;
+	scopeMode AdvMode;
 	uint16_t adcRes;
 	uint16_t adcLevels;
 }scopeSettings;
@@ -93,8 +93,8 @@ extern uint8_t scopeBuffer[MAX_SCOPE_BUFF_SIZE+MAX_ADC_CHANNELS*SCOPE_BUFFER_MAR
 void ScopeTask(void const *argument);
 void ScopeTriggerTask(void const *argument);
 
-void scopeInit(void); 
-void scopeSetDefault(void); 
+void scopeInit(void);
+void scopeSetDefault(void);
 void updateTrigger(void);
 void scopeStartMeasure(void);
 void scopeSetSettings(scopeSettings *psSettings);

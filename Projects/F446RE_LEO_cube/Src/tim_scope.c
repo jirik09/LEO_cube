@@ -40,7 +40,7 @@ void MX_TIM8_Init(void)
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
 
-	htim_scope.Instance = TIM8;
+	htim_scope.Instance = TIM2;
 	htim_scope.Init.Prescaler = 0;
 	htim_scope.Init.CounterMode = TIM_COUNTERMODE_UP;
 	htim_scope.Init.Period = 0;
@@ -58,12 +58,12 @@ void MX_TIM8_Init(void)
 
 void TIM8_SCOPE_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	__HAL_RCC_TIM8_CLK_ENABLE();
+	__HAL_RCC_TIM2_CLK_ENABLE();
 }
 
 void TIM8_SCOPE_MspDeinit(TIM_HandleTypeDef* htim_base)
 {
-	__HAL_RCC_TIM8_CLK_DISABLE();
+	__HAL_RCC_TIM2_CLK_DISABLE();
 }
 
 /**
@@ -86,7 +86,7 @@ void TIMScopeDisable(){
 }
 
 uint8_t TIM_Reconfig_scope(uint32_t samplingFreq,uint32_t* realFreq){
-	uint32_t periphClock = HAL_RCC_GetHCLKFreq();		//HAL_RCC_GetHCLKFreq();
+	uint32_t periphClock = HAL_RCC_GetHCLKFreq()/2;		//HAL_RCC_GetHCLKFreq();
 	return TIM_Reconfig(&htim_scope,periphClock,samplingFreq,realFreq, true);
 }
 

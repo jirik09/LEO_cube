@@ -100,12 +100,15 @@ int main(void)
 	/* Reset of all peripherals, Initializes the Flash interface and the Systick. */
 	HAL_Init();
 
+	__disable_irq();
+
 	/* Configure the system clock */
 	SystemClock_Config();
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
 	MX_DMA_Init();
+	MeasureRealAVDD();
 
 	LED_On();
 #ifdef USE_SCOPE
@@ -118,11 +121,10 @@ int main(void)
 	adcSetDefaultInputs();
 #endif //USE_SCOPE
 
+	/*
 #ifdef USE_GEN
-	MX_DAC_Init();
-	MX_TIM6_Init();
-	MX_TIM7_Init();
-#endif //USE_GEN
+
+#endif //USE_GEN*/
 
 #ifdef USE_SHIELD
 	detectScopeShield();
@@ -150,9 +152,9 @@ int main(void)
 	osThreadDef(COUNTER_TASK, CounterTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
 #endif //USE_COUNTER
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
 	osThreadDef(GENERATOR_TASK, GeneratorTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 #ifdef USE_SYNC_PWM
 	osThreadDef(SYNC_PWM_TASK, SyncPwmTask, osPriorityNormal, 0, configMINIMAL_STACK_SIZE*2);
@@ -178,9 +180,9 @@ int main(void)
 	osThreadCreate (osThread(COUNTER_TASK), NULL);
 #endif //USE_COUNTER
 
-#if defined(USE_GEN) || defined(USE_GEN_PWM)
+#if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM)
 	osThreadCreate (osThread(GENERATOR_TASK), NULL);
-#endif //USE_GEN || USE_GEN_PWM
+#endif //USE_GEN_SIGNAL || USE_GEN_PWM
 
 #ifdef USE_SYNC_PWM
 	osThreadCreate (osThread(SYNC_PWM_TASK), NULL);

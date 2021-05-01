@@ -37,6 +37,7 @@ xQueueHandle scopeMessageQueue;
 uint8_t scopeBuffer[MAX_SCOPE_BUFF_SIZE+MAX_ADC_CHANNELS*SCOPE_BUFFER_MARGIN]; 
 uint8_t blindBuffer[MAX_ADC_CHANNELS];
 static uint32_t triggerIndex;
+static int16_t triggerShift;
 static uint16_t triggerLevel;
 static uint32_t samplesToStop=0;
 static uint32_t samplesToStart=0;
@@ -187,6 +188,7 @@ void ScopeTriggerTask(void const *argument) {
 					samplesTaken = 0;
 					scope.state = SCOPE_SAMPLING;
 					triggerIndex = actualIndex;
+					triggerShift = samplesPassed(writingIndex, lastWritingIndex);
 					passMsg = MSG_SCOPE_TRIGGER;
 					xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 				}else if((scope.settings.triggerMode == TRIG_AUTO && samplesTaken > (scope.settings.samplesToSend * AUTO_TRIG_WAIT_NORMAL))
@@ -205,29 +207,34 @@ void ScopeTriggerTask(void const *argument) {
 
 
 				//sampling is done
-				if(scope.state == SCOPE_SAMPLING && samplesTaken >= samplesToStop){
+				if(samplesTaken >= samplesToStop){
 					samplingDisable();
 
 					//finding exact trigger position because not every samples are chcecked 
 					if (autoTrigged==0){//scope.settings.triggerMode != TRIG_AUTO && scope.settings.triggerMode != TRIG_AUTO_FAST){
+						triggerShift += samplesTaken-samplesToStop + samplesPassed(writingIndex, lastWritingIndex) - (scope.oneChanSamples-scope.settings.samplesToSend);
 						if(scope.settings.adcRes>8){
 							if(scope.settings.triggerEdge == EDGE_RISING){
-								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel){
+								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}else{
-								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel){
+								while(*(scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}
 						}else{							
 							if(scope.settings.triggerEdge == EDGE_RISING){
-								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel){
+								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) > triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}else{
-								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel){
+								while(*((uint8_t *)scope.pChanMem[scope.triggerChannel-1]+triggerIndex) < triggerLevel && triggerShift < SCOPE_BUFFER_MARGIN){
 									triggerIndex--;
+									triggerShift++;
 								}
 							}
 						}
@@ -315,6 +322,7 @@ void scopeInit(void){
 
 	}else { //normal sampling
 		scope.settings.AdvMode = SCOPE_NORMAL_MODE;
+		scope.settings.interleaved=1;
 		TIM_Reconfig_scope(scope.settings.samplingFrequency,&realfreq);
 		ADC_set_sampling_time(realfreq);
 		scopeInitADCMode(scope.settings.AdvMode);
@@ -516,7 +524,7 @@ uint8_t scopeSetSamplingFreq(uint32_t freq){
 		scope.settings.AdvMode = SCOPE_NORMAL_MODE;
 		result=0;
 	}else{
-		if(scope.numOfChannles==1){
+		if(scope.numOfChannles<=MAX_INTERLEAVED_CHANNELS){
 			scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
 			scope.settings.AdvMode = SCOPE_INTERLEAVE_MODE;
 		}else{
@@ -581,21 +589,20 @@ uint8_t scopeSetNumOfSamples(uint32_t smp){
 uint8_t scopeSetNumOfChannels(uint8_t chan){
 	uint8_t result=BUFFER_SIZE_ERR;
 	uint8_t chanTmp=scope.numOfChannles;
-	xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
-
-	 //workaround to exit interleave mode when more channels needed
-	if(chan>1 && scope.settings.AdvMode!=SCOPE_NORMAL_MODE){
-		scope.settings.AdvMode=SCOPE_NORMAL_MODE;
-		scope.settings.samplingFrequency=getMaxScopeSamplingFreq(scope.settings.adcRes);
-	}
-	//workaround to enter interleave mode again when one channel selected
-	if(chan==1 && scope.settings.samplingFrequency==getMaxScopeSamplingFreq(scope.settings.adcRes)){
-		scope.settings.AdvMode=SCOPE_INTERLEAVE_MODE;
-		scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
-	}
-
 
 	if(chan<=MAX_ADC_CHANNELS){
+		xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
+		 //workaround to exit interleave mode when more channels needed
+		if(chan>1 && scope.settings.AdvMode!=SCOPE_NORMAL_MODE){
+			scope.settings.AdvMode=SCOPE_NORMAL_MODE;
+			scope.settings.samplingFrequency=getMaxScopeSamplingFreq(scope.settings.adcRes);
+		}
+		//workaround to enter interleave mode again when one channel selected
+		if(chan==1 && scope.settings.samplingFrequency==getMaxScopeSamplingFreq(scope.settings.adcRes)){
+			scope.settings.AdvMode=SCOPE_INTERLEAVE_MODE;
+			scope.settings.samplingFrequency=getMaxScopeSamplingFreqInterleaved(scope.settings.adcRes);
+		}
+
 		scope.numOfChannles=chan;
 		if(validateBuffUsage()){
 			scope.numOfChannles = chanTmp;
@@ -611,9 +618,16 @@ uint8_t scopeSetNumOfChannels(uint8_t chan){
 			}
 			result=0;
 		}
+
+		if(chan < scope.triggerChannel && result == 0){
+			scopeSetTrigChannel(1);
+			result = SCOPE_TRIGGER_FORCED_TO_CH1;
+		}
 		xSemaphoreGiveRecursive(scopeMutex);
 		uint16_t passMsg = MSG_INVALIDATE;
 		xQueueSendToBack(scopeMessageQueue, &passMsg, portMAX_DELAY);
+	}else{
+		result = SCOPE_TOO_MANY_CHANNELS;
 	}
 	return result;
 }
@@ -625,7 +639,7 @@ uint8_t scopeSetNumOfChannels(uint8_t chan){
  */
 uint8_t scopeSetTrigChannel(uint8_t chan){
 	uint8_t result=SCOPE_INVALID_TRIGGER_CHANNEL;
-	if(chan<=MAX_ADC_CHANNELS){
+	if(chan<=MAX_ADC_CHANNELS && chan <=scope.numOfChannles){
 		xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
 		scope.triggerChannel=chan;
 		result=0;
@@ -637,7 +651,7 @@ uint8_t scopeSetTrigChannel(uint8_t chan){
 }
 
 uint32_t scopeGetRealSmplFreq(){
-	return scope.settings.samplingFrequency;
+	return scope.settings.ADCSamplingFreq * scope.settings.interleaved;
 }
 
 

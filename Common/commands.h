@@ -12,10 +12,15 @@
 // Types definitions ==========================================================
 typedef uint32_t command;
 
+
+
 #define STR_SYSTEM "SYST"
 #define STR_SCOPE "OSCP"
 #define STR_COUNTER "CNT_"
-#define STR_GENERATOR "GEN_"
+#define STR_GEN_SIGNAL  "GENS"
+#define STR_GEN_PWM     "GENP"
+#define STR_GEN_PATTERN "GENT"
+#define STR_VOLTAGE_SOURCE "VOUT"
 #define STR_LOGIC_ANLYS "LAN_"
 #define STR_SYNC_PWM "SPWM"
 #define STR_DELIMITER 0xCAFEFADE
@@ -46,8 +51,8 @@ typedef uint32_t command;
 #endif //USE_GEN_PWM
 
 #ifdef USE_SYNC_PWM
-#define STR_SYNC_PWM_REAL_FREQ_CH12 "SP12"
-#define STR_SYNC_PWM_REAL_FREQ_CH34 "SP34"
+#define STR_SYNC_PWM_REAL_FREQ "SPRF"
+#define STR_SYNC_PWM_OPM_PERIOD_ELAPSED "SPPE"
 #endif // USE_SYNC_PWM
 
 #ifdef USE_COUNTER
@@ -107,7 +112,10 @@ typedef uint32_t command;
 #define CMD_IS_SHIELD 						SWAP_UINT32(0x53485f3f)			//	SH_?
 #define CMD_RESET_DEVICE 						SWAP_UINT32(0x52455321)			//	RES!
 #define CMD_SCOPE 						SWAP_UINT32(0x4f534350)			//	OSCP
-#define CMD_GENERATOR 						SWAP_UINT32(0x47454e5f)			//	GEN_
+#define CMD_GEN_SIGNAL 						SWAP_UINT32(0x47454e53)			//	GENS
+#define CMD_GEN_PWM 						SWAP_UINT32(0x47454e50)			//	GENP
+#define CMD_GEN_PATTERN 						SWAP_UINT32(0x47454e54)     //	GENT
+#define CMD_VOLATGE_SOURCE 						SWAP_UINT32(0x564f5554)			//	VOUT
 #define CMD_SYNC_PWM 						SWAP_UINT32(0x5350574d)			//	SPWM
 #define CMD_LOG_ANLYS 						SWAP_UINT32(0x4c4f4741)			//	LOGA
 #define CMD_COUNTER 						SWAP_UINT32(0x434e545f)			//	CNT_
@@ -179,7 +187,9 @@ typedef uint32_t command;
 /**************************** GEN ****************************/
 #define CMD_GEN_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
 #define CMD_MODE_PWM 						SWAP_UINT32(0x50574d5f)			//	PWM_
+#define CMD_MODE_VOLT 						SWAP_UINT32(0x564f4c54)			//	VOLT
 #define CMD_MODE_DAC 						SWAP_UINT32(0x4441435f)			//	DAC_
+#define CMD_MODE_PATTERN					SWAP_UINT32(0x50415454)			//	PATT
 #define CMD_GEN_DATA 						SWAP_UINT32(0x44415441)			//	DATA
 #define CMD_GEN_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
 #define CMD_GEN_OUTBUFF_ON 						SWAP_UINT32(0x425f4f4e)			//	B_ON
@@ -191,20 +201,21 @@ typedef uint32_t command;
 #define CMD_GEN_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
 #define CMD_GEN_RESET 						SWAP_UINT32(0x52534554)			//	RSET
 #define CMD_GET_PWM_CONFIG 						SWAP_UINT32(0x5043463f)			//	PCF?
-#define CMD_GEN_PWM_DEINIT 	 					SWAP_UINT32(0x47504449)			//	GPDI
+#define CMD_GET_PATTERN_CONFIG					SWAP_UINT32(0x5443463f)			// TCF?
+//#define CMD_GEN_PWM_DEINIT 	 					SWAP_UINT32(0x47504449)			//	GPDI
+#define CMD_GEN_DEINIT 						SWAP_UINT32(0x44494e49)			//	DINI
 //#define CMD_GEN_PWM_FREQ_PSC 						SWAP_UINT32(0x46505750)			//	FPWP
 //#define CMD_GEN_PWM_FREQ_ARR 						SWAP_UINT32(0x46505741)			//	FPWA
 #define CMD_GEN_PWM_FREQ_CH1 					SWAP_UINT32(0x47465231)				//	GFR1
 #define CMD_GEN_PWM_FREQ_CH2					SWAP_UINT32(0x47465232)				//	GFR2
-#define CMD_GEN_DAC_VAL 						SWAP_UINT32(0x4441435f)			//	DAC_
+#define CMD_DAC_VAL 						SWAP_UINT32(0x4441435f)			//	DAC_
 /**************************** SYNC PWM ****************************/
 #define CMD_SYNC_PWM_COMMAND 						SWAP_UINT32(0x53434f4d)			//	SCOM
 #define CMD_SYNC_PWM_INIT 						SWAP_UINT32(0x494e4954)			//	INIT
 #define CMD_SYNC_PWM_DEINIT 						SWAP_UINT32(0x44494e49)			//	DINI
 #define CMD_SYNC_PWM_START 						SWAP_UINT32(0x53545254)			//	STRT
 #define CMD_SYNC_PWM_STOP 						SWAP_UINT32(0x53544f50)			//	STOP
-#define CMD_SYNC_PWM_FREQ_CH12 						SWAP_UINT32(0x53503132)			//	SP12
-#define CMD_SYNC_PWM_FREQ_CH34 						SWAP_UINT32(0x53503334)			//	SP34
+#define CMD_SYNC_PWM_FREQ 						SWAP_UINT32(0x53504346)			//	SPCF
 #define CMD_SYNC_PWM_DUTYPHASE_CONFIG 						SWAP_UINT32(0x53504450)			//	SPDP
 #define CMD_SYNC_PWM_CHAN_STATE 						SWAP_UINT32(0x53535441)			//	SSTA
 #define CMD_SYNC_PWM_CHAN_INVERT 						SWAP_UINT32(0x53504349)			//	SPCI
@@ -326,7 +337,8 @@ typedef uint32_t command;
 //Generator modes (NORMAL - DAC BUILD_CMD(STRINGIFY( ABNORMAL - PWM)
 
 #define isGeneratorMode(CMD) (((CMD) == CMD_MODE_PWM) || \
-		((CMD) == CMD_MODE_DAC))
+		((CMD) == CMD_MODE_DAC)|| \
+		((CMD) == CMD_MODE_VOLT))
 
 //Sync PWM general commands
 

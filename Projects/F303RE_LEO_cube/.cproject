@@ -99,13 +99,15 @@
                                     									
                                     <listOptionValue builtIn="false" value="USE_COUNTER"/>
                                     									
-                                    <listOptionValue builtIn="false" value="USE_GEN"/>
+                                    <listOptionValue builtIn="false" value="USE_SYNC_PWM"/>
                                     									
                                     <listOptionValue builtIn="false" value="USE_LOG_ANLYS"/>
                                     									
+                                    <listOptionValue builtIn="false" value="USE_GEN_SIGNAL"/>
+                                    									
                                     <listOptionValue builtIn="false" value="USE_GEN_PWM"/>
                                     									
-                                    <listOptionValue builtIn="false" value="USE_SYNC_PWM"/>
+                                    <listOptionValue builtIn="false" value="USE_GEN_PATTERN"/>
                                     								
                                 </option>
                                 								

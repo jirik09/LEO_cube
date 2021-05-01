@@ -117,6 +117,16 @@ void DMA1_Channel6_IRQHandler(void)
   /* USER CODE END DMA1_Channel6_IRQn 1 */
 }
 
+#ifdef USE_SYNC_PWM
+void TIM3_IRQHandler(void){
+	HAL_TIM_IRQHandler(&htim3);
+}
+
+void TIM8_UP_IRQHandler(void){
+	HAL_TIM_IRQHandler(&htim8);
+}
+#endif //USE_SYNC_PWM
+
 #ifdef USE_COUNTER
 /**
 * @brief This function handles DMA1 channel2 global interrupt.
