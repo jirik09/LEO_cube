@@ -177,7 +177,6 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 
 void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM6_CLK_ENABLE();
-	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	hdma_tim6_up.Instance = DMA1_Channel3;
 	hdma_tim6_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
@@ -189,13 +188,13 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	hdma_tim6_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim6_up);
 
-	__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim6_up);
+	__HAL_DMA_REMAP_CHANNEL_ENABLE(HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3);
+	__HAL_TIM_ENABLE_DMA(&htim6, TIM_DMA_UPDATE);
 }
 
 void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM7_CLK_ENABLE();
-	__HAL_RCC_DMA1_CLK_ENABLE();
 
 	hdma_tim7_up.Instance = DMA1_Channel4;   // DMA2_Channel4
 	hdma_tim7_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
@@ -207,16 +206,19 @@ void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base){
 	hdma_tim7_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim7_up);
 
-	__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim7_up);
+	__HAL_DMA_REMAP_CHANNEL_ENABLE(HAL_REMAPDMA_TIM7_DAC1_CH2_DMA1_CH4);
+	__HAL_TIM_ENABLE_DMA(&htim7, TIM_DMA_UPDATE);
 }
 
 void TIM1_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM1_CLK_DISABLE();
+	HAL_GPIO_DeInit(GPIOA, GPIO_PIN_9);
 }
 
 void TIM3_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base){
 	__HAL_RCC_TIM3_CLK_DISABLE();
+	HAL_GPIO_DeInit(GPIOB, GPIO_PIN_4);
 }
 
 void TIM6_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base){
@@ -248,8 +250,6 @@ void TIM6_GEN_PATTERN_MspInit(TIM_HandleTypeDef* htim_base){
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(GEN_PATTERN_GPIO_Port, &GPIO_InitStruct);
-
-	__HAL_RCC_DMA2_CLK_ENABLE();
 
 	hdma_tim6_up.Instance = DMA2_Channel3;
 	hdma_tim6_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
