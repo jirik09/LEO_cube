@@ -492,13 +492,13 @@ void CommTask(void const *argument){
 #endif //USE_LOG_ANLYS
 #if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_NEXT:	/* Gen send next data block */
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_NEXT);
 			break;
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM
 #if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_OK:	/* Gen send OK status */
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_OK);
 			break;
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM

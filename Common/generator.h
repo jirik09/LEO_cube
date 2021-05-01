@@ -48,7 +48,7 @@ typedef struct{
 	double realPwmFreqCh2;
 	generatorState state;	
 	generatorModeState modeState;
-	char *genTypeMessage;
+	char *genModeMessage;
 	generatorDACMode DACMode;
 	uint8_t numOfChannles;
 	uint16_t *pChanMem[MAX_DAC_CHANNELS];					// buffer itself

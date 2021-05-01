@@ -93,7 +93,7 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_SIGNAL_MODE:  /* Set DAC mode */
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_SIGNAL;
-			generator.genTypeMessage = STR_GEN_SIGNAL;
+			generator.genModeMessage = STR_GEN_SIGNAL;
 			DAC_SetMode_SignalGenerator();
 			TIM_GenSignal_Init();
 			break;
@@ -105,13 +105,13 @@ void GeneratorTask(void const *argument){
 
 		case MSG_GEN_PWM_MODE:
 			generator.modeState = GENERATOR_PWM;
-			generator.genTypeMessage = STR_GEN_PWM;
+			generator.genModeMessage = STR_GEN_PWM;
 			TIM_GenPwm_Init();
 			break;
 
 		case MSG_GEN_PATTERN_MODE:
 			generator.modeState = GENERATOR_PATTERN;
-			generator.genTypeMessage = STR_GEN_PATTERN;
+			generator.genModeMessage = STR_GEN_PATTERN;
 			TIM_GenPattern_Init();
 			break;
 
