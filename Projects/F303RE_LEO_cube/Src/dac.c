@@ -123,6 +123,7 @@ void DAC_SetMode_SignalGenerator(void){
 void DAC_SetMode_VoltageSource(void){
 	hdac.Instance = DAC;
 	DAC_ChannelConfTypeDef sConfig;
+	HAL_DAC_Init(&hdac);
 
 	/**DAC channel OUT1 config */
 	sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
