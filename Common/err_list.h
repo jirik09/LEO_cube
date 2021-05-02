@@ -12,6 +12,13 @@
 // List of possible Errors ====================================================
 #define ERROR_PREFIX 'E'
 
+#define SYSTEM_INVALID_FEATURE 1
+#define COMMS_INVALID_FEATURE 2
+
+#define UNSUPORTED_FUNCTION_ERR_STR "E9" // Unsupported function
+
+#define RESOURCES_ERROR 16
+
 
 #define SCOPE_INVALID_FEATURE 50
 #define SCOPE_TOO_MANY_CHANNELS 51
@@ -42,11 +49,7 @@
 #define SYNC_PWM_INVALID_FEATURE 151
 #define LOG_ANLYS_INVALID_FEATURE 152
 
-#define SYSTEM_INVALID_FEATURE 1
-#define COMMS_INVALID_FEATURE 2
 
-#define UNSUPORTED_FUNCTION_ERR_STR "E9" // Unsupported function
-#define UNSUPORTED_FUNCTION_ERR 9
 #define UNKNOW_ERROR 255
 
 

@@ -21,6 +21,7 @@
 #include "counter.h"
 #include "sync_pwm.h"
 #include "logic_analyzer.h"
+#include "resources.h"
 #include "messages.h"
 
 
@@ -235,6 +236,7 @@ command parseCounterCmd(void)
 			}else if(cmdIn == CMD_MODE_TI){
 				counterSetMode(TI);
 			}
+			error = takeResources(COUNTER_RESOURCES);
 		}else{
 			cmdIn = CMD_ERR;
 			error = COUNTER_INVALID_FEATURE_PARAM;
@@ -436,9 +438,11 @@ command parseCounterCmd(void)
 		break;
 	case CMD_CNT_STOP:
 		counterSendStop();
+
 		break;
 	case CMD_CNT_DEINIT:
 		counterDeinit();
+		releaseResources(COUNTER_RESOURCES);
 		break;
 	case CMD_GET_CONFIG:
 		passMsg = MSG_CNT_CONFIG;
@@ -676,10 +680,12 @@ command parseScopeCmd(void){
 		break;
 
 	case CMD_SCOPE_START: //start sampling
+		error = takeResources(SCOPE_RESOURCES);
 		scopeStart();
 		break;
 
 	case CMD_SCOPE_STOP: //stop sampling
+		releaseResources(SCOPE_RESOURCES);
 		scopeStop();
 		break;
 
@@ -730,8 +736,10 @@ command parseSyncPwmCmd(void){
 		cmdIn = giveNextCmd();
 		if(isSyncPwm(cmdIn)){
 			if(cmdIn == CMD_SYNC_PWM_INIT){
+				error = takeResources(SYNC_PWM_RESOURCES);
 				syncPwmSendInit();
 			}else if(cmdIn == CMD_SYNC_PWM_DEINIT){
+				releaseResources(SYNC_PWM_RESOURCES);
 				syncPwmSendDeinit();
 			}else if(cmdIn == CMD_SYNC_PWM_START){
 				syncPwmSendStart();
@@ -968,6 +976,7 @@ command parseGeneratorSignalCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
+			error = takeResources(GEN_SIGNAL_RESOURCES);
 			genSetMode(GEN_SIGNAL);
 		}
 		break;
@@ -998,10 +1007,12 @@ command parseVoltageSourceCmd(void){
 		error = genSetDAC((uint16_t) (cmdIn), (uint16_t) (cmdIn >> 16));
 		break;
 	case CMD_GEN_START:
+		error = takeResources(DAC_RESOURCES);
 		genSetMode(GEN_VOLTSOURCE);
 		break;
 	case CMD_GEN_STOP:
 		genStopVoltSource();
+		releaseResources(DAC_RESOURCES);
 		break;
 	case CMD_END:
 		break;
@@ -1034,6 +1045,7 @@ command parseGeneratorPwmCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
+			error = takeResources(GEN_PWM_RESOURCES);
 			genSetMode(GEN_PWM);
 		}
 		break;
@@ -1137,6 +1149,7 @@ command parseGenCommonCmd(command cmdIn){
 		break;	
 
 	case CMD_GEN_DEINIT:
+		//resources should be released here but mode is not known so it is done in deinit function
 		generator_deinit();
 		break;
 

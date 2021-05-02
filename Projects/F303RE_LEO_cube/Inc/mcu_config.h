@@ -106,7 +106,7 @@
 
 
 // Generator constatnts =======================================================
-#define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
+#define GEN_SIGNAL_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
 #define DAC_RESOURCES DAC12_R
 #define MAX_GENERATING_FREQ  2000000 //smps
 #define GEN_TIM_PERIPH_CLOCK 72000000

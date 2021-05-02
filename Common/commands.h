@@ -30,6 +30,7 @@ typedef uint32_t command;
 #define STR_ACK "ACK_"
 #define STR_NACK "NACK"
 #define STR_ERR "ERR_"
+#define STR_DEBUG "DBG:"
 #define STR_UNKNOWN_MSG "XMSG"
 #define STR_DUMMY "DUMM"		// dummy string
 #define VAL_DUMMY 1

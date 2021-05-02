@@ -552,6 +552,14 @@ void commsInit(void){
 
 }
 
+void sendDebugMessage(char *chr){
+	xSemaphoreTakeRecursive(commsMutex, portMAX_DELAY);
+	commsSendString(STR_DEBUG);
+	commsSendString(chr);
+	commsSendUint32(STR_DELIMITER);
+	xSemaphoreGiveRecursive(commsMutex);
+}
+
 /**
  * @brief  Store incoming byte to buffer
  * @param  incoming byte
@@ -867,7 +875,7 @@ void sendScopeInputs(){
 void sendGenSignalConf(){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
-	commsSendUint32(GENERATOR_RESOURCES);
+	commsSendUint32(GEN_SIGNAL_RESOURCES);
 	commsSendUint32(MAX_GENERATING_FREQ);
 	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);

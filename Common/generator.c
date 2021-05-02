@@ -16,6 +16,7 @@
 #include "dac.h"
 #include "tim.h"
 #include "gpio.h"
+#include "resources.h"
 #include "messages.h"
 #include "commands.h"
 
@@ -154,13 +155,16 @@ void genSetMode(uint8_t mode)
 void generator_deinit(void){
 	switch(generator.modeState){
 	case GENERATOR_PWM:
+		releaseResources(GEN_PWM_RESOURCES);
 		TIM_GenPwm_Deinit();
 		break;
 	case GENERATOR_SIGNAL:
+		releaseResources(GEN_SIGNAL_RESOURCES);
 		TIM_GenSignal_Deinit();
 		DAC_Deinit();
 		break;
 	case GENERATOR_PATTERN:
+		releaseResources(GEN_PATTERN_RESOURCES);
 		TIM_GenPattern_Deinit();
 		break;
 	case NONE:

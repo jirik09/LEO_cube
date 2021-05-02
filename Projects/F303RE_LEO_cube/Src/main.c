@@ -46,6 +46,7 @@
 #include "cmd_parser.h"
 #include "comms.h"
 #include "mcu_config.h"
+#include "resources.h"
 #include "scope.h"
 #include "generator.h"
 #include "counter.h"
@@ -109,6 +110,7 @@ int main(void)
 	MX_GPIO_Init();
 	MX_DMA_Init();
 	MeasureRealAVDD();
+	initResources();
 
 	LED_On();
 #ifdef USE_SCOPE

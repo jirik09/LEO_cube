@@ -238,7 +238,6 @@ void ScopeTriggerTask(void const *argument) {
 								}
 							}
 						}
-						triggerIndex++;
 					}
 
 					scope.triggerIndex = triggerIndex;
