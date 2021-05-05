@@ -968,7 +968,9 @@ command parseGeneratorSignalCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
-			genSetMode(GEN_SIGNAL);
+			if(cmdIn == CMD_MODE_SIGNAL){
+				genSetMode(GEN_SIGNAL);
+			}
 		}
 		break;
 	default:
@@ -1034,7 +1036,9 @@ command parseGeneratorPwmCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
-			genSetMode(GEN_PWM);
+			if(cmdIn == CMD_MODE_PWM){
+				genSetMode(GEN_PWM);
+			}
 		}
 		break;
 	case CMD_GEN_PWM_FREQ_CH1:
@@ -1083,7 +1087,9 @@ command parseGeneratorPatternCmd(void){
 	case CMD_GEN_MODE:
 		cmdIn = giveNextCmd();
 		if(isGeneratorMode(cmdIn)){
-			genSetMode(GEN_PATTERN);
+			if(cmdIn == CMD_MODE_PATTERN){
+				genSetMode(GEN_PATTERN);
+			}
 		}
 		break;
 	default:

@@ -463,8 +463,6 @@ void TIM_GenPattern_Init(void){
 void TIM_GenPattern_Deinit(void){
 	__HAL_RCC_TIM6_FORCE_RESET();
 	__HAL_RCC_TIM6_RELEASE_RESET();
-	__HAL_RCC_TIM7_FORCE_RESET();
-	__HAL_RCC_TIM7_RELEASE_RESET();
 }
 
 void TIM_GenPattern_Start(void){
