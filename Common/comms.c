@@ -981,17 +981,19 @@ void sendGenPwmConf(void){
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_GEN_PATTERN
-void sendGenPatternConf(void){
+void sendGenPatternConf(void)
+{
 	commsSendString(STR_CONFIG);
-	commsSendString("GENT");
-	commsSendString(GEN_PATTERN_CLOCK_PIN);
-	commsSendString(GEN_PATTERN_CH1_PIN);
-	commsSendString(GEN_PATTERN_CH2_PIN);
-	commsSendString(GEN_PATTERN_CH3_PIN);
-	commsSendString(GEN_PATTERN_CH4_PIN);
-	commsSendString(GEN_PATTERN_CH5_PIN);
-	commsSendString(GEN_PATTERN_CH6_PIN);
-	commsSendString(GEN_PATTERN_CH7_PIN);
+	commsSendUint32(GEN_PATTERN_RESOURCES);
+
+	commsSendString(GEN_PATTERN_CH0_PIN_STR);
+	commsSendString(GEN_PATTERN_CH1_PIN_STR);
+	commsSendString(GEN_PATTERN_CH2_PIN_STR);
+	commsSendString(GEN_PATTERN_CH3_PIN_STR);
+	commsSendString(GEN_PATTERN_CH4_PIN_STR);
+	commsSendString(GEN_PATTERN_CH5_PIN_STR);
+	commsSendString(GEN_PATTERN_CH6_PIN_STR);
+	commsSendString(GEN_PATTERN_CH7_PIN_STR);
 }
 #endif //USE_GEN_PATTERN
 

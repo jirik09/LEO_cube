@@ -95,7 +95,7 @@ double TIM_GenPwm_FreqReconfig(double reqFreq, uint8_t chan);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_GEN_PATTERN
 
-#define GEN_PATTERN_CLOCK_Pin GPIO_PIN_2
+#define GEN_PATTERN_CH0_Pin GPIO_PIN_2
 #define GEN_PATTERN_CH1_Pin GPIO_PIN_3
 #define GEN_PATTERN_CH2_Pin GPIO_PIN_4
 #define GEN_PATTERN_CH3_Pin GPIO_PIN_5

@@ -181,14 +181,14 @@
 
 #ifdef USE_GEN_PATTERN
 #define GEN_PATTERN_RESOURCES DMA2_R|TIM6_R
-#define GEN_PATTERN_CLOCK_PIN	"PC2_"
-#define GEN_PATTERN_CH1_PIN		"PC3_"
-#define GEN_PATTERN_CH2_PIN		"PC4_"
-#define GEN_PATTERN_CH3_PIN		"PC5_"
-#define GEN_PATTERN_CH4_PIN		"PC6_"
-#define GEN_PATTERN_CH5_PIN		"PC7_"
-#define GEN_PATTERN_CH6_PIN		"PC8_"
-#define GEN_PATTERN_CH7_PIN		"PC9_"
+#define GEN_PATTERN_CH0_PIN_STR 	"PC2_"
+#define GEN_PATTERN_CH1_PIN_STR		"PC3_"
+#define GEN_PATTERN_CH2_PIN_STR 	"PC4_"
+#define GEN_PATTERN_CH3_PIN_STR		"PC5_"
+#define GEN_PATTERN_CH4_PIN_STR		"PC6_"
+#define GEN_PATTERN_CH5_PIN_STR		"PC7_"
+#define GEN_PATTERN_CH6_PIN_STR		"PC8_"
+#define GEN_PATTERN_CH7_PIN_STR		"PC9_"
 #endif //USE_GEN_PATTERN
 
 // Synchronized PWM generator constants ====================================
