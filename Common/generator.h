@@ -94,6 +94,8 @@ void genPatternInit(void);
 void genPatternGeneratingEnable(void);
 void genPatternGeneratingDisable(void);
 
+void genPatternPortDataShift(volatile uint16_t *mem, uint16_t dataLength);
+
 #endif /* GENERATOR_H_ */
 #endif // USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
 

@@ -985,6 +985,7 @@ void sendGenPatternConf(void)
 {
 	commsSendString(STR_CONFIG);
 	commsSendUint32(GEN_PATTERN_RESOURCES);
+	commsSendUint32(MAX_GENERATING_FREQ);
 
 	commsSendString(GEN_PATTERN_CH0_PIN_STR);
 	commsSendString(GEN_PATTERN_CH1_PIN_STR);

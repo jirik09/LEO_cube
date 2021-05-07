@@ -60,10 +60,13 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_START:
 			if(generator.state==GENERATOR_IDLE){
 				if(generator.modeState==GENERATOR_SIGNAL){
+					genSignalInit();
 					genSignalGeneratingEnable();
 				}else if(generator.modeState==GENERATOR_PWM){
+					genPwmInit();
 					genPwmGeneratingEnable();
 				}else if(generator.modeState==GENERATOR_PATTERN){
+					genPatternInit();
 					genPatternGeneratingEnable();
 				}
 				generator.state=GENERATOR_RUN;
@@ -91,7 +94,8 @@ void GeneratorTask(void const *argument){
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_SIGNAL;
 			generator.genModeMessage = STR_GEN_SIGNAL;
-			genSignalInit();
+			DAC_SetMode_SignalGenerator();
+			TIM_GenSignal_Init();
 			break;
 
 		case MSG_GEN_VOLTSOURCE_MODE:  /* Set Voltage source mode / actually special case of DAC mode */
@@ -102,13 +106,13 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_PWM_MODE:
 			generator.modeState = GENERATOR_PWM;
 			generator.genModeMessage = STR_GEN_PWM;
-			genPwmInit();
+			TIM_GenPwm_Init();
 			break;
 
 		case MSG_GEN_PATTERN_MODE:
 			generator.modeState = GENERATOR_PATTERN;
 			generator.genModeMessage = STR_GEN_PATTERN;
-			genPatternInit();
+			TIM_GenPattern_Init();
 			break;
 
 		case MSG_GEN_DEINIT:
@@ -184,9 +188,6 @@ void generatorSetDefault(void){
 #ifdef USE_GEN_SIGNAL
 
 void genSignalInit(void){
-	DAC_SetMode_SignalGenerator();
-	TIM_GenSignal_Init();
-
 	for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
 		TIM_DataTransfer_FreqReconfig(generator.generatingFrequency[i],i,0);
 		if(generator.numOfChannles>i){
@@ -214,8 +215,6 @@ void genSignalGeneratingDisable(void){
 #ifdef USE_GEN_PWM
 
 void genPwmInit(void){
-	TIM_GenPwm_Init();
-
 	for(uint8_t i = 0;i<MAX_DAC_CHANNELS;i++){
 		TIM_DataTransfer_FreqReconfig(generator.generatingFrequency[i],i,0);
 		if(generator.numOfChannles>i){
@@ -258,7 +257,6 @@ void genPwmGeneratingDisable(void){
 #ifdef USE_GEN_PATTERN
 
 void genPatternInit(void){
-	TIM_GenPattern_Init();
 	TIM_DataTransfer_FreqReconfig(generator.generatingFrequency[0], 0, 0);
 	TIM_GenPattern_DmaReconfig();
 }
@@ -271,6 +269,13 @@ void genPatternGeneratingDisable(void){
 	TIM_GenPattern_Stop();
 }
 
+void genPatternPortDataShift(volatile uint16_t *mem, uint16_t dataLength){
+	while(dataLength){
+		*mem++ << GEN_PATTERN_DATA_SHIFT;
+		dataLength--;
+	}
+}
+
 #endif //USE_GEN_PATTERN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -280,7 +285,12 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 	uint8_t result = GEN_INVALID_STATE;
 	if(generator.state==GENERATOR_IDLE ){
 		if ((index*2+length)/2<=generator.oneChanSamples[chan-1] && generator.numOfChannles>=chan){
-			if(commBufferReadNBytes((uint8_t *)generator.pChanMem[chan-1]+index*2,length)==length && commBufferReadByte(&result)==0 && result==';'){
+			_Bool isAllDataRead = (commBufferReadNBytes((uint8_t *)generator.pChanMem[chan-1]+index*2,length)==length);
+			_Bool isDataFrameWellEnded = ((commBufferReadByte(&result)==0) && (result==';'));
+			if(isAllDataRead && isDataFrameWellEnded){
+				if (generator.modeState == GENERATOR_PATTERN) {
+					genPatternPortDataShift(generator.pChanMem[chan-1]+index*2, length);
+				}
 				result = 0;
 				uint16_t passMsg = MSG_INVALIDATE;
 				xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);
