@@ -57,7 +57,6 @@ void DAC_OutputBuffer_Disable(void);
 
 void DAC_Disable(void);
 void DAC_Deinit(void);
-void DAC_DmaDeinit(void);
 void DAC_DmaReconfig(uint8_t chan, uint32_t *buff, uint32_t len);
 	 
 extern DMA_HandleTypeDef hdma_dac1_ch1;

@@ -235,6 +235,8 @@ void LOG_ANLYS_TriggerEventOccured(void)
  */
 void TIM_LogAnlys_Init(void)
 {
+	HAL_TIM_Base_DeInit(&htim4);
+	HAL_TIM_Base_DeInit(&htim1);
 	__HAL_RCC_TIM4_FORCE_RESET();
 	__HAL_RCC_TIM4_RELEASE_RESET();
 	__HAL_RCC_TIM1_FORCE_RESET();
