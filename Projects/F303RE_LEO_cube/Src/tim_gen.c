@@ -334,8 +334,8 @@ void TIM_GenSignal_Init(void){
  * @retval None
  */
 void TIM_GenSignal_Deinit(void){
-	//	HAL_TIM_Base_DeInit(&htim6);
-	//	HAL_TIM_Base_DeInit(&htim7);
+	HAL_TIM_Base_DeInit(&htim6);
+	HAL_TIM_Base_DeInit(&htim7);
 	__HAL_RCC_TIM6_FORCE_RESET();
 	__HAL_RCC_TIM6_RELEASE_RESET();
 	__HAL_RCC_TIM7_FORCE_RESET();
@@ -375,6 +375,10 @@ void TIM_GenPwm_Init(void){
 }
 
 void TIM_GenPwm_Deinit(void){
+	HAL_TIM_Base_DeInit(&htim6);
+	HAL_TIM_Base_DeInit(&htim7);
+	HAL_TIM_Base_DeInit(&htim1);
+	HAL_TIM_Base_DeInit(&htim3);
 	__HAL_RCC_TIM6_FORCE_RESET();
 	__HAL_RCC_TIM6_RELEASE_RESET();
 	__HAL_RCC_TIM7_FORCE_RESET();
