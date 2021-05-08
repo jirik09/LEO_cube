@@ -123,6 +123,7 @@ void DAC_SetMode_SignalGenerator(void){
 void DAC_SetMode_VoltageSource(void){
 	hdac.Instance = DAC;
 	DAC_ChannelConfTypeDef sConfig;
+	HAL_DAC_Init(&hdac);
 
 	/**DAC channel OUT1 config */
 	sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
@@ -177,12 +178,9 @@ void DAC_Disable(void){
 }
 
 void DAC_Deinit(void){
+	HAL_DAC_DeInit(&hdac);
 	__HAL_RCC_DAC1_FORCE_RESET();
 	__HAL_RCC_DAC1_RELEASE_RESET();
-}
-
-void DAC_DmaDeinit(void){
-	HAL_DAC_MspDeInit(&hdac);
 }
 
 void DAC_DmaReconfig(uint8_t chan, uint32_t *buff, uint32_t len){
