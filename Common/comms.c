@@ -250,12 +250,12 @@ void CommTask(void const *argument){
 			//send generating frequency
 #ifdef USE_GEN_SIGNAL
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1);
 			commsSendUint32(genGetRealSmplFreq(1));
 			break;
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2);
 			commsSendUint32(genGetRealSmplFreq(2));
 			break;
@@ -263,12 +263,12 @@ void CommTask(void const *argument){
 
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
 			commsSendUint32(generator.realPwmFreqCh1);
 			break;
 		case MSG_GEN_PWM_REAL_FREQ_CH2:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
 			commsSendUint32(generator.realPwmFreqCh2);
 			break;
