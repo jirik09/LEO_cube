@@ -269,9 +269,9 @@ void genPatternGeneratingDisable(void){
 	TIM_GenPattern_Stop();
 }
 
-void genPatternPortDataShift(volatile uint16_t *mem, uint16_t dataLength){
+void genPatternPortDataShift(uint16_t *mem, uint16_t dataLength){
 	while(dataLength){
-		*mem++ << GEN_PATTERN_DATA_SHIFT;
+		*mem++ <<= GEN_PATTERN_DATA_SHIFT;
 		dataLength--;
 	}
 }

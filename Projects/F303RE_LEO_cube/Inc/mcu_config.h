@@ -179,6 +179,7 @@
 #define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
 #endif //USE_GEN_PWM
 
+// PATTERN generator constants =================================================
 #ifdef USE_GEN_PATTERN
 #define GEN_PATTERN_RESOURCES DMA2_R|TIM6_R
 #define GEN_PATTERN_DATA_SHIFT		2
