@@ -44,6 +44,7 @@ typedef struct{
 	uint16_t *bufferMemory;		
 	uint32_t generatingFrequency[MAX_DAC_CHANNELS];
 	uint32_t realGenFrequency[MAX_DAC_CHANNELS];
+	uint32_t maxSampleFrequency;
 	double realPwmFreqCh1;
 	double realPwmFreqCh2;
 	generatorState state;	

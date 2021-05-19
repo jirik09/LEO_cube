@@ -72,7 +72,7 @@
 #define MAX_INTERLEAVED_CHANNELS 1
 
 
-#define MAX_SCOPE_BUFF_SIZE 30000//40000 //in bytes
+#define MAX_SCOPE_BUFF_SIZE 40000//40000 //in bytes
 #define SCOPE_BUFFER_MARGIN 1000
 
 #define SCOPE_CH1_PIN_STR "A5__" //must be 4 chars
@@ -108,7 +108,7 @@
 // Generator constatnts =======================================================
 #define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
 #define DAC_RESOURCES DAC12_R
-#define MAX_GENERATING_FREQ  2000000 //smps
+#define MAX_DAC_GENERATING_FREQ  2000000 //smps
 #define GEN_TIM_PERIPH_CLOCK 72000000
 #define MAX_DAC_CHANNELS 2
 #define MAX_GENERATOR_BUFF_SIZE  10000//2000
@@ -173,6 +173,8 @@
 #define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM1_R|TIM3_R
 #define GEN_PWM_CH1_PIN							"D8__" // PA9
 #define GEN_PWM_CH2_PIN							"D5__" // PB4
+
+#define MAX_PWM_GENERATING_FREQ  4800000 //smps
 
 #define MAX_GEN_PWM_CHANNELS 	2
 
