@@ -868,7 +868,7 @@ void sendGenSignalConf(){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
 	commsSendUint32(GENERATOR_RESOURCES);
-	commsSendUint32(MAX_GENERATING_FREQ);
+	commsSendUint32(MAX_DAC_GENERATING_FREQ);
 	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
 	commsSendUint32(DAC_DATA_DEPTH);
@@ -949,7 +949,7 @@ void sendGenPwmConf(void){
 	commsSendUint32(DAC_DATA_DEPTH);
 	commsSendUint32(GEN_PWM_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GEN_PWM_CHANNELS);
-	commsSendUint32(MAX_GENERATING_FREQ);
+	commsSendUint32(MAX_PWM_GENERATING_FREQ);
 	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
 	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
 

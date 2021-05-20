@@ -94,6 +94,7 @@ void GeneratorTask(void const *argument){
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_SIGNAL;
 			generator.genModeMessage = STR_GEN_SIGNAL;
+			generator.maxSampleFrequency = MAX_DAC_GENERATING_FREQ;
 			DAC_SetMode_SignalGenerator();
 			TIM_GenSignal_Init();
 			break;
@@ -106,12 +107,14 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_PWM_MODE:
 			generator.modeState = GENERATOR_PWM;
 			generator.genModeMessage = STR_GEN_PWM;
+			generator.maxSampleFrequency = MAX_PWM_GENERATING_FREQ;
 			TIM_GenPwm_Init();
 			break;
 
 		case MSG_GEN_PATTERN_MODE:
 			generator.modeState = GENERATOR_PATTERN;
 			generator.genModeMessage = STR_GEN_PATTERN;
+			generator.maxSampleFrequency = MAX_PWM_GENERATING_FREQ;
 			TIM_GenPattern_Init();
 			break;
 
@@ -313,7 +316,7 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 uint8_t genSetFrequency(uint32_t freq,uint8_t chan){
 	uint8_t result = GEN_TO_HIGH_FREQ;
 	uint32_t realFreq;
-	if(freq<=MAX_GENERATING_FREQ){
+	if(freq<=generator.maxSampleFrequency){
 		if(chan == 100){
 			result = TIM_DataTransfer_FreqReconfigAll(freq,&realFreq);
 			for(uint8_t i=0;i<MAX_DAC_CHANNELS;i++){
