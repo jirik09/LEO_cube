@@ -292,7 +292,7 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 			_Bool isDataFrameWellEnded = ((commBufferReadByte(&result)==0) && (result==';'));
 			if(isAllDataRead && isDataFrameWellEnded){
 				if (generator.modeState == GENERATOR_PATTERN) {
-					genPatternPortDataShift(generator.pChanMem[chan-1]+index*2, length);
+					genPatternPortDataShift(generator.pChanMem[chan-1]+index, length);
 				}
 				result = 0;
 				uint16_t passMsg = MSG_INVALIDATE;
