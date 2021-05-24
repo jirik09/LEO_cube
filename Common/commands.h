@@ -188,7 +188,7 @@ typedef uint32_t command;
 #define CMD_GEN_MODE 						SWAP_UINT32(0x4d4f4445)			//	MODE
 #define CMD_MODE_PWM 						SWAP_UINT32(0x50574d5f)			//	PWM_
 #define CMD_MODE_VOLT 						SWAP_UINT32(0x564f4c54)			//	VOLT
-#define CMD_MODE_DAC 						SWAP_UINT32(0x4441435f)			//	DAC_
+#define CMD_MODE_SIGNAL 						SWAP_UINT32(0x4441435f)		//	DAC_
 #define CMD_MODE_PATTERN					SWAP_UINT32(0x50415454)			//	PATT
 #define CMD_GEN_DATA 						SWAP_UINT32(0x44415441)			//	DATA
 #define CMD_GEN_SAMPLING_FREQ 						SWAP_UINT32(0x46524551)			//	FREQ
@@ -337,8 +337,9 @@ typedef uint32_t command;
 //Generator modes (NORMAL - DAC BUILD_CMD(STRINGIFY( ABNORMAL - PWM)
 
 #define isGeneratorMode(CMD) (((CMD) == CMD_MODE_PWM) || \
-		((CMD) == CMD_MODE_DAC)|| \
-		((CMD) == CMD_MODE_VOLT))
+		((CMD) == CMD_MODE_SIGNAL)|| \
+		((CMD) == CMD_MODE_VOLT)|| \
+		((CMD) == CMD_MODE_PATTERN))
 
 //Sync PWM general commands
 

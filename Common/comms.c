@@ -250,12 +250,12 @@ void CommTask(void const *argument){
 			//send generating frequency
 #ifdef USE_GEN_SIGNAL
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH1);
 			commsSendUint32(genGetRealSmplFreq(1));
 			break;
 		case MSG_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_SIGNAL_REAL_SAMPLING_FREQ_CH2);
 			commsSendUint32(genGetRealSmplFreq(2));
 			break;
@@ -263,12 +263,12 @@ void CommTask(void const *argument){
 
 #ifdef USE_GEN_PWM
 		case MSG_GEN_PWM_REAL_FREQ_CH1:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH1);
 			commsSendUint32(generator.realPwmFreqCh1);
 			break;
 		case MSG_GEN_PWM_REAL_FREQ_CH2:
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_PWM_REAL_FREQ_CH2);
 			commsSendUint32(generator.realPwmFreqCh2);
 			break;
@@ -492,13 +492,13 @@ void CommTask(void const *argument){
 #endif //USE_LOG_ANLYS
 #if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_NEXT:	/* Gen send next data block */
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_NEXT);
 			break;
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM
 #if defined(USE_GEN_SIGNAL) || defined(USE_GEN_PWM) || defined(USE_GEN_PATTERN)
 		case MSG_GEN_OK:	/* Gen send OK status */
-			commsSendString(generator.genTypeMessage);
+			commsSendString(generator.genModeMessage);
 			commsSendString(STR_GEN_OK);
 			break;
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM
@@ -981,17 +981,20 @@ void sendGenPwmConf(void){
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef USE_GEN_PATTERN
-void sendGenPatternConf(void){
+void sendGenPatternConf(void)
+{
 	commsSendString(STR_CONFIG);
-	commsSendString("GENT");
-	commsSendString(GEN_PATTERN_CLOCK_PIN);
-	commsSendString(GEN_PATTERN_CH1_PIN);
-	commsSendString(GEN_PATTERN_CH2_PIN);
-	commsSendString(GEN_PATTERN_CH3_PIN);
-	commsSendString(GEN_PATTERN_CH4_PIN);
-	commsSendString(GEN_PATTERN_CH5_PIN);
-	commsSendString(GEN_PATTERN_CH6_PIN);
-	commsSendString(GEN_PATTERN_CH7_PIN);
+	commsSendUint32(GEN_PATTERN_RESOURCES);
+	commsSendUint32(MAX_PWM_GENERATING_FREQ);
+
+	commsSendString(GEN_PATTERN_CH0_PIN_STR);
+	commsSendString(GEN_PATTERN_CH1_PIN_STR);
+	commsSendString(GEN_PATTERN_CH2_PIN_STR);
+	commsSendString(GEN_PATTERN_CH3_PIN_STR);
+	commsSendString(GEN_PATTERN_CH4_PIN_STR);
+	commsSendString(GEN_PATTERN_CH5_PIN_STR);
+	commsSendString(GEN_PATTERN_CH6_PIN_STR);
+	commsSendString(GEN_PATTERN_CH7_PIN_STR);
 }
 #endif //USE_GEN_PATTERN
 

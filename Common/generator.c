@@ -93,7 +93,7 @@ void GeneratorTask(void const *argument){
 		case MSG_GEN_SIGNAL_MODE:  /* Set DAC mode */
 			generator.DACMode = DAC_GEN_MODE;
 			generator.modeState = GENERATOR_SIGNAL;
-			generator.genTypeMessage = STR_GEN_SIGNAL;
+			generator.genModeMessage = STR_GEN_SIGNAL;
 			generator.maxSampleFrequency = MAX_DAC_GENERATING_FREQ;
 			DAC_SetMode_SignalGenerator();
 			TIM_GenSignal_Init();
@@ -106,14 +106,14 @@ void GeneratorTask(void const *argument){
 
 		case MSG_GEN_PWM_MODE:
 			generator.modeState = GENERATOR_PWM;
-			generator.genTypeMessage = STR_GEN_PWM;
+			generator.genModeMessage = STR_GEN_PWM;
 			generator.maxSampleFrequency = MAX_PWM_GENERATING_FREQ;
 			TIM_GenPwm_Init();
 			break;
 
 		case MSG_GEN_PATTERN_MODE:
 			generator.modeState = GENERATOR_PATTERN;
-			generator.genTypeMessage = STR_GEN_PATTERN;
+			generator.genModeMessage = STR_GEN_PATTERN;
 			generator.maxSampleFrequency = MAX_PWM_GENERATING_FREQ;
 			TIM_GenPattern_Init();
 			break;
@@ -272,6 +272,13 @@ void genPatternGeneratingDisable(void){
 	TIM_GenPattern_Stop();
 }
 
+void genPatternPortDataShift(uint16_t *mem, uint16_t dataLength){
+	while(dataLength){
+		*mem++ <<= GEN_PATTERN_DATA_SHIFT;
+		dataLength--;
+	}
+}
+
 #endif //USE_GEN_PATTERN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -281,7 +288,12 @@ uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){
 	uint8_t result = GEN_INVALID_STATE;
 	if(generator.state==GENERATOR_IDLE ){
 		if ((index*2+length)/2<=generator.oneChanSamples[chan-1] && generator.numOfChannles>=chan){
-			if(commBufferReadNBytes((uint8_t *)generator.pChanMem[chan-1]+index*2,length)==length && commBufferReadByte(&result)==0 && result==';'){
+			_Bool isAllDataRead = (commBufferReadNBytes((uint8_t *)generator.pChanMem[chan-1]+index*2,length)==length);
+			_Bool isDataFrameWellEnded = ((commBufferReadByte(&result)==0) && (result==';'));
+			if(isAllDataRead && isDataFrameWellEnded){
+				if (generator.modeState == GENERATOR_PATTERN) {
+					genPatternPortDataShift(generator.pChanMem[chan-1]+index, length);
+				}
 				result = 0;
 				uint16_t passMsg = MSG_INVALIDATE;
 				xQueueSendToBack(generatorMessageQueue, &passMsg, portMAX_DELAY);

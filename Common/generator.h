@@ -49,7 +49,7 @@ typedef struct{
 	double realPwmFreqCh2;
 	generatorState state;	
 	generatorModeState modeState;
-	char *genTypeMessage;
+	char *genModeMessage;
 	generatorDACMode DACMode;
 	uint8_t numOfChannles;
 	uint16_t *pChanMem[MAX_DAC_CHANNELS];					// buffer itself
@@ -94,6 +94,8 @@ double genPwmGetRealFreq(void);
 void genPatternInit(void);
 void genPatternGeneratingEnable(void);
 void genPatternGeneratingDisable(void);
+
+void genPatternPortDataShift(uint16_t *mem, uint16_t dataLength);
 
 #endif /* GENERATOR_H_ */
 #endif // USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN

@@ -95,7 +95,7 @@ double TIM_GenPwm_FreqReconfig(double reqFreq, uint8_t chan);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_GEN_PATTERN
 
-#define GEN_PATTERN_CLOCK_Pin GPIO_PIN_2
+#define GEN_PATTERN_CH0_Pin GPIO_PIN_2
 #define GEN_PATTERN_CH1_Pin GPIO_PIN_3
 #define GEN_PATTERN_CH2_Pin GPIO_PIN_4
 #define GEN_PATTERN_CH3_Pin GPIO_PIN_5
@@ -104,8 +104,8 @@ double TIM_GenPwm_FreqReconfig(double reqFreq, uint8_t chan);
 #define GEN_PATTERN_CH6_Pin GPIO_PIN_8
 #define GEN_PATTERN_CH7_Pin GPIO_PIN_9
 #define GEN_PATTERN_GPIO_Port GPIOC
-#define __GEN_PATTERN_CLOCK_ENABLE() __HAL_RCC_GPIOC_CLK_ENABLE()
-#define __GEN_PATTERN_CLOCK_DISABLE() __HAL_RCC_GPIOC_CLK_DISABLE()
+//#define __GEN_PATTERN_CLOCK_ENABLE() __HAL_RCC_GPIOC_CLK_ENABLE()
+//#define __GEN_PATTERN_CLOCK_DISABLE() __HAL_RCC_GPIOC_CLK_DISABLE()
 
 void TIM6_GEN_PATTERN_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM6_GEN_PATTERN_MspDeinit(TIM_HandleTypeDef* htim_base);

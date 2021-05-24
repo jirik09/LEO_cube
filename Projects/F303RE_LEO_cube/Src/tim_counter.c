@@ -539,8 +539,6 @@ void TIM_ETR_Start(void)
 	HAL_TIM_Base_Start(&htim4);
 
 	LL_TIM_GenerateEvent_UPDATE(htim4.Instance);
-
-	counter.sampleCntChange = SAMPLE_COUNT_CHANGED;
 }
 
 /**

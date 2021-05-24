@@ -239,19 +239,20 @@ void TIM7_GEN_PWM_MspDeinit(TIM_HandleTypeDef* htim_base){
 void TIM6_GEN_PATTERN_MspInit(TIM_HandleTypeDef* htim_base){
 	GPIO_InitTypeDef GPIO_InitStruct = {0};
 
-	__GEN_PATTERN_CLOCK_ENABLE();
+	__HAL_RCC_TIM6_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 
-	HAL_GPIO_WritePin(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CLOCK_Pin|GEN_PATTERN_CH1_Pin|GEN_PATTERN_CH2_Pin|GEN_PATTERN_CH3_Pin
+	HAL_GPIO_WritePin(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH0_Pin|GEN_PATTERN_CH1_Pin|GEN_PATTERN_CH2_Pin|GEN_PATTERN_CH3_Pin
 			|GEN_PATTERN_CH4_Pin|GEN_PATTERN_CH5_Pin|GEN_PATTERN_CH6_Pin|GEN_PATTERN_CH7_Pin, GPIO_PIN_RESET);
 
-	GPIO_InitStruct.Pin = GEN_PATTERN_CLOCK_Pin|GEN_PATTERN_CH1_Pin|GEN_PATTERN_CH2_Pin|GEN_PATTERN_CH3_Pin
+	GPIO_InitStruct.Pin = GEN_PATTERN_CH0_Pin|GEN_PATTERN_CH1_Pin|GEN_PATTERN_CH2_Pin|GEN_PATTERN_CH3_Pin
 			|GEN_PATTERN_CH4_Pin|GEN_PATTERN_CH5_Pin|GEN_PATTERN_CH6_Pin|GEN_PATTERN_CH7_Pin;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
 	HAL_GPIO_Init(GEN_PATTERN_GPIO_Port, &GPIO_InitStruct);
 
-	hdma_tim6_up.Instance = DMA2_Channel3;
+	hdma_tim6_up.Instance = DMA1_Channel3;
 	hdma_tim6_up.Init.Direction = DMA_MEMORY_TO_PERIPH;
 	hdma_tim6_up.Init.PeriphInc = DMA_PINC_DISABLE;
 	hdma_tim6_up.Init.MemInc = DMA_MINC_ENABLE;
@@ -262,11 +263,20 @@ void TIM6_GEN_PATTERN_MspInit(TIM_HandleTypeDef* htim_base){
 	HAL_DMA_Init(&hdma_tim6_up);
 
     __HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim6_up);
+    __HAL_DMA_REMAP_CHANNEL_ENABLE(HAL_REMAPDMA_TIM6_DAC1_CH1_DMA1_CH3);
     __HAL_TIM_ENABLE_DMA(htim_base, TIM_DMA_UPDATE);
 }
 
 void TIM6_GEN_PATTERN_MspDeinit(TIM_HandleTypeDef* htim_base){
-	__GEN_PATTERN_CLOCK_DISABLE();
+	__HAL_RCC_TIM6_CLK_DISABLE();
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH0_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH1_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH2_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH3_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH4_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH5_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH6_Pin);
+	HAL_GPIO_DeInit(GEN_PATTERN_GPIO_Port, GEN_PATTERN_CH7_Pin);
 	HAL_DMA_DeInit(htim_base->hdma[TIM_DMA_ID_UPDATE]);
 }
 
@@ -465,18 +475,19 @@ void TIM_GenPattern_Init(void){
 }
 
 void TIM_GenPattern_Deinit(void){
+	HAL_TIM_Base_DeInit(&htim6);
 	__HAL_RCC_TIM6_FORCE_RESET();
 	__HAL_RCC_TIM6_RELEASE_RESET();
-	__HAL_RCC_TIM7_FORCE_RESET();
-	__HAL_RCC_TIM7_RELEASE_RESET();
 }
 
 void TIM_GenPattern_Start(void){
-	__HAL_TIM_ENABLE(&htim6);
+	HAL_TIM_Base_Start(&htim6);
+	//__HAL_TIM_ENABLE(&htim6);
 }
 
 void TIM_GenPattern_Stop(void){
-	__HAL_TIM_DISABLE(&htim6);
+	HAL_TIM_Base_Stop(&htim6);
+	//__HAL_TIM_DISABLE(&htim6);
 }
 
 void TIM_GenPattern_DmaReconfig(void){
