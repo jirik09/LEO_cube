@@ -114,8 +114,8 @@ void ScopeTask(void const *argument){
 			scopeInit();
 			scope.state=SCOPE_SAMPLING_WAITING;
 			samplingEnable();
-			uint16_t passMsg = MSG_SCOPE_SMPL_STARTED;
-			xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
+		//	uint16_t passMsg = MSG_SCOPE_SMPL_STARTED;
+		//	xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		}else if (message == MSG_SCOPE_STOP){//Disable sampling
 			samplingDisable();
 			scope.state = SCOPE_IDLE;
@@ -486,7 +486,7 @@ void scopeSetTriggerEdge(scopeTriggerEdge edge){
  */
 uint8_t scopeSetDataDepth(uint16_t res){
 	uint8_t result=BUFFER_SIZE_ERR;
-	uint8_t resTmp=res;
+	uint8_t resTmp=scope.settings.adcRes;
 	xSemaphoreTakeRecursive(scopeMutex, portMAX_DELAY);
 	scope.settings.adcRes = res;
 	if(validateBuffUsage()){
@@ -500,7 +500,7 @@ uint8_t scopeSetDataDepth(uint16_t res){
 		}
 		adcSetResolution(res);
 		scopeInitADCMode(scope.settings.AdvMode);
-		result=0;
+		result = scopeSetSamplingFreq(scope.settings.samplingFrequency);
 	}
 	xSemaphoreGiveRecursive(scopeMutex);
 	uint16_t passMsg = MSG_INVALIDATE;
