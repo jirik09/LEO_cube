@@ -37,7 +37,6 @@ uint32_t timCcerRegCc1eVal = 0x01;
 uint32_t timCcerRegCc2eVal = 0x10;
 
 TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim4;
 DMA_HandleTypeDef hdma_tim2_up;
 DMA_HandleTypeDef hdma_tim2_ch1;
 DMA_HandleTypeDef hdma_tim2_ch2_ch4;

@@ -32,6 +32,11 @@
  * @{
  */
 xQueueHandle cmdParserMessageQueue;
+uint8_t mail[27] = {0};
+uint8_t time_now[19] = {0};
+uint8_t time_token[19] = {0};
+uint8_t token[128];
+uint8_t validated = 0;
 
 /**
  * @}
@@ -41,6 +46,7 @@ xQueueHandle cmdParserMessageQueue;
  * @{
  */
 command parseSystemCmd(void);
+command parseTokenCmd(void);
 command parseCommsCmd(void);
 command parseScopeCmd(void);
 command parseSyncPwmCmd(void);
@@ -111,8 +117,14 @@ void CmdParserTask(void const *argument){
 					tempCmd = parseSystemCmd();
 					printErrResponse(tempCmd);
 					break;
+				case CMD_TOKEN:
+					tempCmd = parseTokenCmd();
+					printErrResponse(tempCmd);
+					break;
+
 #ifdef USE_SCOPE
 				case CMD_SCOPE: //parse scope command
+					if(!validated){break;}
 					tempCmd = parseScopeCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -120,10 +132,12 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_SIGNAL
 				case CMD_GEN_SIGNAL: //parse generator command
+					if(!validated){break;}
 					tempCmd = parseGeneratorSignalCmd();
 					printErrResponse(tempCmd);
 					break;
 				case CMD_VOLATGE_SOURCE: //parse voltagesource command
+					if(!validated){break;}
 					tempCmd = parseVoltageSourceCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -131,6 +145,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_PWM
 				case CMD_GEN_PWM: //parse generator command
+					if(!validated){break;}
 					tempCmd = parseGeneratorPwmCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -138,6 +153,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_PATTERN
 				case CMD_GEN_PATTERN: //parse generator command
+					if(!validated){break;}
 					tempCmd = parseGeneratorPatternCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -145,6 +161,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_COUNTER
 				case CMD_COUNTER: //parse generator command
+					if(!validated){break;}
 					tempCmd = parseCounterCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -152,6 +169,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_SYNC_PWM
 				case CMD_SYNC_PWM: //parse sync PWM command
+					if(!validated){break;}
 					tempCmd = parseSyncPwmCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -159,6 +177,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_LOG_ANLYS
 				case CMD_LOG_ANLYS: //parse logic analyzer command
+					if(!validated){break;}
 					tempCmd = parseLogAnlysCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -167,7 +186,8 @@ void CmdParserTask(void const *argument){
 				default:
 					xQueueSendToBack(messageQueue, UNSUPORTED_FUNCTION_ERR_STR, portMAX_DELAY);
 					while(commBufferReadByte(&chr)==0 && chr!=';');
-				}	
+
+				}
 			}
 		}/*if(getBytesAvailable()>4){  //if there are still some bytes to read in the buffer then read invoke the parsing
 			uint16_t passMsg = MSG_COMMS_TRY_PARSE;
@@ -185,6 +205,10 @@ void CmdParserTask(void const *argument){
 command parseSystemCmd(void){
 	command cmdIn=CMD_ERR;
 	uint8_t error=0;
+	uint8_t chr;
+	uint8_t index = 0;
+	uint8_t done = 0;
+	uint16_t watchDog=5000;
 	//try to parse command while buffer is not empty 
 
 	cmdIn = giveNextCmd();
@@ -195,17 +219,168 @@ command parseSystemCmd(void){
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
 	case CMD_END:break;
+
+	case CMD_MAIL:
+		while(watchDog>0 && done==0){
+			watchDog--;
+			if (commBufferReadByte(&chr)==0){
+				if(chr!=';'){
+					mail[index] = chr;
+					index++;
+				}else{
+					done = 1;
+				}
+			}
+		}
+		if(done !=1){
+			error = COMMS_INVALID_FEATURE;
+		}
+		break;
+
+	case CMD_PIN: //this is not used
+		while(watchDog>0 && done==0){
+			watchDog--;
+			if (commBufferReadByte(&chr)==0){
+				if(chr==';'){
+					done = 1;
+				}
+			}
+		}
+		break;
+
+	case CMD_TIME:
+		while(watchDog>0 && getBytesAvailable()<19){
+			watchDog--;
+			osDelay(1);
+		}
+		if(getBytesAvailable()<19){
+			error=COMMS_INVALID_FEATURE;
+			while(commBufferReadByte(&chr)==0);
+		}else{
+			index=commBufferReadNBytes(time_now,19);
+			if (index!=19){
+				error=COMMS_INVALID_FEATURE;
+			}
+			commBufferReadByte(&chr);
+		}
+		break;
+
 	default:
 		error = SYSTEM_INVALID_FEATURE;
 		cmdIn = CMD_ERR;
 		break;
 	}
-	if(error>0){
-		cmdIn=error;
-	}else{
-		cmdIn=CMD_END;
-	}
+	cmdIn = (error > 0) ? error : CMD_END;
 	return cmdIn;
+}
+
+/**
+ * @brief  System command parse function
+ * @param  None
+ * @retval Command ACK or ERR
+ */
+command parseTokenCmd(void){
+	command cmdIn=CMD_ERR;
+	uint8_t error=0;
+	uint8_t index = 0;
+	uint8_t subindex = 0;
+	uint8_t startsubindex = 0;
+	uint8_t subpart = 0; // 0 salt, 1 valid time, 2 mail
+	uint16_t watchDog=5000;
+	uint8_t done = 0;
+	uint8_t chr;
+	//try to parse command while buffer is not empty
+
+	cmdIn = giveNextCmd();
+	switch(cmdIn){
+	uint16_t passMsg;
+
+	case CMD_TIME: //this is not used
+		while(watchDog>0 && done==0){
+			watchDog--;
+			if (commBufferReadByte(&chr)==0){
+				if(chr==';'){
+					done = 1;
+				}
+			}
+		}
+		break;
+	case CMD_DATA:
+		while(watchDog>0 && getBytesAvailable()<128){
+			watchDog--;
+			osDelay(1);
+		}
+		if(getBytesAvailable()<128){
+			error=COMMS_INVALID_FEATURE;
+			while(commBufferReadByte(&chr)==0);
+		}else{
+			index=commBufferReadNBytes(token,128);
+			if (index!=128){
+				error=COMMS_INVALID_FEATURE;
+			}
+		}
+
+		for(uint8_t i=0;i<128;i++){
+			chr = token[i]^KOD[i%40];
+			if(chr == '&'){
+				subpart ++;
+				startsubindex = i;
+				subindex=0;
+			}else{
+				if(subpart==1 && (i-startsubindex)%2==0){ //time
+					time_token[subindex]=chr;
+					subindex++;
+				}else if(subpart==2 && (i-startsubindex)%2==0){ //mail
+					if(chr !=  mail[subindex]){ //check email
+						error = COMMS_INVALID_TOKEN;
+					}
+					subindex++;
+				}
+			}
+		}
+		//check date
+		uint32_t sumNow = time_now[9] + time_now[8]*10 + time_now[6]*50*100 + time_now[5]*1000*50 + time_now[3]*10000*2500;
+		uint32_t sumToken = time_token[9] + time_token[8]*10 + time_token[6]*50*100 + time_token[5]*1000*50 + time_token[3]*10000*2500;
+
+		if(sumToken<sumNow){
+			error = COMMS_INVALID_TOKEN;
+		}
+		commBufferReadByte(&chr);
+		if(error==0){validated=1;}
+
+		break;
+
+	case CMD_END:break;
+	default:
+		error = SYSTEM_INVALID_FEATURE;
+		cmdIn = CMD_ERR;
+		break;
+	}
+	cmdIn = (error > 0) ? error : CMD_END;
+	return cmdIn;
+
+	/*
+	 * 		cmdIn = giveNextCmd();
+		index=SWAP_UINT16(cmdIn);
+		length=cmdIn>>16;
+		chan=cmdIn>>24;
+		while(watchDog>0 && getBytesAvailable()<length*2+1){
+			watchDog--;
+			osDelay(1);
+		}
+		if(getBytesAvailable()<length*2+1){
+			error=GEN_MISSING_DATA;
+			while(commBufferReadByte(&chan)==0);
+		}else{
+			error=genSetData(index,length*2,chan);
+			if (error){
+				while(commBufferReadByte(&chan)==0);
+			}else{
+				genDataOKSendNext();
+			}
+		}
+		break;
+	 * */
 }
 
 

@@ -17,6 +17,10 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
 
+static TIM_HandleTypeDef htim1;
+static TIM_HandleTypeDef htim3;
+static TIM_HandleTypeDef htim4;
+
 typedef enum{
 	false = 0,
 	true = 1

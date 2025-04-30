@@ -15,8 +15,6 @@
 #include "sync_pwm.h"
 #include "stm32f3xx_ll_tim.h"
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
 
 /**

@@ -121,10 +121,15 @@ typedef uint32_t command;
 #define CMD_COUNTER 						SWAP_UINT32(0x434e545f)			//	CNT_
 #define CMD_COMMS 						SWAP_UINT32(0x434f4d53)			//	COMS
 #define CMD_SYSTEM 						SWAP_UINT32(0x53595354)			//	SYST
+#define CMD_TOKEN 						SWAP_UINT32(0x544b4e5f)			//	TKN_
 #define CMD_ERR 						SWAP_UINT32(0x4552525f)			//	ERR_
 #define CMD_ACK 						SWAP_UINT32(0x41434b5f)			//	ACK_
 #define CMD_NACK 						SWAP_UINT32(0x4e41434b)			//	NACK
 #define CMD_END 						SWAP_UINT32(0x454e445f)			//	END_
+#define CMD_DATA 						SWAP_UINT32(0x44415441)			//	DATA
+#define CMD_MAIL 						SWAP_UINT32(0x4D41494C)			//	MAIL
+#define CMD_TIME 						SWAP_UINT32(0x54494D45)			//	TIME
+#define CMD_PIN 						SWAP_UINT32(0x50494E5F)			//	PIN_
 /**************************** SCOPE ****************************/
 #define CMD_SCOPE_TRIG_MODE 						SWAP_UINT32(0x54524947)			//	TRIG
 #define CMD_SCOPE_TRIG_EDGE 						SWAP_UINT32(0x45444745)			//	EDGE

@@ -18,8 +18,6 @@
 
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim3;
 DMA_HandleTypeDef hdma_tim6_up;
 DMA_HandleTypeDef hdma_tim7_up;
 

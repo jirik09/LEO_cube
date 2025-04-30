@@ -26,8 +26,6 @@
  * @{
  */
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim4;
 DMA_HandleTypeDef hdma_tim1_up;
 DMA_HandleTypeDef hdma_tim4_up;
 
