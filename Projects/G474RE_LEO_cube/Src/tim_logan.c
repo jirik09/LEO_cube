@@ -12,6 +12,11 @@
 #include "mcu_config.h"
 #include "stm32g4xx_hal_tim.h"
 
+/* Map generic handle names used in legacy logic analyzer code to local static instances
+ * to avoid clashing with generator (TIM1) and counter (TIM4) modules. */
+#define htim1 htim1_log
+#define htim4 htim4_log
+
 #ifdef USE_LOG_ANLYS
 
 /** @addtogroup Logic_Analyzer
@@ -26,8 +31,9 @@
  * @{
  */
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim4;
+/* Local logic analyzer timer handles (avoid clashing with generator/counter global htim1/htim4) */
+static TIM_HandleTypeDef htim1_log;
+static TIM_HandleTypeDef htim4_log;
 DMA_HandleTypeDef hdma_tim1_up;
 DMA_HandleTypeDef hdma_tim4_up;
 
@@ -52,26 +58,26 @@ void MX_TIM1_LOG_ANLYS_Init(void)
 	TIM_SlaveConfigTypeDef sSlaveConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
 
-	htim1.Instance = TIM1;
-	htim1.Init.Prescaler = 0;  //0
-	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim1.Init.Period = 14399;   //14399
-	htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	htim1.Init.RepetitionCounter = 0;
-	htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-	HAL_TIM_Base_Init(&htim1);
+	htim1_log.Instance = TIM1;
+	htim1_log.Init.Prescaler = 0;  //0
+	htim1_log.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim1_log.Init.Period = 14399;   //14399
+	htim1_log.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim1_log.Init.RepetitionCounter = 0;
+	htim1_log.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim1_log);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig);
+	HAL_TIM_ConfigClockSource(&htim1_log, &sClockSourceConfig);
 
 	sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
 	sSlaveConfig.InputTrigger = TIM_TS_ITR3;
-	HAL_TIM_SlaveConfigSynchro(&htim1, &sSlaveConfig);
+	HAL_TIM_SlaveConfigSynchro(&htim1_log, &sSlaveConfig);
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-	HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig);
+	HAL_TIMEx_MasterConfigSynchronization(&htim1_log, &sMasterConfig);
 }
 
 /**
@@ -87,22 +93,22 @@ void MX_TIM4_LOG_ANLYS_Init(void)
 
 	/* By default 1 Ksample buffer, 10 Ksamples per second, 50% trigger
 		 => 50 ms pretrigger, 50 ms posttrigger - 20 Hz (PSC = 1200, ARR = 60K) */
-	htim4.Instance = TIM4;
-	htim4.Init.Prescaler = 1199;
-	htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-	htim4.Init.Period = 59999;
-	htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-	htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-	HAL_TIM_Base_Init(&htim4);
+	htim4_log.Instance = TIM4;
+	htim4_log.Init.Prescaler = 1199;
+	htim4_log.Init.CounterMode = TIM_COUNTERMODE_UP;
+	htim4_log.Init.Period = 59999;
+	htim4_log.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+	htim4_log.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+	HAL_TIM_Base_Init(&htim4_log);
 
 	sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-	HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig);
+	HAL_TIM_ConfigClockSource(&htim4_log, &sClockSourceConfig);
 
-	HAL_TIM_OnePulse_Init(&htim4, TIM_OPMODE_SINGLE);
+	HAL_TIM_OnePulse_Init(&htim4_log, TIM_OPMODE_SINGLE);
 
 	sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
 	sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
-	HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig);
+	HAL_TIMEx_MasterConfigSynchronization(&htim4_log, &sMasterConfig);
 }
 
 void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base)
@@ -136,7 +142,7 @@ void TIM1_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base)
 	hdma_tim1_up.Init.Priority = DMA_PRIORITY_HIGH;
 	HAL_DMA_Init(&hdma_tim1_up);
 	/* Trigger DMA by TIMer to transfer data from GPIO IDR reg. to memory buffer. */
-	__HAL_TIM_ENABLE_DMA(&htim1, TIM_DIER_UDE);
+	__HAL_TIM_ENABLE_DMA(&htim1_log, TIM_DIER_UDE);
 	__HAL_LINKDMA(htim_base,hdma[TIM_DMA_ID_UPDATE],hdma_tim1_up);
 }
 
@@ -145,7 +151,7 @@ void TIM4_LOG_ANLYS_MspInit(TIM_HandleTypeDef* htim_base)
 	/* Peripheral clock enable */
 	__HAL_RCC_TIM4_CLK_ENABLE();
 
-	__HAL_TIM_ENABLE_IT(&htim4, TIM_IT_UPDATE);
+	__HAL_TIM_ENABLE_IT(&htim4_log, TIM_IT_UPDATE);
 
 	/* TIM4 interrupt Init */
 	HAL_NVIC_SetPriority(TIM4_IRQn, 9, 0);
@@ -191,7 +197,7 @@ void LOG_ANLYS_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 	/* Stop timer trigering the DMA for data transfer */
 	//HAL_TIM_Base_Stop(&htim1);
-	__HAL_TIM_DISABLE(&htim4);
+	__HAL_TIM_DISABLE(&htim4_log);
 	HAL_DMA_Abort(&hdma_tim1_up);
 
 	GPIO_DisableIRQ();
@@ -242,8 +248,8 @@ void TIM_LogAnlys_Init(void)
 	__HAL_RCC_TIM1_FORCE_RESET();
 	__HAL_RCC_TIM1_RELEASE_RESET();
 
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim1.State = HAL_TIM_STATE_RESET;
+	htim4_log.State = HAL_TIM_STATE_RESET;
+	htim1_log.State = HAL_TIM_STATE_RESET;
 
 	MX_TIM1_LOG_ANLYS_Init();
 	MX_TIM4_LOG_ANLYS_Init();
@@ -257,16 +263,16 @@ void TIM_LogAnlys_Init(void)
  */
 void TIM_LogAnlys_Deinit(void)
 {
-	HAL_TIM_Base_DeInit(&htim4);
-	HAL_TIM_Base_DeInit(&htim1);
+	HAL_TIM_Base_DeInit(&htim4_log);
+	HAL_TIM_Base_DeInit(&htim1_log);
 
 	__HAL_RCC_TIM4_FORCE_RESET();
 	__HAL_RCC_TIM4_RELEASE_RESET();
 	__HAL_RCC_TIM1_FORCE_RESET();
 	__HAL_RCC_TIM1_RELEASE_RESET();
 
-	htim4.State = HAL_TIM_STATE_RESET;
-	htim1.State = HAL_TIM_STATE_RESET;
+	htim4_log.State = HAL_TIM_STATE_RESET;
+	htim1_log.State = HAL_TIM_STATE_RESET;
 }
 
 /**
@@ -279,8 +285,8 @@ void TIM_LogAnlys_Start(void)
 {
 	/* Enable DMA transfers. */
 	HAL_DMA_Start(&hdma_tim1_up, (uint32_t)&(GPIOB->IDR), (uint32_t)logAnlys.bufferMemory, logAnlys.samplesNumber + MAX_ADC_CHANNELS * SCOPE_BUFFER_MARGIN);
-	/* Start TIM1 to trigger DMA for data transfering with user required frequency. */
-	HAL_TIM_Base_Start(&htim1);
+	/* Start TIM1 to trigger DMA for data transferring with user required frequency. */
+	HAL_TIM_Base_Start(&htim1_log);
 }
 
 /**
@@ -295,8 +301,8 @@ void TIM_LogAnlys_Stop(void)
 	TIM_SamplingStop();
 	GPIO_DisableIRQ();
 
-	HAL_TIM_Base_Stop(&htim4);
-	__HAL_TIM_SET_COUNTER(&htim4, 0);
+	HAL_TIM_Base_Stop(&htim4_log);
+	__HAL_TIM_SET_COUNTER(&htim4_log, 0);
 	/* Slave TIM1 is stopped by TIM4 upon Update Event
 	   and TIM4 is initialized in One Pulse Mode. */
 	logAnlys.trigOccur = TRIG_NOT_OCCURRED;
@@ -312,8 +318,8 @@ void TIM_LogAnlys_PostTrigger_Reconfig(double posttrigInSec)
 {
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq();//HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM34);
 	double freq = 1 / posttrigInSec;
-	TIM_ReconfigPrecise(&htim4, periphClock, freq);
-	HAL_TIM_Base_Stop(&htim4);
+	TIM_ReconfigPrecise(&htim4_log, periphClock, freq);
+	HAL_TIM_Base_Stop(&htim4_log);
 }
 
 /**
@@ -325,7 +331,7 @@ void TIM_LogAnlys_PostTrigger_Reconfig(double posttrigInSec)
 void TIM_LogAnlys_SamplingFreq_Reconfig(uint32_t smplFreq)
 {
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq();//HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM1)*2;
-	logAnlys.samplingFreq = TIM_ReconfigPrecise(&htim1, periphClock, smplFreq);
+	logAnlys.samplingFreq = TIM_ReconfigPrecise(&htim1_log, periphClock, smplFreq);
 }
 
 /**
@@ -337,8 +343,8 @@ void TIM_LogAnlys_SamplingFreq_Reconfig(uint32_t smplFreq)
 void TIM_PostTrigger_SoftwareStart(void)
 {
 	/* Trigger interrupt after posttriger timer elapses (Update Event). */
-	__HAL_TIM_SET_COUNTER(&htim4, 0);
-	__HAL_TIM_ENABLE(&htim4);
+	__HAL_TIM_SET_COUNTER(&htim4_log, 0);
+	__HAL_TIM_ENABLE(&htim4_log);
 	//	HAL_TIM_Base_Start(&htim4);
 }
 
@@ -361,7 +367,7 @@ void GPIO_DisableIRQ(void){
  * @retval None
  */
 void TIM_SamplingStop(void){
-	HAL_TIM_Base_Stop(&htim1);
+	HAL_TIM_Base_Stop(&htim1_log);
 	HAL_DMA_Abort(&hdma_tim1_up);
 }
 

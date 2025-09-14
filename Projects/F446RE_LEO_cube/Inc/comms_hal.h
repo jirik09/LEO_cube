@@ -12,8 +12,8 @@
 void commHalInit(void);
 void commsSend(uint8_t chr);
 void commsSendUint32(uint32_t num);
-void commsSendBuff(uint8_t *buff, uint16_t len);
-void commsSendString(char *chr);
+void commsSendBuff(const uint8_t *buff, uint16_t len);
+void commsSendString(const char *chr);
 void commsRecieveUSB(uint8_t chr);
 void commsRecieveUART(uint8_t chr);
 

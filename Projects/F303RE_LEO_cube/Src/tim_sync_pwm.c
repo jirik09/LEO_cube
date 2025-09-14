@@ -9,6 +9,8 @@
 
 #ifdef USE_SYNC_PWM
 
+/* Define to suppress legacy macro remapping while implementing functions */
+#define SYNC_PWM_IMPLEMENTATION
 #include "math.h"
 #include "tim.h"
 #include "mcu_config.h"

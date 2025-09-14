@@ -293,7 +293,6 @@ command parseTokenCmd(void){
 
 	cmdIn = giveNextCmd();
 	switch(cmdIn){
-	uint16_t passMsg;
 
 	case CMD_TIME: //this is not used
 		while(watchDog>0 && done==0){

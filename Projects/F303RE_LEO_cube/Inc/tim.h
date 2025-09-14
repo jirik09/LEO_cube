@@ -16,10 +16,12 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f3xx_hal.h"
+#include <stdint.h>
 
-static TIM_HandleTypeDef htim1;
-static TIM_HandleTypeDef htim3;
-static TIM_HandleTypeDef htim4;
+/* Timer handle instances are defined in tim.c (or other feature source files). */
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
 
 typedef enum{
 	false = 0,
@@ -125,6 +127,10 @@ void TIM_GenPattern_DmaReconfig(void);
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #ifdef USE_SYNC_PWM
+
+/* Indicate to common sync_pwm.h that this variant exposes legacy per-channel
+ * API symbols so it should not remap them to generic channel-based macros. */
+#define SYNC_PWM_LEGACY_API
 
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim8;

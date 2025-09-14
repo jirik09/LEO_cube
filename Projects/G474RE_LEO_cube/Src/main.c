@@ -62,27 +62,30 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
-ADC_HandleTypeDef hadc2;
-ADC_HandleTypeDef hadc3;
-ADC_HandleTypeDef hadc4;
-DMA_HandleTypeDef hdma_adc1;
-DMA_HandleTypeDef hdma_adc2;
-DMA_HandleTypeDef hdma_adc3;
-DMA_HandleTypeDef hdma_adc4;
+/* Peripheral handle definitions are provided in their dedicated module source files
+ * (adc.c, dac.c, tim_gen.c, tim_sync_pwm.c, tim_counter.c). Use extern here to avoid
+ * multiple definition linker errors. */
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
+extern ADC_HandleTypeDef hadc3;
+extern ADC_HandleTypeDef hadc4;
+extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_adc2;
+extern DMA_HandleTypeDef hdma_adc3;
+extern DMA_HandleTypeDef hdma_adc4;
 
-DAC_HandleTypeDef hdac1;
-DMA_HandleTypeDef hdma_dac1_ch1;
-DMA_HandleTypeDef hdma_dac1_ch2;
+extern DAC_HandleTypeDef hdac1;
+extern DMA_HandleTypeDef hdma_dac1_ch1;
+extern DMA_HandleTypeDef hdma_dac1_ch2;
 
 I2C_HandleTypeDef hi2c1;
 
-TIM_HandleTypeDef htim1;
-TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim3;
-TIM_HandleTypeDef htim4;
-TIM_HandleTypeDef htim8;
-TIM_HandleTypeDef htim15;
+extern TIM_HandleTypeDef htim1; /* PWM gen TIM1 */
+extern TIM_HandleTypeDef htim2; /* Counter core */
+extern TIM_HandleTypeDef htim3; /* PWM gen TIM3 */
+extern TIM_HandleTypeDef htim4; /* Counter gate */
+extern TIM_HandleTypeDef htim8; /* Sync PWM */
+extern TIM_HandleTypeDef htim15; /* If used elsewhere */
 
 //UART_HandleTypeDef huart;
 
@@ -270,6 +273,9 @@ int main(void)
   * @param None
   * @retval None
   */
+/* I2C1 not used in this firmware variant; keep init code disabled to avoid
+ * unused-function warnings while preserving for future enablement. */
+#if 0
 static void MX_I2C1_Init(void)
 {
 
@@ -310,6 +316,7 @@ static void MX_I2C1_Init(void)
   /* USER CODE END I2C1_Init 2 */
 
 }
+#endif /* I2C1 unused */
 //
 ///**
 //  * @brief TIM1 Initialization Function

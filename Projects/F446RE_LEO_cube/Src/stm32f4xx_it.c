@@ -42,8 +42,8 @@
 
 /* USER CODE END 0 */
 /* External variables --------------------------------------------------------*/
- 
-//extern void xPortSysTickHandler(void);
+/* FreeRTOS portable layer SysTick handler */
+void xPortSysTickHandler(void);
 
 #ifdef USE_USB
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;

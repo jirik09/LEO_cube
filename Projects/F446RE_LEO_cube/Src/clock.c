@@ -34,6 +34,7 @@
   */
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
+#include "main.h" /* for Error_Handler prototype */
 
 /* USER CODE BEGIN 0 */
 

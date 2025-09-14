@@ -127,7 +127,7 @@ uint8_t UARTsendChar(char chr){
 	return (USART2->DR = chr);
 }
 
-uint8_t UARTsendBuff(char *chr, uint32_t len){
+uint8_t UARTsendBuff(const char *chr, uint32_t len){
 	while(len>0){
 		UARTsendChar(*(chr++));
 		len--;

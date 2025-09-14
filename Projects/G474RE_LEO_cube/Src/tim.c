@@ -140,7 +140,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 /**************************** GEN DAC  *********************************/
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 #ifdef USE_GEN
-	if (generator.modeState == GENERATOR_DAC) {
+	/* Legacy enum name GENERATOR_DAC mapped to GENERATOR_SIGNAL */
+	if (generator.modeState == GENERATOR_SIGNAL) {
 		if (htim_base->Instance == TIM6) {
 			TIM6_GEN_DAC_MspDeinit(htim_base);
 		}
@@ -390,6 +391,7 @@ double TIM_ReconfigPrecise(TIM_HandleTypeDef* htim_base, uint32_t periphClock, d
 	}
 
 	realFreq = periphClock / (double)((prescaler + 1) * (autoReloadReg + 1));
+	(void)result; /* result not used further; suppress unused-but-set warning */
 
 	htim_base->Instance->ARR = autoReloadReg;
 	htim_base->Instance->PSC = prescaler;

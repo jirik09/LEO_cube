@@ -700,7 +700,8 @@ void sendSystConf(){ //this is where you want to look - CFG parameters are send 
 	commsSendString(":");
 	commsSendUint32(HAL_RCC_GetHCLKFreq());  //CCLK
 	commsSendString(":");
-	commsSendBuff((uint8_t *)MCU_UID,12);
+	/* MCU_UID expected to be an address constant; cast via uintptr_t to avoid size warnings */
+	commsSendBuff((const uint8_t *)(uintptr_t)MCU_UID,12);
 	commsSendString(":");
 	commsSendBuff((uint8_t *)__DATE__,11);
 	commsSendString(":");

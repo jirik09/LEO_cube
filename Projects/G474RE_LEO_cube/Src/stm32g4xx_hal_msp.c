@@ -94,6 +94,11 @@ void HAL_MspInit(void)
 
 static uint32_t HAL_RCC_ADC12_CLK_ENABLED=0;
 static uint32_t HAL_RCC_ADC345_CLK_ENABLED=0;
+/* Suppress unused-variable warnings when specific ADCs not enabled at runtime */
+__attribute__((unused)) static void _adc_clk_suppress_unused(void) {
+  (void)HAL_RCC_ADC12_CLK_ENABLED;
+  (void)HAL_RCC_ADC345_CLK_ENABLED;
+}
 
 
 

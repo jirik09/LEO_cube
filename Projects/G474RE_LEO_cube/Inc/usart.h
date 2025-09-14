@@ -47,7 +47,7 @@ uint8_t isXferComplete(void);
 uint16_t GetDMAIndex(void);
 void MX_USART1_UART_Init(void);
 uint8_t UARTsendChar(char chr);
-uint8_t UARTsendBuff(char *chr, uint32_t len);
+uint8_t UARTsendBuff(const char *chr, uint32_t len); /* Made buffer pointer const */
 
 #ifdef __cplusplus
 }

@@ -46,7 +46,7 @@ extern UART_HandleTypeDef huart2;
 
 void MX_UART_Init(void);
 uint8_t UARTsendChar(char chr);
-uint8_t UARTsendBuff(char *chr, uint32_t len);
+uint8_t UARTsendBuff(const char *chr, uint32_t len); /* Made buffer pointer const */
 
 #ifdef __cplusplus
 }

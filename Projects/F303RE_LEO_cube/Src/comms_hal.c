@@ -56,10 +56,10 @@ void commsSendUint32(uint32_t num){
   commsSendBuff(buff, 4);
 }
 
-void commsSendBuff(uint8_t *buff, uint16_t len){
+void commsSendBuff(const uint8_t *buff, uint16_t len){
 	#ifdef USE_USB
 	if (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED){	
-		while(CDC_Transmit_FS(buff,len)!=USBD_OK){
+		while(CDC_Transmit_FS((uint8_t*)buff,len)!=USBD_OK){
 			taskYIELD();
 		}
 	}else{
@@ -67,12 +67,12 @@ void commsSendBuff(uint8_t *buff, uint16_t len){
 	}
 	#else
 	//UARTsendBuff((char *)buff,len);
-	HAL_UART_Transmit(&huart2, buff, len, 5000);
+	HAL_UART_Transmit(&huart2, (uint8_t*)buff, len, 5000);
 	#endif
 }
-void commsSendString(char *chr){
+void commsSendString(const char *chr){
 	uint32_t i = 0;
-	char * tmp=chr;
+	const char * tmp=chr;
 	while(*(tmp++)){i++;}
 	#ifdef USE_USB
 	if (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED){	

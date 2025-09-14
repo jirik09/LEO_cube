@@ -140,7 +140,7 @@ void MX_TIM7_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM1_GEN_PWM_Init(void)
+void MX_TIM1_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -198,7 +198,7 @@ static void MX_TIM1_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM3_GEN_PWM_Init(void)
+void MX_TIM3_GEN_PWM_Init(void)
 {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
@@ -239,7 +239,7 @@ static void MX_TIM3_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM6_GEN_PWM_Init(void)
+void MX_TIM6_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -265,7 +265,7 @@ static void MX_TIM6_GEN_PWM_Init(void)
  * @param  None
  * @retval None
  */
-static void MX_TIM7_GEN_PWM_Init(void)
+void MX_TIM7_GEN_PWM_Init(void)
 {
 	TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -347,7 +347,7 @@ void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
+	/* No GPIO configuration needed for TIM6 PWM DMA feed on this variant */
 
 	__HAL_RCC_TIM6_CLK_ENABLE();
 
@@ -371,7 +371,7 @@ void TIM6_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 
 void TIM7_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base)
 {
-	GPIO_InitTypeDef GPIO_InitStruct;
+	/* No GPIO configuration needed for TIM7 PWM DMA feed on this variant */
 	__HAL_RCC_TIM7_CLK_ENABLE();
 
 	/* Peripheral DMA init*/
@@ -448,6 +448,25 @@ uint8_t TIM_Reconfig_gen(uint32_t samplingFreq,uint8_t chan,uint32_t* realFreq){
 	}else{
 		return 0;
 	}
+}
+
+/* Convenience helper required by common layer: reconfigure all generator channels
+ * to the same sampling frequency and return a representative real frequency
+ * (choose the minimum actually achieved so host knows worst-case deviation). */
+uint8_t TIM_Reconfig_gen_all(uint32_t samplingFreq, uint32_t *realFreq){
+	uint32_t real0 = 0, real1 = 0; 
+	uint8_t st0 = TIM_Reconfig_gen(samplingFreq,0,&real0);
+	uint8_t st1 = TIM_Reconfig_gen(samplingFreq,1,&real1);
+	if(realFreq){
+		if(st0==0 && st1==0){
+			*realFreq = (real0 < real1) ? real0 : real1; /* choose tighter (lower) freq */
+		}else if(st0==0){
+			*realFreq = real0;
+		}else if(st1==0){
+			*realFreq = real1;
+		}
+	}
+	return (st0!=0) ? st0 : st1; /* return first non-zero error if any */
 }
 
 #ifdef USE_GEN_PWM

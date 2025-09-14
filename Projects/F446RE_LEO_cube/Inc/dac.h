@@ -52,6 +52,8 @@ void DAC_DMA_Reconfig(uint8_t chan, uint32_t *buff, uint32_t len);
 void DACSetOutputBuffer(void);
 void DACUnsetOutputBuffer(void);
 void DACsetOutput(uint8_t chann, uint16_t val);
+void DACEnableOutput(void);
+void DACDisableOutput(void);
 void GeneratingEnable (void);
 void GeneratingDisable (void);
 void DACSetModeGenerator(void);

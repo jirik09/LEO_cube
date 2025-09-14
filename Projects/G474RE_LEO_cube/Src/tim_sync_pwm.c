@@ -7,6 +7,7 @@
  *****************************************************************************
  */
 
+#define SYNC_PWM_IMPLEMENTATION
 #include "tim.h"
 #include "mcu_config.h"
 #include "sync_pwm.h"
@@ -47,7 +48,7 @@ DMA_HandleTypeDef hdma_tim8_ch4_trig_com;
  * @param  None
  * @retval None
  */
-static void MX_TIM8_SYNC_PWM_Init(void) {
+void MX_TIM8_SYNC_PWM_Init(void) {
 	TIM_ClockConfigTypeDef sClockSourceConfig;
 	TIM_MasterConfigTypeDef sMasterConfig;
 	TIM_OC_InitTypeDef sConfigOC;
@@ -414,6 +415,31 @@ void TIM_SYNC_PWM_StepMode_Disable(void) {
 double TIM_Reconfig_SyncPwm(double freq) {
 	uint32_t periphClock = HAL_RCC_GetPCLK1Freq();//HAL_RCCEx_GetPeriphCLKFreq(RCC_PERIPHCLK_TIM8);  // HAL_RCC_GetHCLKFreq();
 	return TIM_ReconfigPrecise(&htim8, periphClock, freq);
+}
+
+/* Generic channel-based API implementations. Legacy macros in common headers
+ * map old per-channel names (SetFreqCh1, SetChanDutyPhase, etc.) to these. */
+double TIM_SYNC_PWM_SetFreqChannel(uint8_t channel, double freq){
+	(void)channel; /* For now channel selection not altering freq calc (single timer). */
+	return TIM_Reconfig_SyncPwm(freq);
+}
+void TIM_SYNC_PWM_SetChannelDutyPhase(uint32_t channel, double dutyCycle, double phase){
+	if(channel >= SYNC_PWM_CHAN_NUM) return;
+	/* dutyCycle in percent, phase in degrees. Compute CCR edges. */
+	uint32_t arr = htim8.Instance->ARR ? htim8.Instance->ARR : 1; /* avoid div by zero */
+	uint16_t firstEdge  = (uint16_t)((((uint64_t)arr) * (uint64_t)phase)/360ULL);
+	uint16_t pulseWidth = (uint16_t)((((uint64_t)arr) * (uint64_t)dutyCycle)/100ULL);
+	uint16_t secondEdge = (uint16_t)((firstEdge + pulseWidth) % (arr+1));
+	syncPwm.channelToConfig = (uint8_t)(channel+1); /* 1-based for switch */
+	TIM_SYNC_PWM_DMA_ChanConfig(firstEdge, secondEdge);
+	/* Store for status reporting */
+	syncPwm.chanDcPhase[channel].dc = (float)dutyCycle;
+	syncPwm.chanDcPhase[channel].phase = (float)phase;
+}
+void TIM_SYNC_PWM_SetChannelInvert(uint8_t channel, uint8_t setInvert){
+	if(channel < SYNC_PWM_CHAN_NUM){
+		syncPwm.chanInvert[channel] = setInvert ? CH_ENABLE : CH_DISABLE;
+	}
 }
 
 /**

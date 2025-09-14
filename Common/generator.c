@@ -18,6 +18,55 @@
 #include "gpio.h"
 #include "messages.h"
 #include "commands.h"
+/* Compatibility mappings for F446 where function names differ from legacy F303 implementation */
+#ifdef STM32F446xx
+/* If only generic USE_GEN is defined, treat it as USE_GEN_SIGNAL for the common code blocks */
+#if defined(USE_GEN) && !defined(USE_GEN_SIGNAL)
+#define USE_GEN_SIGNAL
+#endif
+/* DAC mode / voltage source naming differences */
+/* DAC helper mapping */
+#define DAC_Deinit                     GEN_DAC_deinit
+#define DAC_SetMode_SignalGenerator    DACSetModeGenerator
+#define DAC_SetMode_VoltageSource      DACSetModeVoltageSource
+#define DAC_OutputBuffer_Enable        DACSetOutputBuffer
+#define DAC_OutputBuffer_Disable       DACUnsetOutputBuffer
+#define DAC_SetOutput                  DACsetOutput
+#define DAC_Output_Enable              DACEnableOutput
+#define DAC_Output_Disable             DACDisableOutput
+#define DAC_DmaReconfig                DAC_DMA_Reconfig
+/* No direct equivalent; keep as no-op (F303 uses DAC_Disable before buffer disable) */
+#ifndef DAC_Disable
+#define DAC_Disable()                  ((void)0)
+#endif
+/* TIM signal generator */
+#define TIM_GenSignal_Init        TIMGenInit
+#define TIM_GenSignal_Start       TIMGenEnable
+#define TIM_GenSignal_Stop        TIMGenDisable
+#define TIM_GenSignal_Deinit      TIMGenDacDeinit
+/* TIM PWM generator */
+#define TIM_GenPwm_Init           TIMGenPwmInit
+#define TIM_GenPwm_Deinit         TIMGenPwmDeinit
+#define TIM_GenPwm_Start          PWMGeneratingEnable
+#define TIM_GenPwm_Stop           PWMGeneratingDisable
+/* Map data transfer / reconfig helpers */
+#define TIM_DataTransfer_FreqReconfig      TIM_Reconfig_gen
+#define TIM_DataTransfer_FreqReconfigAll   TIM_Reconfig_gen_all
+#define TIM_GenPwm_FreqReconfig            TIM_Reconfig_GenPwm
+#define TIM_GenPwm_DmaReconfig             TIM_DMA_Reconfig
+/* Pattern generator not implemented on F446 => guard calls */
+#ifndef USE_GEN_PATTERN
+#define TIM_GenPattern_Init()     ((void)0)
+#define TIM_GenPattern_DmaReconfig() ((void)0)
+#define TIM_GenPattern_Start()    ((void)0)
+#define TIM_GenPattern_Stop()     ((void)0)
+#define TIM_GenPattern_Deinit()   ((void)0)
+#define genPatternPortDataShift(mem,len) ((void)0)
+#define genPatternInit()          ((void)0)
+#define genPatternGeneratingEnable() ((void)0)
+#define genPatternGeneratingDisable() ((void)0)
+#endif
+#endif /* STM32F446xx */
 
 xQueueHandle generatorMessageQueue;
 //uint8_t validateGenBuffUsage(void);
@@ -282,6 +331,35 @@ void genPatternPortDataShift(uint16_t *mem, uint16_t dataLength){
 #endif //USE_GEN_PATTERN
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* --------------------------------------------------------------------------
+ * Pattern generator stubs (G474 variant)
+ * --------------------------------------------------------------------------
+ * The common generator task always references the pattern generator entry
+ * points (genPatternInit, genPatternGeneratingEnable, etc.) regardless of
+ * whether pattern mode is actually compiled in (USE_GEN_PATTERN). On variants
+ * where pattern generation is not implemented these references must still
+ * resolve to linkable symbols. The original F303/F446 builds satisfied this
+ * via either real implementations or macro no-ops. For the G474 build we
+ * provide weak stub functions when USE_GEN_PATTERN is not defined so that
+ * the linker finds the symbols while the code remains a harmless no-op.
+ */
+#ifndef USE_GEN_PATTERN
+/* Only emit stub functions if the names haven't been macro-mapped to no-ops. */
+#if !defined(genPatternInit)
+void genPatternInit(void) { /* not implemented on this variant */ }
+#endif
+#if !defined(genPatternGeneratingEnable)
+void genPatternGeneratingEnable(void) { }
+#endif
+#if !defined(genPatternGeneratingDisable)
+void genPatternGeneratingDisable(void) { }
+#endif
+#if !defined(genPatternPortDataShift)
+void genPatternPortDataShift(uint16_t *mem, uint16_t dataLength) { (void)mem; (void)dataLength; }
+#endif
+#endif /* !USE_GEN_PATTERN */
+
 
 /* Common Generator set data length function */
 uint8_t genSetData(uint16_t index,uint8_t length,uint8_t chan){

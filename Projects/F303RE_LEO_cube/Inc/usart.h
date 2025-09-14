@@ -48,7 +48,7 @@ void MX_UART_Init(void);
 
 uint16_t GetDMAIndex(void) MEMORY_SECTION;
 uint8_t UARTsendChar(char chr) MEMORY_SECTION;
-uint8_t UARTsendBuff(char *chr, uint32_t len) MEMORY_SECTION;
+uint8_t UARTsendBuff(const char *chr, uint32_t len) MEMORY_SECTION; /* Made buffer pointer const */
 
 #ifdef __cplusplus
 }

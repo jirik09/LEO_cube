@@ -35,6 +35,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32g4xx_hal.h"
 
+/* Forward declaration to avoid implicit declaration warning; implemented in main.c */
+void Error_Handler(void);
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
@@ -92,9 +95,14 @@ void SystemClock_Config(void)
   }
   /** Initializes the peripherals clocks
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
-                              |RCC_PERIPHCLK_USB|RCC_PERIPHCLK_ADC12
-                              |RCC_PERIPHCLK_ADC345;
+  /* Legacy F3 peripheral clock mask example (historical reference only):
+   * PeriphClkInit.PeriphClockSelection =
+   *   RCC_PERIPHCLK_ADC12 | RCC_PERIPHCLK_ADC34 |
+   *   RCC_PERIPHCLK_TIM2  | RCC_PERIPHCLK_TIM34 |
+   *   RCC_PERIPHCLK_TIM1  | RCC_PERIPHCLK_TIM15 |
+   *   RCC_PERIPHCLK_TIM8;
+   * Earlier (pre generator implementation): ADC12 | ADC34 | TIM2 | TIM34 only.
+   */
   PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_HSI48;
@@ -106,63 +114,13 @@ void SystemClock_Config(void)
   }
 }
 
-//void SystemClock_Config(void)
-//{
-//
-//  RCC_OscInitTypeDef RCC_OscInitStruct;
-//  RCC_ClkInitTypeDef RCC_ClkInitStruct;
-//  RCC_PeriphCLKInitTypeDef PeriphClkInit;
-//
-//  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;  //RCC_HSE_BYPASS
-//  RCC_OscInitStruct.HSEState = RCC_HSE_BYPASS;
-//  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-//  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-//  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
-//  RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
-//  HAL_RCC_OscConfig(&RCC_OscInitStruct);
-//
-//  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
-//                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;		// RCC_CLOCKTYPE_SYSCLK|RCC_CLOCKTYPE_PCLK1; (before PWM generator implementation)
-//  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-//  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-//  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-//  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-//  HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
-//
-//  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12|RCC_PERIPHCLK_ADC34| \
-//																			 RCC_PERIPHCLK_TIM2|RCC_PERIPHCLK_TIM34| \
-//																			 RCC_PERIPHCLK_TIM1|RCC_PERIPHCLK_TIM15| \
-//																			 RCC_PERIPHCLK_TIM8;
-//																			 // RCC_PERIPHCLK_ADC12|RCC_PERIPHCLK_ADC34| \ RCC_PERIPHCLK_TIM2|RCC_PERIPHCLK_TIM34; (before gen. implem.)
-//  PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
-//  PeriphClkInit.Adc34ClockSelection = RCC_ADC34PLLCLK_DIV1;
-//  PeriphClkInit.Tim15ClockSelection = RCC_TIM15CLK_HCLK;
-//	#if defined(USE_GEN_PWM) || defined(USE_LOG_ANLYS)
-//		PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_PLLCLK;
-//		PeriphClkInit.Tim34ClockSelection = RCC_TIM34CLK_HCLK;	// if COUNTER defined the	RCC_TIM34CLK clocked by HCLK (not PLL)
-//	#endif //USE_GEN_PWM || USE_LOG_ANLYS
-//	#ifdef USE_SYNC_PWM
-//		PeriphClkInit.Tim8ClockSelection = RCC_TIM8CLK_HCLK;
-//	#endif //USE_SYNC_PWM
-//	#ifdef USE_COUNTER
-//		PeriphClkInit.Tim2ClockSelection = RCC_TIM2CLK_PLLCLK;
-//		PeriphClkInit.Tim34ClockSelection = RCC_TIM34CLK_HCLK;
-//	#endif //USE_COUNTER
-//  HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
-//
-//  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
-//
-//  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-//
-//  /* SysTick_IRQn interrupt configuration */
-//  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
-//}
-
-void resetDevice(void){
-	SCB->AIRCR = (0x5FA<<SCB_AIRCR_VECTKEY_Pos)|SCB_AIRCR_SYSRESETREQ_Msk;
-  for(;;) {
-		/* wait until reset */
-  }
+/* Legacy F3 SystemClock_Config reference removed.
+ * The previous commented-out block included lines with trailing '\' which
+ * triggered -Wcomment diagnostics. Functionality is obsolete for G4.
+ * If historical reference is needed, retrieve it from version control. */
+void resetDevice(void) {
+  SCB->AIRCR = (0x5FA<<SCB_AIRCR_VECTKEY_Pos)|SCB_AIRCR_SYSRESETREQ_Msk;
+  for(;;) { /* wait until reset */ }
 }
 
 /* USER CODE BEGIN 2 */

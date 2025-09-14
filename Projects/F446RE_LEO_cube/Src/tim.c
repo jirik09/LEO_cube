@@ -139,7 +139,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 /**************************** GEN DAC  *********************************/
 #if defined(USE_GEN) || defined(USE_GEN_PWM)
 #ifdef USE_GEN
-	if (generator.modeState == GENERATOR_DAC) {
+	if (generator.modeState == GENERATOR_SIGNAL) {
 		if (htim_base->Instance == TIM6) {
 			TIM6_GEN_DAC_MspDeinit(htim_base);
 		}

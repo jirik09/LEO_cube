@@ -15,6 +15,26 @@
 #include "mcu_config.h"
 #include "stm32f3xx_ll_tim.h"
 
+/* -------------------------------------------------------------------------
+ * Global TIM handle definitions
+ *
+ * These were previously only declared as extern in tim.h and referenced in
+ * several functional modules (tim_gen.c, tim_sync_pwm.c, tim_logan.c,
+ * tim_counter.c, interrupt handlers, etc.). During the refactor that moved
+ * static TIM handles out of headers, the concrete definitions for the
+ * F303 variant were not added anywhere, leading to the current linker
+ * errors: undefined reference to `htim1`, `htim3`, `htim4`.
+ *
+ * We centralize the single definitions here to satisfy all references.
+ * If in the future a handle becomes unused under certain feature macro
+ * combinations, the linker will discard it (sections) or we can wrap it in
+ * feature guards to silence unused warnings. For now define unconditionally
+ * to keep interface simple.
+ * ------------------------------------------------------------------------- */
+TIM_HandleTypeDef htim1;  /* Used by GEN PWM, SYNC PWM, LOG ANLYS */
+TIM_HandleTypeDef htim3;  /* Used by GEN PWM, SYNC PWM */
+TIM_HandleTypeDef htim4;  /* Used by COUNTER, LOG ANLYS */
+
 /**             
  * @brief  This function configures GPIOs and DMAs used by the functionalities.
  * @note   Called from Timers initialization functions.

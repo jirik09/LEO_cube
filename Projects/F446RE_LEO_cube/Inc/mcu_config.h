@@ -69,7 +69,9 @@
 // Generator constatnts ===================================================
 #define GENERATOR_RESOURCES DMA2_R|DAC12_R|TIM6_R|TIM7_R
 #define DAC_RESOURCES DAC12_R
-#define MAX_GENERATING_FREQ 2000000 //smps
+#define MAX_GENERATING_FREQ 2000000 //smps (generic legacy)
+/* Added for cross-variant compatibility with Common/generator.c expectations */
+#define MAX_DAC_GENERATING_FREQ  MAX_GENERATING_FREQ
 #define GEN_TIM_PERIPH_CLOCK 75000000
 #define MAX_DAC_CHANNELS 2
 #define MAX_GENERATOR_BUFF_SIZE 5000
@@ -83,11 +85,13 @@
 
 // PWM generator constants =================================================
 #ifdef USE_GEN_PWM
-#define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM13_R|TIM3_R
+	#define GEN_PWM_RESOURCES DMA2_R|TIM6_R|TIM7_R|TIM13_R|TIM3_R
 	#define GEN_PWM_CH1_PIN							"D5__" // PA6
 	#define GEN_PWM_CH2_PIN							"D12_" // PB4
 
 	#define MAX_GEN_PWM_CHANNELS 	2
+	/* Provide legacy macro name used by Common/generator.c */
+	#define MAX_PWM_GENERATING_FREQ 4800000 // approximate upper PWM freq (reuse F303 value)
 
 	#define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 75000000
 #endif //USE_GEN_PWM

@@ -163,12 +163,12 @@ void TIMGenDacDeinit(void);
   * @{
   */
 
-/* PWM generatin timers */
-static void MX_TIM1_GEN_PWM_Init(void);
-static void MX_TIM3_GEN_PWM_Init(void);
+/* PWM generating timers (implemented in tim_gen.c when USE_GEN_PWM) */
+void MX_TIM1_GEN_PWM_Init(void);
+void MX_TIM3_GEN_PWM_Init(void);
 /* DMA update timers */
-static void MX_TIM6_GEN_PWM_Init(void);
-static void MX_TIM7_GEN_PWM_Init(void);
+void MX_TIM6_GEN_PWM_Init(void);
+void MX_TIM7_GEN_PWM_Init(void);
 
 void TIM1_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM3_GEN_PWM_MspInit(TIM_HandleTypeDef* htim_base);
@@ -200,7 +200,7 @@ void PWMGeneratingDisable(void);
 
 #ifdef USE_SYNC_PWM
 
-static void MX_TIM8_SYNC_PWM_Init(void);
+void MX_TIM8_SYNC_PWM_Init(void);
 void TIM8_SYNC_PWM_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM8_SYNC_PWM_MspDeinit(TIM_HandleTypeDef* htim_base);
 
@@ -256,6 +256,7 @@ void TIM_PostTrigger_SoftwareStart(void);
 void LOG_ANLYS_PeriodElapsedCallback(TIM_HandleTypeDef *htim);
 void LOG_ANLYS_TriggerEventOccured(void);
 void TIM_SamplingStop(void);
+void LOG_ANLYS_handle_interrupt(uint32_t pr);
 
 #endif //USE_LOG_ANLYS
 
@@ -282,9 +283,9 @@ extern DMA_HandleTypeDef hdma_tim2_ch2_ch4;
 
 void TIM_doubleClockVal(void);
 
-static void MX_TIM4_Init(void);
-static void MX_TIM2_ETRorREF_Init(void);
-static void MX_TIM2_ICorTI_Init(void);
+void MX_TIM4_Init(void);
+void MX_TIM2_ETRorREF_Init(void);
+void MX_TIM2_ICorTI_Init(void);
 
 void TIM2_ETRorREF_MspInit(TIM_HandleTypeDef* htim_base);
 void TIM2_ICorTI_MspInit(TIM_HandleTypeDef* htim_base);

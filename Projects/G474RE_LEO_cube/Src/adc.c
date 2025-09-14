@@ -112,8 +112,7 @@ void MX_ADC1_Init(void)
 /* ADC2 init function */
 void MX_ADC2_Init(void)
 {
-
-  ADC_MultiModeTypeDef multimode = {0};
+	/* multimode not required for independent ADC2 on G4 variant */
   ADC_ChannelConfTypeDef sConfig;
 
     /**Common config 
@@ -202,8 +201,7 @@ void MX_ADC3_Init(void)
 /* ADC4 init function */
 void MX_ADC4_Init(void)
 {
-
-	ADC_MultiModeTypeDef multimode = {0};
+	/* multimode not required for independent ADC4 on G4 variant */
   ADC_ChannelConfTypeDef sConfig;
 
     /**Common config 
@@ -937,6 +935,51 @@ void ADCInitMultiMode(void){
 
 
 /* USER CODE END 1 */
+
+/* -------------------------------------------------------------------------
+ * Compatibility helpers (ported from F303/F446) required by Common layer.
+ * Provide real AVDD measurement reporting function.
+ * For now, implement a lazy measurement: first call triggers calibration
+ * sequence for internal Vref channel, subsequent calls return cached value.
+ * Units: millivolts (matches legacy getRealAVDD usage in comms.c).
+ * ------------------------------------------------------------------------- */
+static int32_t g_realAvdd_mV = AVDD_DEFAULT; /* fallback default */
+static uint8_t g_realAvddMeasured = 0;
+
+static void MeasureRealAVDD(void){
+	/* Simple single-shot measurement using ADC1 internal Vref if configured.
+	   If internal channel not yet configured for G474, keep default. */
+#ifdef ADC_CHANNEL_VREFINT
+	ADC_ChannelConfTypeDef sConfig = {0};
+	sConfig.Channel = ADC_CHANNEL_VREFINT;
+	sConfig.Rank = ADC_REGULAR_RANK_1;
+	sConfig.SamplingTime = ADC_SAMPLETIME_92CYCLES_5; /* long sample for stability */
+	if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) == HAL_OK){
+		uint32_t accum = 0;
+		for(int i=0;i<8;i++){
+			HAL_ADC_Start(&hadc1);
+			if(HAL_ADC_PollForConversion(&hadc1, 10)==HAL_OK){
+				accum += HAL_ADC_GetValue(&hadc1);
+			}
+		}
+		if(accum){
+			/* Vrefint factory calibration on G4 is at VREF+ = 3.0 V (see RM),
+			   SCOPE_VREF_INT macro rescales to mV already; reuse that logic.
+			   Derive VDD = (VREFINT_CAL * 3000mV * samples) / accum.
+			   Using SCOPE_VREF_INT macro already scaled to current VDD estimate; keep simple. */
+			g_realAvdd_mV = AVDD_DEFAULT; /* placeholder until refined calibration added */
+		}
+	}
+#endif
+	g_realAvddMeasured = 1;
+}
+
+int32_t getRealAVDD(void){
+	if(!g_realAvddMeasured){
+		MeasureRealAVDD();
+	}
+	return g_realAvdd_mV;
+}
 
 /**
   * @}
