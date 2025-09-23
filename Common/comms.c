@@ -751,10 +751,18 @@ void sendScopeConf(){
 	commsSendString(STR_SCOPE);
 	commsSendString(STR_CONFIG);
 	commsSendUint32(SCOPE_RESOURCES);
-	commsSendUint32(MAX_SAMPLING_FREQ_12B);
-	commsSendUint32(MAX_INTERLEAVE_FREQ_8B);
-	commsSendUint32(MAX_SCOPE_BUFF_SIZE);
-	commsSendUint32(MAX_ADC_CHANNELS);
+	if (isUserVerified()){
+		commsSendUint32(MAX_SAMPLING_FREQ_12B);
+		commsSendUint32(MAX_INTERLEAVE_FREQ_8B);
+		commsSendUint32(MAX_SCOPE_BUFF_SIZE);
+		commsSendUint32(MAX_ADC_CHANNELS);
+	}else{
+		commsSendUint32(DEMO_MAX_SAMPLING_FREQ_12B);
+		commsSendUint32(DEMO_MAX_SAMPLING_FREQ_8B);
+		commsSendUint32(DEMO_MAX_SCOPE_BUFF_SIZE);
+		commsSendUint32(DEMO_MAX_ADC_CHANNELS);
+	}
+
 	commsSendUint32(AVDD_DEFAULT);
 	commsSendUint32(VREF_INT);
 	for (i=0;i<MAX_ADC_CHANNELS;i++){
@@ -869,11 +877,11 @@ void sendGenSignalConf(){
 	uint8_t i;
 	commsSendString(STR_CONFIG);
 	commsSendUint32(GENERATOR_RESOURCES);
-	commsSendUint32(MAX_DAC_GENERATING_FREQ);
+	isUserVerified()?commsSendUint32(MAX_DAC_GENERATING_FREQ):commsSendUint32(DEMO_MAX_DAC_GENERATING_FREQ);
 	commsSendUint32(GEN_TIM_PERIPH_CLOCK);
-	commsSendUint32(MAX_GENERATOR_BUFF_SIZE);
+	isUserVerified()?commsSendUint32(MAX_GENERATOR_BUFF_SIZE):commsSendUint32(DEMO_MAX_GENERATOR_BUFF_SIZE);
 	commsSendUint32(DAC_DATA_DEPTH);
-	commsSendUint32(MAX_DAC_CHANNELS);
+	isUserVerified()?commsSendUint32(MAX_DAC_CHANNELS):commsSendUint32(DEMO_MAX_DAC_CHANNELS);
 
 #ifdef USE_SHIELD
 	if(isScopeShieldConnected()){

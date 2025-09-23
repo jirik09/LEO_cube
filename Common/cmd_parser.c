@@ -36,7 +36,8 @@ uint8_t mail[27] = {0};
 uint8_t time_now[19] = {0};
 uint8_t time_token[19] = {0};
 uint8_t token[128];
-uint8_t validated = 0;
+uint8_t verifiedUser = 0;
+
 
 /**
  * @}
@@ -62,6 +63,7 @@ command parseVoltageSourceCmd(void);
 command parseGenCommonCmd(command cmdIn);
 
 double getDouble(command cmd);
+void skipMessage(void);
 void printErrResponse(command cmd);
 /**
  * @}
@@ -124,7 +126,7 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_SCOPE
 				case CMD_SCOPE: //parse scope command
-					if(!validated){break;}
+					//if(!verifiedUser){skipMessage();break;}
 					tempCmd = parseScopeCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -132,12 +134,14 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_SIGNAL
 				case CMD_GEN_SIGNAL: //parse generator command
-					if(!validated){break;}
+					//if(!verifiedUser){skipMessage();break;}
 					tempCmd = parseGeneratorSignalCmd();
 					printErrResponse(tempCmd);
 					break;
 				case CMD_VOLATGE_SOURCE: //parse voltagesource command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseVoltageSourceCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -145,7 +149,9 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_PWM
 				case CMD_GEN_PWM: //parse generator command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseGeneratorPwmCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -153,7 +159,9 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_GEN_PATTERN
 				case CMD_GEN_PATTERN: //parse generator command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseGeneratorPatternCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -161,7 +169,9 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_COUNTER
 				case CMD_COUNTER: //parse generator command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseCounterCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -169,7 +179,9 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_SYNC_PWM
 				case CMD_SYNC_PWM: //parse sync PWM command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseSyncPwmCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -177,7 +189,9 @@ void CmdParserTask(void const *argument){
 
 #ifdef USE_LOG_ANLYS
 				case CMD_LOG_ANLYS: //parse logic analyzer command
-					if(!validated){break;}
+					if(!verifiedUser){
+						skipMessage();
+						break;}
 					tempCmd = parseLogAnlysCmd();
 					printErrResponse(tempCmd);
 					break;
@@ -345,7 +359,7 @@ command parseTokenCmd(void){
 			error = COMMS_INVALID_TOKEN;
 		}
 		commBufferReadByte(&chr);
-		if(error==0){validated=1;}
+		if(error==0){verifiedUser=1;}
 
 		break;
 
@@ -1407,7 +1421,14 @@ command giveNextCmd(void){
 	}else{
 		return CMD_ERR;
 	}
-} 
+}
+
+void skipMessage(void){
+	uint8_t ret = 0;
+	do{
+		commBufferReadByte(&ret);
+	}while (ret !=';');
+}
 
 
 /**
@@ -1441,6 +1462,10 @@ double getDouble(command cmd){
 	uint32_t secondHalfOfDouble = commBufferReadUInt32();
 	return makeDoubleOutOfTwo32bit(secondHalfOfDouble, cmd);
 }
+
+uint8_t isUserVerified(){
+	return verifiedUser;
+};
 
 
 /**

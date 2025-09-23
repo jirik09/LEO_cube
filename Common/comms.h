@@ -45,7 +45,6 @@ typedef struct
 
 // Exported variables =========================================================
 extern xQueueHandle messageQueue;
-
 /** @defgroup Comms_Prototypes Comms Function Prototypes
   * @{
   */
