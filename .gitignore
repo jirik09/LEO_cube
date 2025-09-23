@@ -6,6 +6,7 @@
 *.ko
 *.obj
 *.elf
+*.cyclo
 
 # Linker output
 *.ilk
@@ -47,4 +48,5 @@
 *.prefs
 *.launch
 *.list
+*.xml
 Projects/F303RE_LEO_cube/Debug/makefile
