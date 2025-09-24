@@ -77,4 +77,16 @@ typedef enum {
 #define BIT(n) ( (uint32_t) (1U << (n)) )
 #endif
 
+/* Aggregated GPIO port masks (A..D). Extend if more ports are needed. */
+typedef struct {
+	uint32_t A;
+	uint32_t B;
+	uint32_t C;
+	uint32_t D;
+} gpio_port_mask_t;
+
+#ifndef GPIO_MASKS
+#define GPIO_MASKS(ma, mb, mc, md) (gpio_port_mask_t){ (ma), (mb), (mc), (md) }
+#endif
+
 #endif /*STM32F3_RESOURCES_H_*/

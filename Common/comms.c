@@ -553,6 +553,18 @@ void commsInit(void){
 }
 
 /**
+ * @brief  Helper to send normalized GPIO port masks in a consistent way
+ * @param  masks: GPIO port masks to send
+ * @retval None
+ */
+static inline void commsSendGpioMasks(const gpio_port_mask_t masks){
+	commsSendUint32(masks.A);
+	commsSendUint32(masks.B);
+	commsSendUint32(masks.C);
+	commsSendUint32(masks.D);
+}
+
+/**
  * @brief  Store incoming byte to buffer
  * @param  incoming byte
  * @retval 0 success, 1 error - buffer full
@@ -782,10 +794,7 @@ void sendScopeConf(){
 		}
 	}
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(SCOPE_GPIOA_MASK);
-	commsSendUint32(SCOPE_GPIOB_MASK);
-	commsSendUint32(SCOPE_GPIOC_MASK);
-	commsSendUint32(SCOPE_GPIOD_MASK);
+	commsSendGpioMasks(SCOPE_GPIO_MASKS);
 }
 #endif //USE_SCOPE
 
@@ -820,10 +829,7 @@ void sendCounterConf(){
 	commsSendString(CNT_TI_PIN_CH1);
 	commsSendString(CNT_TI_PIN_CH2);
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(COUNTER_GPIOA_MASK);
-	commsSendUint32(COUNTER_GPIOB_MASK);
-	commsSendUint32(COUNTER_GPIOC_MASK);
-	commsSendUint32(COUNTER_GPIOD_MASK);
+	commsSendGpioMasks(COUNTER_GPIO_MASKS);
 }
 #endif //USE_COUNTER
 
@@ -918,10 +924,7 @@ void sendGenSignalConf(){
 		}
 	}
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(GEN_SIGNAL_GPIOA_MASK);
-	commsSendUint32(GEN_SIGNAL_GPIOB_MASK);
-	commsSendUint32(GEN_SIGNAL_GPIOC_MASK);
-	commsSendUint32(GEN_SIGNAL_GPIOD_MASK);
+	commsSendGpioMasks(GEN_SIGNAL_GPIO_MASKS);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -959,10 +962,7 @@ void sendDACConf(void){
 		}
 	}
 	/* Normalized GPIO masks for voltage source mode */
-	commsSendUint32(DAC_GPIOA_MASK);
-	commsSendUint32(DAC_GPIOB_MASK);
-	commsSendUint32(DAC_GPIOC_MASK);
-	commsSendUint32(DAC_GPIOD_MASK);
+	commsSendGpioMasks(DAC_GPIO_MASKS);
 }
 
 
@@ -1005,10 +1005,7 @@ void sendGenPwmConf(void){
 		}
 	}
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(GEN_PWM_GPIOA_MASK);
-	commsSendUint32(GEN_PWM_GPIOB_MASK);
-	commsSendUint32(GEN_PWM_GPIOC_MASK);
-	commsSendUint32(GEN_PWM_GPIOD_MASK);
+	commsSendGpioMasks(GEN_PWM_GPIO_MASKS);
 }
 #endif //USE_GEN_PWM
 
@@ -1031,10 +1028,7 @@ void sendGenPatternConf(void)
 	commsSendString(GEN_PATTERN_CH7_PIN_STR);
 
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(GEN_PATTERN_GPIOA_MASK);
-	commsSendUint32(GEN_PATTERN_GPIOB_MASK);
-	commsSendUint32(GEN_PATTERN_GPIOC_MASK);
-	commsSendUint32(GEN_PATTERN_GPIOD_MASK);
+	commsSendGpioMasks(GEN_PATTERN_GPIO_MASKS);
 }
 #endif //USE_GEN_PATTERN
 
@@ -1076,10 +1070,7 @@ void sendSyncPwmConf(void)
 		}
 	}
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(SYNC_PWM_GPIOA_MASK);
-	commsSendUint32(SYNC_PWM_GPIOB_MASK);
-	commsSendUint32(SYNC_PWM_GPIOC_MASK);
-	commsSendUint32(SYNC_PWM_GPIOD_MASK);
+	commsSendGpioMasks(SYNC_PWM_GPIO_MASKS);
 }
 #endif //USE_SYNC_PWM
 
@@ -1124,10 +1115,7 @@ void sendLogAnlysConf(void)
 		}
 	}
 	/* Normalized GPIO masks per port for collision detection */
-	commsSendUint32(LOG_ANLYS_GPIOA_MASK);
-	commsSendUint32(LOG_ANLYS_GPIOB_MASK);
-	commsSendUint32(LOG_ANLYS_GPIOC_MASK);
-	commsSendUint32(LOG_ANLYS_GPIOD_MASK);
+	commsSendGpioMasks(LOG_ANLYS_GPIO_MASKS);
 }
 #endif //USE_LOG_ANLYS
 
