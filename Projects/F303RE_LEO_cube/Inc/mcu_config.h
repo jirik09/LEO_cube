@@ -85,6 +85,12 @@
 #define SCOPE_CH3_PIN_STR "A3__" //must be 4 chars
 #define SCOPE_CH4_PIN_STR "PB14" //must be 4 chars
 
+/* Normalized GPIO masks per port (bit = pin number) for collision detection */
+#define SCOPE_GPIOA_MASK  ((uint32_t)0U)
+#define SCOPE_GPIOB_MASK  ((uint32_t)(BIT(PIN14)|BIT(PIN0)))          /* PB14, PB0 (A3) */
+#define SCOPE_GPIOC_MASK  ((uint32_t)(BIT(PIN0)|BIT(PIN1)))           /* PC0 (A5), PC1 (A4) */
+#define SCOPE_GPIOD_MASK  ((uint32_t)0U)
+
 #define RANGE_1_LOW 0
 #define RANGE_1_HI AVDD_DEFAULT //this range is used by default to send with data
 #define RANGE_2_LOW -AVDD_DEFAULT
@@ -135,6 +141,18 @@
 #define GEN_CH1_PIN_STR "A2__" //must be 4 chars
 #define GEN_CH2_PIN_STR "D13_" //must be 4 chars
 
+/* Normalized GPIO masks for DAC generator outputs (actual MCU pins: PA4, PA5) */
+#define GEN_SIGNAL_GPIOA_MASK  ((uint32_t)(BIT(PIN4)|BIT(PIN5)))
+#define GEN_SIGNAL_GPIOB_MASK  ((uint32_t)0U)
+#define GEN_SIGNAL_GPIOC_MASK  ((uint32_t)0U)
+#define GEN_SIGNAL_GPIOD_MASK  ((uint32_t)0U)
+
+/* Same masks apply for DAC voltage source mode */
+#define DAC_GPIOA_MASK  GEN_SIGNAL_GPIOA_MASK
+#define DAC_GPIOB_MASK  GEN_SIGNAL_GPIOB_MASK
+#define DAC_GPIOC_MASK  GEN_SIGNAL_GPIOC_MASK
+#define DAC_GPIOD_MASK  GEN_SIGNAL_GPIOD_MASK
+
 // Counter constatnts =======================================================
 #define COUNTER_RESOURCES TIM2_R|TIM4_R
 #ifdef USE_COUNTER
@@ -163,6 +181,10 @@
 #define CNT_REF_INPUT_MAX		(uint32_t)36000000
 #define CNT_REF_CHAN_MAX		(uint32_t)36000000
 
+/* Define frequencies to send to PC application to process correct calculations. */
+#define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
+#define CNT_GATE_PERIPH_CLOCK			(uint32_t) 72000000
+
 /* When porting && less pins -> send "-- " */
 #define CNT_ETR_PIN								"A0__"
 #define CNT_IC_PIN_CH1							"A0__"	// PA0
@@ -172,9 +194,11 @@
 #define CNT_TI_PIN_CH1							"A0__"	// PA0
 #define CNT_TI_PIN_CH2							"A1__"	// PA1
 
-/* Define frequencies to send to PC application to process correct calculations. */
-#define CNT_COUNTER_PERIPH_CLOCK		(uint32_t) 144000000
-#define CNT_GATE_PERIPH_CLOCK			(uint32_t) 72000000
+/* Counter GPIO masks */
+#define COUNTER_GPIOA_MASK  ((uint32_t)(BIT(PIN0)|BIT(PIN1)|BIT(PIN8))) /* PA0, PA1, PA8 */
+#define COUNTER_GPIOB_MASK  ((uint32_t)0U)
+#define COUNTER_GPIOC_MASK  ((uint32_t)0U)
+#define COUNTER_GPIOD_MASK  ((uint32_t)0U)
 #endif //USE_COUNTER
 
 // PWM generator constants =================================================
@@ -188,6 +212,12 @@
 #define MAX_GEN_PWM_CHANNELS 	2
 
 #define GEN_PWM_TIM_PERIPH_CLOCK	  (uint32_t) 72000000
+
+/* Normalized GPIO masks for PWM generator (PA9, PB4) */
+#define GEN_PWM_GPIOA_MASK  ((uint32_t)BIT(PIN9))
+#define GEN_PWM_GPIOB_MASK  ((uint32_t)BIT(PIN4))
+#define GEN_PWM_GPIOC_MASK  ((uint32_t)0U)
+#define GEN_PWM_GPIOD_MASK  ((uint32_t)0U)
 #endif //USE_GEN_PWM
 
 // PATTERN generator constants =================================================
@@ -202,6 +232,12 @@
 #define GEN_PATTERN_CH5_PIN_STR		"PC7_"
 #define GEN_PATTERN_CH6_PIN_STR		"PC8_"
 #define GEN_PATTERN_CH7_PIN_STR		"PC9_"
+
+/* Normalized GPIO masks for Pattern generator (PC2..PC9) */
+#define GEN_PATTERN_GPIOA_MASK  ((uint32_t)0U)
+#define GEN_PATTERN_GPIOB_MASK  ((uint32_t)0U)
+#define GEN_PATTERN_GPIOC_MASK  ((uint32_t)(BIT(PIN2)|BIT(PIN3)|BIT(PIN4)|BIT(PIN5)|BIT(PIN6)|BIT(PIN7)|BIT(PIN8)|BIT(PIN9)))
+#define GEN_PATTERN_GPIOD_MASK  ((uint32_t)0U)
 #endif //USE_GEN_PATTERN
 
 // Synchronized PWM generator constants ====================================
@@ -220,6 +256,12 @@
 #define SYNC_PWM_CH2_PIN						"PC7_"
 #define SYNC_PWM_CH3_PIN						"PC8_"
 #define SYNC_PWM_CH4_PIN						"PC9_"
+
+/* Normalized GPIO masks for Synchronized PWM (PC6..PC9) */
+#define SYNC_PWM_GPIOA_MASK  ((uint32_t)0U)
+#define SYNC_PWM_GPIOB_MASK  ((uint32_t)0U)
+#define SYNC_PWM_GPIOC_MASK  ((uint32_t)(BIT(PIN6)|BIT(PIN7)|BIT(PIN8)|BIT(PIN9)))
+#define SYNC_PWM_GPIOD_MASK  ((uint32_t)0U)
 #endif //USE_SYNC_PWM
 
 // Logic Analyzer constants ====================================
@@ -240,6 +282,12 @@
 #define LOG_ANLYS_PIN_CH6						"PB11"
 #define LOG_ANLYS_PIN_CH7						"PB12"
 #define LOG_ANLYS_PIN_CH8						"PB13"
+
+/* Normalized GPIO masks for Logic Analyzer (PB6..PB13) */
+#define LOG_ANLYS_GPIOA_MASK  ((uint32_t)0U)
+#define LOG_ANLYS_GPIOB_MASK  ((uint32_t)(BIT(PIN6)|BIT(PIN7)|BIT(PIN8)|BIT(PIN9)|BIT(PIN10)|BIT(PIN11)|BIT(PIN12)|BIT(PIN13)))
+#define LOG_ANLYS_GPIOC_MASK  ((uint32_t)0U)
+#define LOG_ANLYS_GPIOD_MASK  ((uint32_t)0U)
 
 #endif //USE_LOG_ANLYS
 
