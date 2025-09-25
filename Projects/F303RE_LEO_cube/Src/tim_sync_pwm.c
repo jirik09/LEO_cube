@@ -29,6 +29,9 @@ void MX_TIM1_SYNC_PWM_Init(void) {
 	TIM_ClockConfigTypeDef sClockSourceConfig = { 0 };
 	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
+	/* Ensure HAL calls MSP init even if TIM1 was initialized before in another mode */
+	htim1.State = HAL_TIM_STATE_RESET;
+
 	htim1.Instance = TIM1;
 	htim1.Init.Prescaler = 0;
 	htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -52,6 +55,9 @@ void MX_TIM3_SYNC_PWM_Init(void) {
 	TIM_SlaveConfigTypeDef sSlaveConfig = { 0 };
 	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 	TIM_OC_InitTypeDef sConfigOC = { 0 };
+
+	/* Force MSP init to re-apply GPIO AF (PC6/PC8) even if TIM3 was used by other modules */
+	htim3.State = HAL_TIM_STATE_RESET;
 
 	htim3.Instance = TIM3;
 	htim3.Init.Prescaler = 1;
@@ -104,6 +110,9 @@ void MX_TIM8_SYNC_PWM_Init(void) {
 	TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = { 0 };
 	TIM_OC_InitTypeDef sConfigOC = { 0 };
+
+	/* Force MSP init to re-apply GPIO AF (PC7/PC9) even if TIM8 was used by other modules */
+	htim8.State = HAL_TIM_STATE_RESET;
 
 	htim8.Instance = TIM8;
 	htim8.Init.Prescaler = 1;
