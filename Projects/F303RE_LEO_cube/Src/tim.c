@@ -84,7 +84,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** GEN PATTERN ***********************************/
 #ifdef USE_GEN_PATTERN
 	if (generator.modeState == GENERATOR_PATTERN) {
-		TIM6_GEN_PATTERN_MspInit(htim_base); return;
+		if (htim_base->Instance == TIM6) {
+			TIM6_GEN_PATTERN_MspInit(htim_base); return;
+		}
+		/* For other timers, continue to next feature blocks (e.g., SYNC PWM) */
 	}
 #endif //USE_GEN_PATTERN
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
@@ -178,7 +181,10 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base) {
 	/***************************** GEN PATTERN ***********************************/
 #ifdef USE_GEN_PATTERN
 	if (generator.modeState == GENERATOR_PATTERN) {
-		TIM6_GEN_PATTERN_MspDeinit(htim_base); return;
+		if (htim_base->Instance == TIM6) {
+			TIM6_GEN_PATTERN_MspDeinit(htim_base); return;
+		}
+		/* For other timers, continue to next feature blocks (e.g., SYNC PWM) */
 	}
 #endif //USE_GEN_PATTERN
 #endif //USE_GEN_SIGNAL || USE_GEN_PWM || USE_GEN_PATTERN
