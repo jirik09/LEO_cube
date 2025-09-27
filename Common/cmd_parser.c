@@ -232,7 +232,7 @@ command parseSystemCmd(void){
 		passMsg = MSG_SYSTEM_SPEC;
 		xQueueSendToBack(messageQueue, &passMsg, portMAX_DELAY);
 		break;
-	case CMD_RESTART:
+	case CMD_RESET_DEVICE:
 		/* Restart microcontroller on REST command */
 		resetDevice();
 		break;
